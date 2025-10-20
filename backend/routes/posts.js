@@ -1,103 +1,136 @@
-const express = require('express');
+import express from "express";
 const router = express.Router();
-const { executeQuery, executeQuerySingle } = require('../config/database');
-const { authenticateToken, optionalAuth, requireModerator } = require('../middleware/auth');
-const { validatePost, validateSearch, validateId } = require('../middleware/validation');
+import { executeQuery, executeQuerySingle } from "../config/database.js";
+import {
+  authenticateToken,
+  optionalAuth,
+  requireModerator,
+} from "../middleware/auth.js";
+import {
+  validatePost,
+  validateSearch,
+  validateId,
+} from "../middleware/validation.js";
 
 // Get all posts with filtering and pagination
-router.get('/', validateSearch, optionalAuth, async (req, res) => {
-    try {
-        const { 
-            q, 
-            type, 
-            location, 
-            page = 1, 
-            limit = 12,
-            sort = 'created_at',
-            order = 'DESC'
-        } = req.query;
+router.get("/", validateSearch, optionalAuth, async (req, res) => {
+  try {
+    const {
+      q,
+      type,
+      location,
+      page = 1,
+      limit = 12,
+      sort = "created_at",
+      order = "DESC",
+    } = req.query;
 
-        const offset = (page - 1) * limit;
-        let whereConditions = ['p.status = "approved"'];
-        let params = [];
+    // Convert to numbers
+    const pageNum = parseInt(page) || 1;
+    const limitNum = parseInt(limit) || 12;
+    const offset = (pageNum - 1) * limitNum;
 
-        // Build search conditions
-        if (q) {
-            whereConditions.push('MATCH(p.deceased_name, p.title, p.content) AGAINST(? IN BOOLEAN MODE)');
-            params.push(q);
-        }
+    console.log("DEBUG: Parameters before query:", {
+      pageNum: typeof pageNum,
+      pageNumValue: pageNum,
+      limitNum: typeof limitNum,
+      limitNumValue: limitNum,
+      offset: typeof offset,
+      offsetValue: offset,
+      searchParams: { q, type, location },
+    });
 
-        if (type) {
-            whereConditions.push('p.type = ?');
-            params.push(type);
-        }
+    // Build WHERE conditions based on search parameters
+    let whereConditions = [
+      "status = ?",
+      "(expires_at IS NULL OR expires_at > NOW())",
+    ];
+    let queryParams = ["approved"];
 
-        if (location) {
-            whereConditions.push('p.location LIKE ?');
-            params.push(`%${location}%`);
-        }
-
-        // Only show non-expired posts
-        whereConditions.push('(p.expires_at IS NULL OR p.expires_at > NOW())');
-
-        const whereClause = whereConditions.length > 0 ? 'WHERE ' + whereConditions.join(' AND ') : '';
-
-        // Get posts with user and category info
-        const posts = await executeQuery(`
-            SELECT 
-                p.*,
-                u.username,
-                u.full_name as author_name,
-                c.name as category_name,
-                c.slug as category_slug,
-                cem.name as cemetery_name,
-                cem.city as cemetery_city,
-                (SELECT COUNT(*) FROM comments WHERE post_id = p.id AND status = 'approved') as comments_count
-            FROM posts p
-            LEFT JOIN users u ON p.user_id = u.id
-            LEFT JOIN categories c ON p.category_id = c.id
-            LEFT JOIN cemeteries cem ON p.cemetery_id = cem.id
-            ${whereClause}
-            ORDER BY p.is_featured DESC, p.${sort} ${order}
-            LIMIT ? OFFSET ?
-        `, [...params, limit, offset]);
-
-        // Get total count for pagination
-        const totalResult = await executeQuerySingle(`
-            SELECT COUNT(*) as total
-            FROM posts p
-            ${whereClause}
-        `, params);
-
-        const total = totalResult.total;
-        const totalPages = Math.ceil(total / limit);
-
-        res.json({
-            posts,
-            pagination: {
-                page,
-                limit,
-                total,
-                totalPages,
-                hasNext: page < totalPages,
-                hasPrev: page > 1
-            }
-        });
-
-    } catch (error) {
-        console.error('Get posts error:', error);
-        res.status(500).json({
-            error: 'Greška pri dohvatanju objava'
-        });
+    // Text search in deceased name
+    if (q && q.trim()) {
+      whereConditions.push("deceased_name LIKE ?");
+      queryParams.push(`%${q.trim()}%`);
     }
+
+    // Search by type (currently only 'umrlica' supported)
+    if (type && type !== "all") {
+      // For future expansion when we have multiple post types
+      console.log("Type filter applied:", type);
+    }
+
+    // Location search in burial cemetery and dzenaza location
+    if (location && location.trim()) {
+      whereConditions.push(
+        "(burial_cemetery LIKE ? OR dzenaza_location LIKE ?)"
+      );
+      queryParams.push(`%${location.trim()}%`, `%${location.trim()}%`);
+    }
+
+    const whereClause = whereConditions.join(" AND ");
+
+    // Return all needed fields for PostCard component
+    const posts = await executeQuery(
+      `SELECT 
+         id, user_id, deceased_name, deceased_death_date, deceased_age,
+         deceased_photo_url, dzenaza_date, dzenaza_time, dzenaza_location, 
+         burial_cemetery, burial_location, generated_html as content,
+         custom_html, is_custom_edited, status, is_premium, is_featured, 
+         expires_at, views_count, shares_count, slug, meta_description,
+         created_at, updated_at,
+         'umrlica' as type,
+         deceased_name as title,
+         dzenaza_location as location,
+         dzenaza_location as dzamija,
+         'Nepoznat' as author_name,
+         'anonymous' as username,
+         0 as comments_count,
+         NULL as cemetery_name,
+         NULL as cemetery_city
+       FROM posts 
+       WHERE ${whereClause}
+       ORDER BY is_featured DESC, created_at DESC
+       LIMIT ${limitNum} OFFSET ${offset}`,
+      queryParams
+    );
+
+    // Get total count with same filters
+    const totalResult = await executeQuerySingle(
+      `SELECT COUNT(*) as total 
+       FROM posts 
+       WHERE ${whereClause}`,
+      queryParams
+    );
+
+    const total = totalResult ? totalResult.total : 0;
+    const totalPages = Math.ceil(total / limitNum);
+
+    res.json({
+      posts: posts || [],
+      pagination: {
+        page: pageNum,
+        limit: limitNum,
+        total,
+        totalPages,
+        hasNext: pageNum < totalPages,
+        hasPrev: pageNum > 1,
+      },
+    });
+  } catch (error) {
+    console.error("Get posts error:", error);
+    res.status(500).json({
+      error: "Greška pri dohvatanju objava",
+    });
+  }
 });
 
 // Get single post by ID
-router.get('/:id', validateId, optionalAuth, async (req, res) => {
-    try {
-        const postId = req.params.id;
+router.get("/:id", validateId, optionalAuth, async (req, res) => {
+  try {
+    const postId = req.params.id;
 
-        const post = await executeQuerySingle(`
+    const post = await executeQuerySingle(
+      `
             SELECT 
                 p.*,
                 u.username,
@@ -112,28 +145,31 @@ router.get('/:id', validateId, optionalAuth, async (req, res) => {
             LEFT JOIN categories c ON p.category_id = c.id
             LEFT JOIN cemeteries cem ON p.cemetery_id = cem.id
             WHERE p.id = ? AND p.status = 'approved'
-        `, [postId]);
+        `,
+      [postId]
+    );
 
-        if (!post) {
-            return res.status(404).json({
-                error: 'Objava nije pronađena'
-            });
-        }
+    if (!post) {
+      return res.status(404).json({
+        error: "Objava nije pronađena",
+      });
+    }
 
-        // Increment view count
-        await executeQuery(
-            'UPDATE posts SET views_count = views_count + 1 WHERE id = ?',
-            [postId]
-        );
+    // Increment view count
+    await executeQuery(
+      "UPDATE posts SET views_count = views_count + 1 WHERE id = ?",
+      [postId]
+    );
 
-        // Get post images
-        const images = await executeQuery(
-            'SELECT * FROM post_images WHERE post_id = ? ORDER BY display_order',
-            [postId]
-        );
+    // Get post images
+    const images = await executeQuery(
+      "SELECT * FROM post_images WHERE post_id = ? ORDER BY display_order",
+      [postId]
+    );
 
-        // Get approved comments
-        const comments = await executeQuery(`
+    // Get approved comments
+    const comments = await executeQuery(
+      `
             SELECT 
                 c.*,
                 u.username,
@@ -142,217 +178,263 @@ router.get('/:id', validateId, optionalAuth, async (req, res) => {
             LEFT JOIN users u ON c.user_id = u.id
             WHERE c.post_id = ? AND c.status = 'approved'
             ORDER BY c.created_at DESC
-        `, [postId]);
+        `,
+      [postId]
+    );
 
-        res.json({
-            post: {
-                ...post,
-                images,
-                comments
-            }
-        });
-
-    } catch (error) {
-        console.error('Get post error:', error);
-        res.status(500).json({
-            error: 'Greška pri dohvatanju objave'
-        });
-    }
+    res.json({
+      post: {
+        ...post,
+        images,
+        comments,
+      },
+    });
+  } catch (error) {
+    console.error("Get post error:", error);
+    res.status(500).json({
+      error: "Greška pri dohvatanju objave",
+    });
+  }
 });
 
 // Create new post
-router.post('/', authenticateToken, validatePost, async (req, res) => {
-    try {
-        const {
-            type,
-            title,
-            content,
-            deceased_name,
-            deceased_father_name,
-            deceased_birth_date,
-            deceased_death_date,
-            location,
-            dzamija,
-            dzenaza_time,
-            sahrana_time,
-            cemetery_id,
-            category_id,
-            is_premium = false
-        } = req.body;
+router.post("/", authenticateToken, validatePost, async (req, res) => {
+  try {
+    const {
+      type,
+      title,
+      content,
+      deceased_name,
+      deceased_father_name,
+      deceased_birth_date,
+      deceased_death_date,
+      location,
+      dzamija,
+      dzenaza_time,
+      sahrana_time,
+      cemetery_id,
+      category_id,
+      is_premium = false,
+    } = req.body;
 
-        const userId = req.user.id;
+    const userId = req.user.id;
 
-        // Generate slug
-        const slug = `${deceased_name.toLowerCase().replace(/\s+/g, '-')}-${Date.now()}`;
+    // Generate slug
+    const slug = `${deceased_name
+      .toLowerCase()
+      .replace(/\s+/g, "-")}-${Date.now()}`;
 
-        // Set expiry date
-        const expiryDays = is_premium ? 90 : 30;
-        const expiresAt = new Date();
-        expiresAt.setDate(expiresAt.getDate() + expiryDays);
+    // Set expiry date
+    const expiryDays = is_premium ? 90 : 30;
+    const expiresAt = new Date();
+    expiresAt.setDate(expiresAt.getDate() + expiryDays);
 
-        // Calculate age if birth date provided
-        let deceased_age = null;
-        if (deceased_birth_date) {
-            const birth = new Date(deceased_birth_date);
-            const death = new Date(deceased_death_date);
-            deceased_age = death.getFullYear() - birth.getFullYear();
-        }
+    // Calculate age if birth date provided
+    let deceased_age = null;
+    if (deceased_birth_date) {
+      const birth = new Date(deceased_birth_date);
+      const death = new Date(deceased_death_date);
+      deceased_age = death.getFullYear() - birth.getFullYear();
+    }
 
-        const result = await executeQuery(`
+    const result = await executeQuery(
+      `
             INSERT INTO posts (
                 user_id, category_id, cemetery_id, type, title, content,
                 deceased_name, deceased_father_name, deceased_birth_date, 
                 deceased_death_date, deceased_age, location, dzamija,
                 dzenaza_time, sahrana_time, is_premium, expires_at, slug
             ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-        `, [
-            userId, category_id || null, cemetery_id || null, type, title, content,
-            deceased_name, deceased_father_name || null, deceased_birth_date || null,
-            deceased_death_date, deceased_age, location || null, dzamija || null,
-            dzenaza_time || null, sahrana_time || null, is_premium, expiresAt, slug
-        ]);
+        `,
+      [
+        userId,
+        category_id || null,
+        cemetery_id || null,
+        type,
+        title,
+        content,
+        deceased_name,
+        deceased_father_name || null,
+        deceased_birth_date || null,
+        deceased_death_date,
+        deceased_age,
+        location || null,
+        dzamija || null,
+        dzenaza_time || null,
+        sahrana_time || null,
+        is_premium,
+        expiresAt,
+        slug,
+      ]
+    );
 
-        res.status(201).json({
-            message: 'Objava je uspješno kreirana',
-            post_id: result.insertId,
-            status: 'pending'
-        });
-
-    } catch (error) {
-        console.error('Create post error:', error);
-        res.status(500).json({
-            error: 'Greška pri kreiranju objave'
-        });
-    }
+    res.status(201).json({
+      message: "Objava je uspješno kreirana",
+      post_id: result.insertId,
+      status: "pending",
+    });
+  } catch (error) {
+    console.error("Create post error:", error);
+    res.status(500).json({
+      error: "Greška pri kreiranju objave",
+    });
+  }
 });
 
 // Update post (only by owner or admin)
-router.put('/:id', authenticateToken, validateId, validatePost, async (req, res) => {
+router.put(
+  "/:id",
+  authenticateToken,
+  validateId,
+  validatePost,
+  async (req, res) => {
     try {
-        const postId = req.params.id;
-        const userId = req.user.id;
-        const userRole = req.user.role;
+      const postId = req.params.id;
+      const userId = req.user.id;
+      const userRole = req.user.role;
 
-        // Check if user owns the post or is admin
-        const existingPost = await executeQuerySingle(
-            'SELECT user_id, status FROM posts WHERE id = ?',
-            [postId]
-        );
+      // Check if user owns the post or is admin
+      const existingPost = await executeQuerySingle(
+        "SELECT user_id, status FROM posts WHERE id = ?",
+        [postId]
+      );
 
-        if (!existingPost) {
-            return res.status(404).json({
-                error: 'Objava nije pronađena'
-            });
-        }
+      if (!existingPost) {
+        return res.status(404).json({
+          error: "Objava nije pronađena",
+        });
+      }
 
-        if (existingPost.user_id !== userId && userRole !== 'admin') {
-            return res.status(403).json({
-                error: 'Nemate dozvolu za ažuriranje ove objave'
-            });
-        }
+      if (existingPost.user_id !== userId && userRole !== "admin") {
+        return res.status(403).json({
+          error: "Nemate dozvolu za ažuriranje ove objave",
+        });
+      }
 
-        // Reset status to pending if content is modified
-        const status = userRole === 'admin' ? existingPost.status : 'pending';
+      // Reset status to pending if content is modified
+      const status = userRole === "admin" ? existingPost.status : "pending";
 
-        const {
-            type, title, content, deceased_name, deceased_father_name,
-            deceased_birth_date, deceased_death_date, location, dzamija,
-            dzenaza_time, sahrana_time, cemetery_id, category_id
-        } = req.body;
+      const {
+        type,
+        title,
+        content,
+        deceased_name,
+        deceased_father_name,
+        deceased_birth_date,
+        deceased_death_date,
+        location,
+        dzamija,
+        dzenaza_time,
+        sahrana_time,
+        cemetery_id,
+        category_id,
+      } = req.body;
 
-        await executeQuery(`
+      await executeQuery(
+        `
             UPDATE posts SET 
                 category_id = ?, cemetery_id = ?, type = ?, title = ?, content = ?,
                 deceased_name = ?, deceased_father_name = ?, deceased_birth_date = ?,
                 deceased_death_date = ?, location = ?, dzamija = ?,
                 dzenaza_time = ?, sahrana_time = ?, status = ?
             WHERE id = ?
-        `, [
-            category_id || null, cemetery_id || null, type, title, content,
-            deceased_name, deceased_father_name || null, deceased_birth_date || null,
-            deceased_death_date, location || null, dzamija || null,
-            dzenaza_time || null, sahrana_time || null, status, postId
-        ]);
+        `,
+        [
+          category_id || null,
+          cemetery_id || null,
+          type,
+          title,
+          content,
+          deceased_name,
+          deceased_father_name || null,
+          deceased_birth_date || null,
+          deceased_death_date,
+          location || null,
+          dzamija || null,
+          dzenaza_time || null,
+          sahrana_time || null,
+          status,
+          postId,
+        ]
+      );
 
-        res.json({
-            message: 'Objava je uspješno ažurirana',
-            status: status
-        });
-
+      res.json({
+        message: "Objava je uspješno ažurirana",
+        status: status,
+      });
     } catch (error) {
-        console.error('Update post error:', error);
-        res.status(500).json({
-            error: 'Greška pri ažuriranju objave'
-        });
+      console.error("Update post error:", error);
+      res.status(500).json({
+        error: "Greška pri ažuriranju objave",
+      });
     }
-});
+  }
+);
 
 // Delete post (only by owner or admin)
-router.delete('/:id', authenticateToken, validateId, async (req, res) => {
-    try {
-        const postId = req.params.id;
-        const userId = req.user.id;
-        const userRole = req.user.role;
+router.delete("/:id", authenticateToken, validateId, async (req, res) => {
+  try {
+    const postId = req.params.id;
+    const userId = req.user.id;
+    const userRole = req.user.role;
 
-        // Check if user owns the post or is admin
-        const existingPost = await executeQuerySingle(
-            'SELECT user_id FROM posts WHERE id = ?',
-            [postId]
-        );
+    // Check if user owns the post or is admin
+    const existingPost = await executeQuerySingle(
+      "SELECT user_id FROM posts WHERE id = ?",
+      [postId]
+    );
 
-        if (!existingPost) {
-            return res.status(404).json({
-                error: 'Objava nije pronađena'
-            });
-        }
-
-        if (existingPost.user_id !== userId && userRole !== 'admin') {
-            return res.status(403).json({
-                error: 'Nemate dozvolu za brisanje ove objave'
-            });
-        }
-
-        await executeQuery('DELETE FROM posts WHERE id = ?', [postId]);
-
-        res.json({
-            message: 'Objava je uspješno obrisana'
-        });
-
-    } catch (error) {
-        console.error('Delete post error:', error);
-        res.status(500).json({
-            error: 'Greška pri brisanju objave'
-        });
+    if (!existingPost) {
+      return res.status(404).json({
+        error: "Objava nije pronađena",
+      });
     }
+
+    if (existingPost.user_id !== userId && userRole !== "admin") {
+      return res.status(403).json({
+        error: "Nemate dozvolu za brisanje ove objave",
+      });
+    }
+
+    await executeQuery("DELETE FROM posts WHERE id = ?", [postId]);
+
+    res.json({
+      message: "Objava je uspješno obrisana",
+    });
+  } catch (error) {
+    console.error("Delete post error:", error);
+    res.status(500).json({
+      error: "Greška pri brisanju objave",
+    });
+  }
 });
 
 // Moderate post (admin/moderator only)
-router.put('/:id/moderate', requireModerator, validateId, async (req, res) => {
-    try {
-        const postId = req.params.id;
-        const { status, rejection_reason } = req.body;
+router.put("/:id/moderate", requireModerator, validateId, async (req, res) => {
+  try {
+    const postId = req.params.id;
+    const { status, rejection_reason } = req.body;
 
-        if (!['approved', 'rejected'].includes(status)) {
-            return res.status(400).json({
-                error: 'Neispravna vrijednost statusa'
-            });
-        }
-
-        await executeQuery(
-            'UPDATE posts SET status = ?, rejection_reason = ? WHERE id = ?',
-            [status, rejection_reason || null, postId]
-        );
-
-        res.json({
-            message: `Objava je ${status === 'approved' ? 'odobrena' : 'odbijena'}`
-        });
-
-    } catch (error) {
-        console.error('Moderate post error:', error);
-        res.status(500).json({
-            error: 'Greška pri moderaciji objave'
-        });
+    if (!["approved", "rejected"].includes(status)) {
+      return res.status(400).json({
+        error: "Neispravna vrijednost statusa",
+      });
     }
+
+    await executeQuery(
+      "UPDATE posts SET status = ?, rejection_reason = ? WHERE id = ?",
+      [status, rejection_reason || null, postId]
+    );
+
+    res.json({
+      message: `Objava je ${status === "approved" ? "odobrena" : "odbijena"}`,
+    });
+  } catch (error) {
+    console.error("Moderate post error:", error);
+    res.status(500).json({
+      error: "Greška pri moderaciji objave",
+    });
+  }
 });
 
-module.exports = router;
+export default router;

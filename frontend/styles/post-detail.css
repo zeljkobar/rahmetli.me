@@ -1,0 +1,264 @@
+/* Post Detail Page Styles */
+.post-detail {
+  padding: 2rem 0;
+  min-height: 100vh;
+  background: #f8f9fa;
+}
+
+.post-detail-header {
+  margin-bottom: 2rem;
+}
+
+.post-detail-content {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+  margin-bottom: 2rem;
+}
+
+.post-detail-main {
+  padding: 2rem;
+}
+
+.post-header {
+  margin-bottom: 2rem;
+  border-bottom: 2px solid #f0f0f0;
+  padding-bottom: 1.5rem;
+}
+
+.post-title {
+  font-size: 2.5rem;
+  font-weight: 600;
+  color: #2c5530;
+  margin: 0 0 1rem 0;
+  line-height: 1.2;
+}
+
+.post-meta {
+  display: flex;
+  gap: 1.5rem;
+  flex-wrap: wrap;
+  color: #666;
+  font-size: 0.95rem;
+}
+
+.post-meta span {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.post-meta i {
+  color: #2c5530;
+}
+
+.post-image {
+  margin-bottom: 2rem;
+  text-align: center;
+}
+
+.post-image img {
+  max-width: 300px;
+  max-height: 400px;
+  width: auto;
+  height: auto;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  object-fit: cover;
+}
+
+.post-content {
+  margin-bottom: 2rem;
+  line-height: 1.7;
+  font-size: 1.1rem;
+  color: #333;
+}
+
+.post-content p {
+  margin-bottom: 1rem;
+}
+
+.post-content h1,
+.post-content h2,
+.post-content h3 {
+  color: #2c5530;
+  margin: 1.5rem 0 1rem 0;
+}
+
+.post-details-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1.5rem;
+  margin-top: 2rem;
+  padding-top: 2rem;
+  border-top: 2px solid #f0f0f0;
+}
+
+.detail-item {
+  background: #f8f9fa;
+  padding: 1.5rem;
+  border-radius: 8px;
+  border-left: 4px solid #2c5530;
+}
+
+.detail-item h3 {
+  color: #2c5530;
+  font-size: 1.2rem;
+  margin: 0 0 1rem 0;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.detail-item h3 i {
+  color: #c0392b;
+}
+
+.detail-item p {
+  margin: 0.5rem 0;
+  color: #555;
+}
+
+.detail-item strong {
+  color: #2c5530;
+}
+
+.comments-container {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  padding: 2rem;
+}
+
+/* Responsive Design for Post Detail */
+@media (max-width: 768px) {
+  .post-detail {
+    padding: 1rem 0;
+  }
+
+  .post-detail-main {
+    padding: 1.5rem;
+  }
+
+  .post-title {
+    font-size: 2rem;
+  }
+
+  .post-meta {
+    gap: 1rem;
+  }
+
+  .post-details-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  .detail-item {
+    padding: 1rem;
+  }
+
+  .comments-container {
+    padding: 1.5rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .post-detail-main {
+    padding: 1rem;
+  }
+
+  .post-title {
+    font-size: 1.75rem;
+  }
+
+  .post-meta {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .post-image img {
+    max-width: 100%;
+    max-height: 300px;
+  }
+
+  .detail-item {
+    padding: 0.75rem;
+  }
+
+  .comments-container {
+    padding: 1rem;
+  }
+}
+
+/* Loading states for post detail */
+.post-detail .loading {
+  text-align: center;
+  padding: 4rem 2rem;
+}
+
+.post-detail .loading-spinner {
+  width: 40px;
+  height: 40px;
+  border: 4px solid #f0f0f0;
+  border-top: 4px solid #2c5530;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  margin: 0 auto 1rem;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+}
+
+/* Back button styling */
+#backBtn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  background: #6c757d;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  text-decoration: none;
+  font-size: 0.95rem;
+  transition: all 0.3s ease;
+  cursor: pointer;
+}
+
+#backBtn:hover {
+  background: #5a6268;
+  transform: translateY(-1px);
+}
+
+/* Print styles for post detail */
+@media print {
+  .post-detail-header,
+  .comments-container {
+    display: none;
+  }
+
+  .post-detail {
+    padding: 0;
+    background: white;
+  }
+
+  .post-detail-content {
+    box-shadow: none;
+    border-radius: 0;
+  }
+
+  .post-title {
+    color: black;
+  }
+
+  .detail-item h3 {
+    color: black;
+  }
+}

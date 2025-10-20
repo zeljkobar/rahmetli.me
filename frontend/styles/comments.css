@@ -1,0 +1,372 @@
+/* Comments Section Styles */
+.comments-section {
+  margin-top: 2rem;
+  padding-top: 2rem;
+  border-top: 2px solid #2c5530;
+}
+
+.comments-header {
+  margin-bottom: 1.5rem;
+}
+
+.comments-title {
+  color: #2c5530;
+  font-size: 1.5rem;
+  margin: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.comments-title i {
+  color: #c0392b;
+}
+
+/* Comment Form */
+.comment-form-container {
+  background: #f8f9fa;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 1.5rem;
+  margin-bottom: 2rem;
+}
+
+.comment-form .form-group {
+  margin-bottom: 1rem;
+}
+
+.comment-form label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+  color: #2c5530;
+}
+
+.comment-form textarea {
+  width: 100%;
+  min-height: 100px;
+  padding: 0.75rem;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-family: inherit;
+  font-size: 0.95rem;
+  line-height: 1.5;
+  resize: vertical;
+  transition: border-color 0.3s ease;
+}
+
+.comment-form textarea:focus {
+  outline: none;
+  border-color: #2c5530;
+  box-shadow: 0 0 0 2px rgba(44, 85, 48, 0.1);
+}
+
+.char-counter {
+  text-align: right;
+  font-size: 0.8rem;
+  color: #666;
+  margin-top: 0.25rem;
+}
+
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 1rem;
+}
+
+/* Login Prompt */
+.login-prompt {
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  padding: 2rem;
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.login-prompt-content i {
+  font-size: 2rem;
+  color: #2c5530;
+  margin-bottom: 1rem;
+}
+
+.login-prompt-content p {
+  color: #666;
+  margin-bottom: 1.5rem;
+  font-size: 1.1rem;
+}
+
+/* Comments List */
+.comments-list {
+  margin-top: 1rem;
+}
+
+.comment {
+  background: #fff;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
+  transition: box-shadow 0.3s ease;
+}
+
+.comment:hover {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.comment-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 1rem;
+}
+
+.comment-author {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.author-avatar {
+  width: 40px;
+  height: 40px;
+  background: linear-gradient(135deg, #2c5530 0%, #1e3a20 100%);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: white;
+  font-size: 1rem;
+}
+
+.author-info {
+  display: flex;
+  flex-direction: column;
+}
+
+.author-name {
+  font-weight: 600;
+  color: #2c5530;
+  font-size: 0.95rem;
+}
+
+.comment-date {
+  font-size: 0.8rem;
+  color: #666;
+}
+
+.comment-actions {
+  display: flex;
+  gap: 0.25rem;
+}
+
+.action-btn {
+  background: none;
+  border: none;
+  padding: 0.5rem;
+  border-radius: 4px;
+  cursor: pointer;
+  color: #666;
+  transition: all 0.3s ease;
+  font-size: 0.9rem;
+}
+
+.action-btn:hover {
+  background: #f8f9fa;
+  color: #2c5530;
+}
+
+.delete-btn:hover {
+  color: #c0392b;
+}
+
+.comment-content {
+  line-height: 1.6;
+  color: #333;
+}
+
+.comment-content p {
+  margin: 0;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+}
+
+.comment-status {
+  margin-top: 1rem;
+  padding: 0.5rem 0.75rem;
+  border-radius: 4px;
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+
+.comment-status.pending {
+  background: #fff3cd;
+  color: #856404;
+  border: 1px solid #ffeaa7;
+}
+
+.no-comments {
+  text-align: center;
+  padding: 3rem 1rem;
+  color: #666;
+  font-style: italic;
+  background: #f8f9fa;
+  border-radius: 8px;
+  border: 1px solid #e9ecef;
+}
+
+/* Notifications */
+.notification {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  z-index: 1000;
+  background: white;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  padding: 1rem 1.5rem;
+  min-width: 300px;
+  max-width: 500px;
+  transform: translateX(100%);
+  transition: transform 0.3s ease;
+  border-left: 4px solid #2c5530;
+}
+
+.notification.show {
+  transform: translateX(0);
+}
+
+.notification.success {
+  border-left-color: #27ae60;
+}
+
+.notification.error {
+  border-left-color: #e74c3c;
+}
+
+.notification-content {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.notification.success .notification-content i {
+  color: #27ae60;
+}
+
+.notification.error .notification-content i {
+  color: #e74c3c;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+  .comments-section {
+    margin-top: 1.5rem;
+    padding-top: 1.5rem;
+  }
+
+  .comment-form-container {
+    padding: 1rem;
+  }
+
+  .login-prompt {
+    padding: 1.5rem;
+  }
+
+  .comment {
+    padding: 1rem;
+  }
+
+  .comment-header {
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .comment-actions {
+    align-self: flex-start;
+  }
+
+  .author-avatar {
+    width: 35px;
+    height: 35px;
+  }
+
+  .comments-title {
+    font-size: 1.3rem;
+  }
+
+  .notification {
+    right: 10px;
+    left: 10px;
+    min-width: auto;
+    max-width: none;
+  }
+}
+
+@media (max-width: 480px) {
+  .comment-form textarea {
+    min-height: 80px;
+  }
+
+  .comment-author {
+    gap: 0.5rem;
+  }
+
+  .author-avatar {
+    width: 30px;
+    height: 30px;
+    font-size: 0.9rem;
+  }
+
+  .author-name {
+    font-size: 0.9rem;
+  }
+
+  .comment-date {
+    font-size: 0.75rem;
+  }
+}
+
+/* Button Styles for Comments */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: 4px;
+  font-size: 0.95rem;
+  font-weight: 500;
+  text-decoration: none;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  min-height: 44px; /* Touch-friendly */
+}
+
+.btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.btn-primary {
+  background: linear-gradient(135deg, #2c5530 0%, #1e3a20 100%);
+  color: white;
+  border: 1px solid #2c5530;
+}
+
+.btn-primary:hover:not(:disabled) {
+  background: linear-gradient(135deg, #1e3a20 0%, #2c5530 100%);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(44, 85, 48, 0.3);
+}
+
+/* Animation for loading spinner */
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.fa-spinner.fa-spin {
+  animation: spin 1s linear infinite;
+}

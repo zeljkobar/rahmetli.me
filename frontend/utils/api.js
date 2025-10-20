@@ -1,183 +1,196 @@
 // API Utility Class
 class API {
-    constructor() {
-        this.baseURL = '/api';
-        this.token = localStorage.getItem('auth_token');
+  constructor() {
+    // Point to backend server on port 3000
+    this.baseURL =
+      window.location.hostname === "localhost"
+        ? "http://localhost:3000/api"
+        : "/api";
+    this.token = localStorage.getItem("auth_token");
+  }
+
+  // Set authentication token
+  setToken(token) {
+    this.token = token;
+    if (token) {
+      localStorage.setItem("auth_token", token);
+    } else {
+      localStorage.removeItem("auth_token");
+    }
+  }
+
+  // Get authentication token
+  getToken() {
+    return this.token || localStorage.getItem("auth_token");
+  }
+
+  // Get default headers
+  getHeaders(contentType = "application/json") {
+    const headers = {
+      "Content-Type": contentType,
+    };
+
+    const token = this.getToken();
+    if (token) {
+      headers["Authorization"] = `Bearer ${token}`;
     }
 
-    // Set authentication token
-    setToken(token) {
-        this.token = token;
-        if (token) {
-            localStorage.setItem('auth_token', token);
-        } else {
-            localStorage.removeItem('auth_token');
-        }
+    return headers;
+  }
+
+  // Generic request method
+  async request(endpoint, options = {}) {
+    const url = `${this.baseURL}${endpoint}`;
+
+    const config = {
+      ...options,
+      headers: {
+        ...this.getHeaders(),
+        ...options.headers,
+      },
+    };
+
+    try {
+      const response = await fetch(url, config);
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || `HTTP error! status: ${response.status}`);
+      }
+
+      return data;
+    } catch (error) {
+      console.error("API request failed:", error);
+      throw error;
     }
+  }
 
-    // Get authentication token
-    getToken() {
-        return this.token || localStorage.getItem('auth_token');
+  // GET request
+  async get(endpoint, params = {}) {
+    const query = new URLSearchParams(params).toString();
+    const url = query ? `${endpoint}?${query}` : endpoint;
+
+    return this.request(url, {
+      method: "GET",
+    });
+  }
+
+  // POST request
+  async post(endpoint, data = {}) {
+    return this.request(endpoint, {
+      method: "POST",
+      body: JSON.stringify(data),
+    });
+  }
+
+  // PUT request
+  async put(endpoint, data = {}) {
+    return this.request(endpoint, {
+      method: "PUT",
+      body: JSON.stringify(data),
+    });
+  }
+
+  // DELETE request
+  async delete(endpoint) {
+    return this.request(endpoint, {
+      method: "DELETE",
+    });
+  }
+
+  // Auth methods
+  async login(credentials) {
+    const response = await this.post("/auth/login", credentials);
+    if (response.token) {
+      this.setToken(response.token);
     }
+    return response;
+  }
 
-    // Get default headers
-    getHeaders(contentType = 'application/json') {
-        const headers = {
-            'Content-Type': contentType
-        };
+  async register(userData) {
+    return this.post("/auth/register", userData);
+  }
 
-        const token = this.getToken();
-        if (token) {
-            headers['Authorization'] = `Bearer ${token}`;
-        }
-
-        return headers;
+  async logout() {
+    try {
+      await this.post("/auth/logout");
+    } catch (error) {
+      console.error("Logout error:", error);
+    } finally {
+      this.setToken(null);
     }
+  }
 
-    // Generic request method
-    async request(endpoint, options = {}) {
-        const url = `${this.baseURL}${endpoint}`;
-        
-        const config = {
-            ...options,
-            headers: {
-                ...this.getHeaders(),
-                ...options.headers
-            }
-        };
+  async getProfile() {
+    return this.get("/auth/profile");
+  }
 
-        try {
-            const response = await fetch(url, config);
-            const data = await response.json();
+  // Posts methods
+  async getPosts(params = {}) {
+    return this.get("/posts", params);
+  }
 
-            if (!response.ok) {
-                throw new Error(data.error || `HTTP error! status: ${response.status}`);
-            }
+  async getPost(id) {
+    return this.get(`/posts/${id}`);
+  }
 
-            return data;
-        } catch (error) {
-            console.error('API request failed:', error);
-            throw error;
-        }
-    }
+  async createPost(postData) {
+    return this.post("/posts", postData);
+  }
 
-    // GET request
-    async get(endpoint, params = {}) {
-        const query = new URLSearchParams(params).toString();
-        const url = query ? `${endpoint}?${query}` : endpoint;
-        
-        return this.request(url, {
-            method: 'GET'
-        });
-    }
+  async updatePost(id, postData) {
+    return this.put(`/posts/${id}`, postData);
+  }
 
-    // POST request
-    async post(endpoint, data = {}) {
-        return this.request(endpoint, {
-            method: 'POST',
-            body: JSON.stringify(data)
-        });
-    }
+  async deletePost(id) {
+    return this.delete(`/posts/${id}`);
+  }
 
-    // PUT request
-    async put(endpoint, data = {}) {
-        return this.request(endpoint, {
-            method: 'PUT',
-            body: JSON.stringify(data)
-        });
-    }
+  // Categories methods
+  async getCategories() {
+    return this.get("/categories");
+  }
 
-    // DELETE request
-    async delete(endpoint) {
-        return this.request(endpoint, {
-            method: 'DELETE'
-        });
-    }
+  async getCategory(slug) {
+    return this.get(`/categories/${slug}`);
+  }
 
-    // Auth methods
-    async login(credentials) {
-        const response = await this.post('/auth/login', credentials);
-        if (response.token) {
-            this.setToken(response.token);
-        }
-        return response;
-    }
+  // Cemeteries methods
+  async getCemeteries(params = {}) {
+    return this.get("/cemeteries", params);
+  }
 
-    async register(userData) {
-        const response = await this.post('/auth/register', userData);
-        if (response.token) {
-            this.setToken(response.token);
-        }
-        return response;
-    }
+  async getCemetery(id) {
+    return this.get(`/cemeteries/${id}`);
+  }
 
-    async logout() {
-        try {
-            await this.post('/auth/logout');
-        } catch (error) {
-            console.error('Logout error:', error);
-        } finally {
-            this.setToken(null);
-        }
-    }
+  async getCities() {
+    return this.get("/cemeteries/cities/list");
+  }
 
-    async getProfile() {
-        return this.get('/auth/profile');
-    }
+  // Users methods
+  async getUser(id) {
+    return this.get(`/users/${id}`);
+  }
 
-    // Posts methods
-    async getPosts(params = {}) {
-        return this.get('/posts', params);
-    }
+  async updateProfile(profileData) {
+    return this.put("/users/me/profile", profileData);
+  }
 
-    async getPost(id) {
-        return this.get(`/posts/${id}`);
-    }
+  async changePassword(passwordData) {
+    return this.put("/users/me/password", passwordData);
+  }
 
-    async createPost(postData) {
-        return this.post('/posts', postData);
-    }
+  async getMyPosts(params = {}) {
+    return this.get("/users/me/posts", params);
+  }
 
-    async updatePost(id, postData) {
-        return this.put(`/posts/${id}`, postData);
-    }
-
-    async deletePost(id) {
-        return this.delete(`/posts/${id}`);
-    }
-
-    // Categories methods
-    async getCategories() {
-        return this.get('/categories');
-    }
-
-    async getCategory(slug) {
-        return this.get(`/categories/${slug}`);
-    }
-
-    // Cemeteries methods
-    async getCemeteries(params = {}) {
-        return this.get('/cemeteries', params);
-    }
-
-    async getCemetery(id) {
-        return this.get(`/cemeteries/${id}`);
-    }
-
-    async getCities() {
-        return this.get('/cemeteries/cities/list');
-    }
-
-    // Users methods
-    async getUser(id) {
-        return this.get(`/users/${id}`);
-    }
-
-    // Health check
-    async healthCheck() {
-        return this.get('/health');
-    }
+  // Health check
+  async healthCheck() {
+    return this.get("/health");
+  }
 }
 
 // Export singleton instance
-export default new API();
+export const api = new API();
+export default api;

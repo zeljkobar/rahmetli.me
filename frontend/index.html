@@ -1,177 +1,205 @@
 <!DOCTYPE html>
 <html lang="bs">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Rahmetli.me - Obavještenja o smrti</title>
-    <meta name="description" content="Prvi bosanski portal za obavještenja o smrti, saučešća i pomeni">
-    
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Rahmetli.me - Obavještenja o odlasku u ahiret</title>
+    <meta
+      name="description"
+      content="Prvi bosanski portal za obavještenja o odlasku u ahiret, saučešća i pomeni"
+    />
+
     <!-- Favicon -->
-    <link rel="icon" href="/assets/images/favicon.ico">
-    
+    <link rel="icon" href="/assets/images/favicon.ico" />
+
     <!-- Fonts -->
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-    
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+
     <!-- CSS -->
-    <link rel="stylesheet" href="/assets/css/reset.css">
-    <link rel="stylesheet" href="/assets/css/variables.css">
-    <link rel="stylesheet" href="/assets/css/components.css">
-    <link rel="stylesheet" href="/assets/css/layout.css">
-    <link rel="stylesheet" href="/assets/css/responsive.css">
-</head>
-<body>
+    <link rel="stylesheet" href="/assets/css/reset.css" />
+    <link rel="stylesheet" href="/assets/css/variables.css" />
+    <link rel="stylesheet" href="/assets/css/components.css" />
+    <link rel="stylesheet" href="/assets/css/layout.css" />
+    <link rel="stylesheet" href="/assets/css/responsive.css" />
+    <link rel="stylesheet" href="/styles/auth.css" />
+    <link rel="stylesheet" href="/styles/post-create.css" />
+    <link rel="stylesheet" href="/styles/search-modal.css" />
+    <link rel="stylesheet" href="/styles/comments.css" />
+    <link rel="stylesheet" href="/styles/post-detail.css" />
+    <link rel="stylesheet" href="/css/user-profile.css" />
+  </head>
+  <body>
     <!-- Header -->
     <header class="header">
-        <div class="container">
-            <div class="header-content">
-                <div class="logo">
-                    <a href="/">
-                        <span class="logo-text">Rahmetli.me</span>
-                        <span class="logo-subtitle">🤲 Allahu yerhamhum</span>
-                    </a>
+      <div class="container">
+        <div class="header-content">
+          <div class="logo">
+            <a href="/">
+              <span class="logo-text">Rahmetli.me</span>
+              <span class="logo-subtitle">🤲 Allahu yerhamhum</span>
+            </a>
+          </div>
+
+          <nav class="nav" id="mainNav">
+            <ul class="nav-list">
+              <li><a href="/" class="nav-link active">Početna</a></li>
+              <li><a href="/dzenaze" class="nav-link">Dženaze</a></li>
+              <li><a href="/saucesca" class="nav-link">Saučešća</a></li>
+              <li><a href="/pomeni" class="nav-link">Pomeni</a></li>
+              <li><a href="/mezaristani" class="nav-link">Mezaristani</a></li>
+            </ul>
+          </nav>
+
+          <div class="header-actions">
+            <button class="btn btn-outline search-btn" id="searchBtn">
+              <span>🔍</span> Pretraži
+            </button>
+
+            <div class="auth-section" id="authSection">
+              <!-- Not logged in -->
+              <div class="auth-buttons" id="authButtons">
+                <button class="btn btn-outline" id="loginBtn">Prijava</button>
+                <button class="btn btn-primary" id="registerBtn">
+                  Registracija
+                </button>
+              </div>
+
+              <!-- Logged in -->
+              <div class="user-menu hidden" id="userMenu">
+                <button class="btn btn-primary" id="createPostBtn">
+                  + Nova objava
+                </button>
+                <div class="user-dropdown">
+                  <button class="user-avatar" id="userAvatar">
+                    <span id="userInitials">U</span>
+                  </button>
+                  <div class="dropdown-menu hidden" id="dropdownMenu">
+                    <a href="/profil" class="dropdown-item">Dashboard</a>
+                    <button class="dropdown-item" id="logoutBtn">Odjava</button>
+                  </div>
                 </div>
-                
-                <nav class="nav" id="mainNav">
-                    <ul class="nav-list">
-                        <li><a href="/" class="nav-link active">Početna</a></li>
-                        <li><a href="/dzenaze" class="nav-link">Dženaze</a></li>
-                        <li><a href="/saucesca" class="nav-link">Saučešća</a></li>
-                        <li><a href="/pomeni" class="nav-link">Pomeni</a></li>
-                        <li><a href="/mezaristani" class="nav-link">Mezaristani</a></li>
-                    </ul>
-                </nav>
-                
-                <div class="header-actions">
-                    <button class="btn btn-outline search-btn" id="searchBtn">
-                        <span>🔍</span> Pretraži
-                    </button>
-                    
-                    <div class="auth-section" id="authSection">
-                        <!-- Not logged in -->
-                        <div class="auth-buttons" id="authButtons">
-                            <button class="btn btn-outline" id="loginBtn">Prijava</button>
-                            <button class="btn btn-primary" id="registerBtn">Registracija</button>
-                        </div>
-                        
-                        <!-- Logged in -->
-                        <div class="user-menu hidden" id="userMenu">
-                            <button class="btn btn-primary" id="createPostBtn">+ Nova objava</button>
-                            <div class="user-dropdown">
-                                <button class="user-avatar" id="userAvatar">
-                                    <span id="userInitials">U</span>
-                                </button>
-                                <div class="dropdown-menu hidden" id="dropdownMenu">
-                                    <a href="/profil" class="dropdown-item">Moj profil</a>
-                                    <a href="/moje-objave" class="dropdown-item">Moje objave</a>
-                                    <hr class="dropdown-divider">
-                                    <button class="dropdown-item" id="logoutBtn">Odjava</button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <button class="mobile-menu-btn" id="mobileMenuBtn">
-                        <span></span>
-                        <span></span>
-                        <span></span>
-                    </button>
-                </div>
+              </div>
             </div>
+
+            <button class="mobile-menu-btn" id="mobileMenuBtn">
+              <span></span>
+              <span></span>
+              <span></span>
+            </button>
+          </div>
         </div>
+      </div>
     </header>
 
     <!-- Search Modal -->
     <div class="modal hidden" id="searchModal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3>Pretražite objave</h3>
-                <button class="modal-close" id="searchModalClose">×</button>
-            </div>
-            <div class="modal-body">
-                <form class="search-form" id="searchForm">
-                    <div class="form-group">
-                        <input type="text" class="form-input" placeholder="Ime pokojnog, lokacija..." id="searchQuery">
-                    </div>
-                    <div class="form-row">
-                        <div class="form-group">
-                            <select class="form-select" id="searchType">
-                                <option value="">Sve vrste</option>
-                                <option value="dzenaza">Dženaza</option>
-                                <option value="dova">Saučešće</option>
-                                <option value="pomen">Pomen</option>
-                                <option value="hatma">Hatma</option>
-                            </select>
-                        </div>
-                        <div class="form-group">
-                            <input type="text" class="form-input" placeholder="Lokacija" id="searchLocation">
-                        </div>
-                    </div>
-                    <button type="submit" class="btn btn-primary btn-full">Pretraži</button>
-                </form>
-            </div>
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3>Pretražite objave</h3>
+          <button class="modal-close" id="searchModalClose">×</button>
         </div>
+        <div class="modal-body">
+          <form class="search-form" id="searchForm">
+            <div class="form-group">
+              <input
+                type="text"
+                class="form-input"
+                placeholder="Ime rahmetlije, lokacija..."
+                id="searchQuery"
+              />
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <select class="form-select" id="searchType">
+                  <option value="">Sve vrste</option>
+                  <option value="dzenaza">Dženaza</option>
+                  <option value="dova">Saučešće</option>
+                  <option value="pomen">Pomen</option>
+                  <option value="hatma">Hatma</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <input
+                  type="text"
+                  class="form-input"
+                  placeholder="Lokacija"
+                  id="searchLocation"
+                />
+              </div>
+            </div>
+            <button type="submit" class="btn btn-primary btn-full">
+              Pretraži
+            </button>
+          </form>
+        </div>
+      </div>
     </div>
 
     <!-- Main Content -->
     <main class="main" id="mainContent">
-        <!-- Content will be dynamically loaded here -->
-        <div class="loading hidden" id="loadingIndicator">
-            <div class="loading-spinner"></div>
-            <p>Učitavanje...</p>
-        </div>
+      <!-- Content will be dynamically loaded here -->
+      <div class="loading hidden" id="loadingIndicator">
+        <div class="loading-spinner"></div>
+        <p>Učitavanje...</p>
+      </div>
     </main>
 
     <!-- Footer -->
     <footer class="footer">
-        <div class="container">
-            <div class="footer-content">
-                <div class="footer-section">
-                    <h4>Rahmetli.me</h4>
-                    <p>Prvi bosanski portal za obavještenja o smrti i saučešća</p>
-                    <div class="social-links">
-                        <a href="#" class="social-link">Facebook</a>
-                        <a href="#" class="social-link">Instagram</a>
-                        <a href="#" class="social-link">Email</a>
-                    </div>
-                </div>
-                
-                <div class="footer-section">
-                    <h4>Korisni linkovi</h4>
-                    <ul>
-                        <li><a href="/kako-objaviti">Kako objaviti</a></li>
-                        <li><a href="/cijene">Cijene</a></li>
-                        <li><a href="/mezaristani">Mezaristani</a></li>
-                        <li><a href="/kontakt">Kontakt</a></li>
-                    </ul>
-                </div>
-                
-                <div class="footer-section">
-                    <h4>Pravne informacije</h4>
-                    <ul>
-                        <li><a href="/uslovi">Uslovi korišćenja</a></li>
-                        <li><a href="/privatnost">Politika privatnosti</a></li>
-                        <li><a href="/kolacici">O kolačićima</a></li>
-                    </ul>
-                </div>
-                
-                <div class="footer-section">
-                    <h4>Kontakt</h4>
-                    <p>📧 kontakt@rahmetli.me</p>
-                    <p>📞 +387 33 000 000</p>
-                    <p>📍 Sarajevo, BiH</p>
-                </div>
+      <div class="container">
+        <div class="footer-content">
+          <div class="footer-section">
+            <h4>Rahmetli.me</h4>
+            <p>
+              Prvi bosanski portal za obavještenja o odlasku u ahiret i saučešća
+            </p>
+            <div class="social-links">
+              <a href="#" class="social-link">Facebook</a>
+              <a href="#" class="social-link">Instagram</a>
+              <a href="#" class="social-link">Email</a>
             </div>
-            
-            <div class="footer-bottom">
-                <p>&copy; 2025 Rahmetli.me. Sva prava zadržana.</p>
-                <p class="islamic-text">اللهم اغفر لموتانا وموتى المسلمين</p>
-            </div>
+          </div>
+
+          <div class="footer-section">
+            <h4>Korisni linkovi</h4>
+            <ul>
+              <li><a href="/kako-objaviti">Kako objaviti</a></li>
+              <li><a href="/cijene">Cijene</a></li>
+              <li><a href="/mezaristani">Mezaristani</a></li>
+              <li><a href="/kontakt">Kontakt</a></li>
+            </ul>
+          </div>
+
+          <div class="footer-section">
+            <h4>Pravne informacije</h4>
+            <ul>
+              <li><a href="/uslovi">Uslovi korišćenja</a></li>
+              <li><a href="/privatnost">Politika privatnosti</a></li>
+              <li><a href="/kolacici">O kolačićima</a></li>
+            </ul>
+          </div>
+
+          <div class="footer-section">
+            <h4>Kontakt</h4>
+            <p>📧 kontakt@rahmetli.me</p>
+            <p>📞 +387 33 000 000</p>
+            <p>📍 Sarajevo, BiH</p>
+          </div>
         </div>
+
+        <div class="footer-bottom">
+          <p>&copy; 2025 Rahmetli.me. Sva prava zadržana.</p>
+          <p class="islamic-text">اللهم اغفر لموتانا وموتى المسلمين</p>
+        </div>
+      </div>
     </footer>
 
     <!-- JavaScript -->
     <script type="module" src="/assets/js/app.js"></script>
-</body>
+  </body>
 </html>

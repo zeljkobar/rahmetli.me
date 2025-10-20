@@ -1,28 +1,32 @@
-const express = require('express');
+import express from "express";
 const router = express.Router();
-const { executeQuery, executeQuerySingle } = require('../config/database');
+import { executeQuery, executeQuerySingle } from "../config/database.js";
 
 // Get all cemeteries
-router.get('/', async (req, res) => {
-    try {
-        const { city, search } = req.query;
-        
-        let whereConditions = ['is_active = 1'];
-        let params = [];
+router.get("/", async (req, res) => {
+  try {
+    const { city, search } = req.query;
 
-        if (city) {
-            whereConditions.push('city = ?');
-            params.push(city);
-        }
+    let whereConditions = ["is_active = 1"];
+    let params = [];
 
-        if (search) {
-            whereConditions.push('(name LIKE ? OR city LIKE ? OR address LIKE ?)');
-            params.push(`%${search}%`, `%${search}%`, `%${search}%`);
-        }
+    if (city) {
+      whereConditions.push("city = ?");
+      params.push(city);
+    }
 
-        const whereClause = whereConditions.length > 0 ? 'WHERE ' + whereConditions.join(' AND ') : '';
+    if (search) {
+      whereConditions.push("(name LIKE ? OR city LIKE ? OR address LIKE ?)");
+      params.push(`%${search}%`, `%${search}%`, `%${search}%`);
+    }
 
-        const cemeteries = await executeQuery(`
+    const whereClause =
+      whereConditions.length > 0
+        ? "WHERE " + whereConditions.join(" AND ")
+        : "";
+
+    const cemeteries = await executeQuery(
+      `
             SELECT 
                 c.*,
                 COUNT(p.id) as posts_count
@@ -31,52 +35,52 @@ router.get('/', async (req, res) => {
             ${whereClause}
             GROUP BY c.id
             ORDER BY c.city, c.name
-        `, params);
+        `,
+      params
+    );
 
-        res.json({
-            cemeteries
-        });
-
-    } catch (error) {
-        console.error('Get cemeteries error:', error);
-        res.status(500).json({
-            error: 'Greška pri dohvatanju mezaristana'
-        });
-    }
+    res.json({
+      cemeteries,
+    });
+  } catch (error) {
+    console.error("Get cemeteries error:", error);
+    res.status(500).json({
+      error: "Greška pri dohvatanju mezaristana",
+    });
+  }
 });
 
 // Get single cemetery
-router.get('/:id', async (req, res) => {
-    try {
-        const { id } = req.params;
+router.get("/:id", async (req, res) => {
+  try {
+    const { id } = req.params;
 
-        const cemetery = await executeQuerySingle(
-            'SELECT * FROM cemeteries WHERE id = ? AND is_active = 1',
-            [id]
-        );
+    const cemetery = await executeQuerySingle(
+      "SELECT * FROM cemeteries WHERE id = ? AND is_active = 1",
+      [id]
+    );
 
-        if (!cemetery) {
-            return res.status(404).json({
-                error: 'Mezaristan nije pronađen'
-            });
-        }
-
-        res.json({
-            cemetery
-        });
-
-    } catch (error) {
-        console.error('Get cemetery error:', error);
-        res.status(500).json({
-            error: 'Greška pri dohvatanju mezaristana'
-        });
+    if (!cemetery) {
+      return res.status(404).json({
+        error: "Mezaristan nije pronađen",
+      });
     }
+
+    res.json({
+      cemetery,
+    });
+  } catch (error) {
+    console.error("Get cemetery error:", error);
+    res.status(500).json({
+      error: "Greška pri dohvatanju mezaristana",
+    });
+  }
 });
 
 // Get cities with cemeteries
-router.get('/cities/list', async (req, res) => {
-    try {
-        const cities = await executeQuery(`
+router.get("/cities/list", async (req, res) => {
+  try {
+    const cities = await executeQuery(`
             SELECT 
                 city,
                 COUNT(*) as cemeteries_count
@@ -86,16 +90,15 @@ router.get('/cities/list', async (req, res) => {
             ORDER BY city
         `);
 
-        res.json({
-            cities
-        });
-
-    } catch (error) {
-        console.error('Get cities error:', error);
-        res.status(500).json({
-            error: 'Greška pri dohvatanju gradova'
-        });
-    }
+    res.json({
+      cities,
+    });
+  } catch (error) {
+    console.error("Get cities error:", error);
+    res.status(500).json({
+      error: "Greška pri dohvatanju gradova",
+    });
+  }
 });
 
-module.exports = router;
+export default router;

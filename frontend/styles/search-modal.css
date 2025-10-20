@@ -1,0 +1,158 @@
+/* Search Modal Specific Styles */
+
+#searchModal {
+  z-index: 1050;
+}
+
+#searchModal .modal-content {
+  background-color: var(--bg-primary);
+  border: 1px solid var(--border-color);
+}
+
+#searchModal .modal-header {
+  background-color: var(--bg-primary);
+  border-bottom: 1px solid var(--border-color);
+}
+
+#searchModal .modal-header h3 {
+  color: var(--text-primary);
+  font-weight: 600;
+  margin: 0;
+}
+
+#searchModal .modal-close {
+  background: none;
+  border: none;
+  color: var(--text-secondary);
+  font-size: 24px;
+  cursor: pointer;
+  padding: 8px;
+  border-radius: 4px;
+  transition: all 0.2s ease;
+}
+
+#searchModal .modal-close:hover {
+  background-color: var(--bg-secondary);
+  color: var(--text-primary);
+}
+
+#searchModal .modal-body {
+  background-color: var(--bg-primary);
+  padding: 24px;
+}
+
+/* Search Form Styles */
+#searchModal .search-form .form-group {
+  margin-bottom: 16px;
+}
+
+#searchModal .search-form .form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+#searchModal .form-input,
+#searchModal .form-select {
+  width: 100%;
+  padding: 12px 16px;
+  border: 2px solid var(--border-color);
+  border-radius: 8px;
+  font-size: 16px;
+  font-family: var(--font-family-base);
+  background-color: var(--bg-primary);
+  color: var(--text-primary) !important;
+  transition: all 0.2s ease;
+}
+
+#searchModal .form-input:focus,
+#searchModal .form-select:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px rgba(0, 98, 51, 0.1);
+  background-color: var(--bg-primary);
+  color: var(--text-primary) !important;
+}
+
+#searchModal .form-input::placeholder {
+  color: var(--text-muted) !important;
+  opacity: 1;
+}
+
+#searchModal .form-select option {
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  padding: 8px;
+}
+
+/* Button Styles for Search Modal */
+#searchModal .btn-primary {
+  width: 100%;
+  padding: 12px 24px;
+  background-color: var(--primary-color);
+  color: var(--text-inverse);
+  border: none;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  margin-top: 8px;
+}
+
+#searchModal .btn-primary:hover {
+  background-color: var(--primary-dark);
+  transform: translateY(-1px);
+}
+
+#searchModal .btn-primary:active {
+  transform: translateY(0);
+}
+
+/* Responsive adjustments */
+@media (max-width: 640px) {
+  #searchModal .modal-content {
+    margin: 20px;
+    max-width: none;
+    width: calc(100% - 40px);
+  }
+
+  #searchModal .search-form .form-row {
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
+
+  #searchModal .modal-body {
+    padding: 20px;
+  }
+
+  #searchModal .form-input,
+  #searchModal .form-select {
+    font-size: 16px; /* Prevent zoom on iOS */
+  }
+}
+
+/* Ensure text is always visible */
+#searchModal input,
+#searchModal select,
+#searchModal textarea {
+  color: var(--text-primary) !important;
+  background-color: var(--bg-primary) !important;
+}
+
+#searchModal input::-webkit-input-placeholder {
+  color: var(--text-muted) !important;
+}
+
+#searchModal input:-moz-placeholder {
+  color: var(--text-muted) !important;
+}
+
+#searchModal input::-moz-placeholder {
+  color: var(--text-muted) !important;
+}
+
+#searchModal input:-ms-input-placeholder {
+  color: var(--text-muted) !important;
+}
