@@ -84,7 +84,7 @@ router.post("/login", validateUserLogin, async (req, res) => {
 
     // Find user by email or username
     const user = await executeQuerySingle(
-      "SELECT * FROM users WHERE email = ? OR username = ? AND is_active = 1",
+      "SELECT * FROM users WHERE (email = ? OR username = ?) AND is_active = 1",
       [email_or_username, email_or_username]
     );
 

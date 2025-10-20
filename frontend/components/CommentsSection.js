@@ -18,11 +18,12 @@ export class CommentsSection {
   }
 
   checkAuthStatus() {
-    const token = localStorage.getItem("token");
-    const user = localStorage.getItem("user");
+    // Check both localStorage and sessionStorage for auth data
+    const token = localStorage.getItem("auth_token") || sessionStorage.getItem("auth_token");
+    const userData = localStorage.getItem("user_data") || sessionStorage.getItem("user_data");
 
     this.isLoggedIn = !!token;
-    this.currentUser = user ? JSON.parse(user) : null;
+    this.currentUser = userData ? JSON.parse(userData) : null;
   }
 
   async loadComments() {

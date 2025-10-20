@@ -7,6 +7,7 @@ import { CommentsSection } from "../../components/CommentsSection.js";
 import { Pagination } from "../../components/Pagination.js";
 import { UserDashboard } from "../../components/UserDashboard.js";
 import { UserProfile } from "../../components/UserProfile.js";
+import { AdminDashboard } from "../../components/AdminDashboard.js";
 import {
   show,
   hide,
@@ -201,6 +202,8 @@ class App {
         this.showCemeteriesPage();
       } else if (path === "/profil") {
         this.showDashboardPage();
+      } else if (path === "/admin") {
+        this.showAdminPage();
       } else if (path.startsWith("/korisnik/")) {
         const userId = path.split("/")[2];
         this.showUserProfilePage(userId);
@@ -705,10 +708,39 @@ class App {
         );
         userInitials.textContent = initials;
       }
+      
+      // Add admin link if user is admin
+      this.updateAdminNavigation();
     } else {
       // User is not logged in
       show(authButtons);
       hide(userMenu);
+      this.removeAdminNavigation();
+    }
+  }
+
+  updateAdminNavigation() {
+    // Remove existing admin link
+    const existingAdminLink = document.getElementById('admin-nav-link');
+    if (existingAdminLink) {
+      existingAdminLink.remove();
+    }
+
+    // Add admin link if user is admin
+    if (this.currentUser && this.currentUser.role === 'admin') {
+      const navList = document.querySelector('.nav-list');
+      if (navList) {
+        const adminLi = document.createElement('li');
+        adminLi.innerHTML = '<a href="/admin" class="nav-link" id="admin-nav-link"><i class="fas fa-shield-alt"></i> Admin</a>';
+        navList.appendChild(adminLi);
+      }
+    }
+  }
+
+  removeAdminNavigation() {
+    const adminLink = document.getElementById('admin-nav-link');
+    if (adminLink) {
+      adminLink.parentElement.remove();
     }
   }
 
@@ -755,6 +787,45 @@ class App {
         console.error("Failed to render post form:", error);
         showToast("Greška pri učitavanju forme", "error");
       });
+  }
+
+  async showAdminPage() {
+    // Check if user is authenticated and admin
+    const hasToken = AuthManager.isAuthenticated();
+    const hasUserData =
+      localStorage.getItem("user_data") || sessionStorage.getItem("user_data");
+    const userData = hasUserData ? JSON.parse(hasUserData) : null;
+
+    if (!hasToken || !hasUserData || !userData || userData.role !== 'admin') {
+      showToast("Nemate dozvolu za pristup admin panelu", "error");
+      this.navigate("/");
+      return;
+    }
+
+    const mainContent = document.getElementById("mainContent");
+
+    try {
+      showLoading();
+      
+      // Include admin CSS
+      const adminCSS = document.createElement('link');
+      adminCSS.rel = 'stylesheet';
+      adminCSS.href = '/css/admin.css';
+      if (!document.querySelector('link[href="/css/admin.css"]')) {
+        document.head.appendChild(adminCSS);
+      }
+      
+      const adminDashboard = new AdminDashboard(mainContent);
+      
+      // Make it globally available for debugging
+      window.adminDashboard = adminDashboard;
+      
+      hideLoading();
+    } catch (error) {
+      hideLoading();
+      console.error("Failed to load admin dashboard:", error);
+      showToast("Greška pri učitavanju admin panela", "error");
+    }
   }
 
   async showDashboardPage() {

@@ -51,6 +51,7 @@ import usersRoutes from "./routes/users.js";
 import categoriesRoutes from "./routes/categories.js";
 import cemeteriesRoutes from "./routes/cemeteries.js";
 import commentsRoutes from "./routes/comments.js";
+import adminRoutes from "./routes/admin.js";
 
 app.use("/api/auth", authRoutes);
 app.use("/api/posts", postsRoutes);
@@ -58,6 +59,7 @@ app.use("/api/users", usersRoutes);
 app.use("/api/categories", categoriesRoutes);
 app.use("/api/cemeteries", cemeteriesRoutes);
 app.use("/api/comments", commentsRoutes);
+app.use("/api/admin", adminRoutes);
 
 // Health check
 app.get("/api/health", (req, res) => {

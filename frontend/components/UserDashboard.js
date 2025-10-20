@@ -298,7 +298,9 @@ export class UserDashboard {
     } catch (error) {
       console.error("Error loading user posts:", error);
       // Show user-friendly error message
-      this.showPostsError("Greška pri učitavanju objava. Molimo pokušajte ponovo.");
+      this.showPostsError(
+        "Greška pri učitavanju objava. Molimo pokušajte ponovo."
+      );
     }
   }
 

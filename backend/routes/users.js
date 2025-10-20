@@ -390,7 +390,8 @@ router.get("/me/posts", authenticateToken, async (req, res) => {
     console.error("Get my posts error:", error);
     res.status(500).json({
       error: "Greška pri dohvatanju objava",
-      details: process.env.NODE_ENV === 'development' ? error.message : undefined
+      details:
+        process.env.NODE_ENV === "development" ? error.message : undefined,
     });
   }
 });
