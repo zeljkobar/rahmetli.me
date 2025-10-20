@@ -708,7 +708,7 @@ class App {
         );
         userInitials.textContent = initials;
       }
-      
+
       // Add admin link if user is admin
       this.updateAdminNavigation();
     } else {
@@ -721,24 +721,25 @@ class App {
 
   updateAdminNavigation() {
     // Remove existing admin link
-    const existingAdminLink = document.getElementById('admin-nav-link');
+    const existingAdminLink = document.getElementById("admin-nav-link");
     if (existingAdminLink) {
       existingAdminLink.remove();
     }
 
     // Add admin link if user is admin
-    if (this.currentUser && this.currentUser.role === 'admin') {
-      const navList = document.querySelector('.nav-list');
+    if (this.currentUser && this.currentUser.role === "admin") {
+      const navList = document.querySelector(".nav-list");
       if (navList) {
-        const adminLi = document.createElement('li');
-        adminLi.innerHTML = '<a href="/admin" class="nav-link" id="admin-nav-link"><i class="fas fa-shield-alt"></i> Admin</a>';
+        const adminLi = document.createElement("li");
+        adminLi.innerHTML =
+          '<a href="/admin" class="nav-link" id="admin-nav-link"><i class="fas fa-shield-alt"></i> Admin</a>';
         navList.appendChild(adminLi);
       }
     }
   }
 
   removeAdminNavigation() {
-    const adminLink = document.getElementById('admin-nav-link');
+    const adminLink = document.getElementById("admin-nav-link");
     if (adminLink) {
       adminLink.parentElement.remove();
     }
@@ -796,7 +797,7 @@ class App {
       localStorage.getItem("user_data") || sessionStorage.getItem("user_data");
     const userData = hasUserData ? JSON.parse(hasUserData) : null;
 
-    if (!hasToken || !hasUserData || !userData || userData.role !== 'admin') {
+    if (!hasToken || !hasUserData || !userData || userData.role !== "admin") {
       showToast("Nemate dozvolu za pristup admin panelu", "error");
       this.navigate("/");
       return;
@@ -806,20 +807,20 @@ class App {
 
     try {
       showLoading();
-      
+
       // Include admin CSS
-      const adminCSS = document.createElement('link');
-      adminCSS.rel = 'stylesheet';
-      adminCSS.href = '/css/admin.css';
+      const adminCSS = document.createElement("link");
+      adminCSS.rel = "stylesheet";
+      adminCSS.href = "/css/admin.css";
       if (!document.querySelector('link[href="/css/admin.css"]')) {
         document.head.appendChild(adminCSS);
       }
-      
+
       const adminDashboard = new AdminDashboard(mainContent);
-      
+
       // Make it globally available for debugging
       window.adminDashboard = adminDashboard;
-      
+
       hideLoading();
     } catch (error) {
       hideLoading();

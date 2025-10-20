@@ -19,8 +19,11 @@ export class CommentsSection {
 
   checkAuthStatus() {
     // Check both localStorage and sessionStorage for auth data
-    const token = localStorage.getItem("auth_token") || sessionStorage.getItem("auth_token");
-    const userData = localStorage.getItem("user_data") || sessionStorage.getItem("user_data");
+    const token =
+      localStorage.getItem("auth_token") ||
+      sessionStorage.getItem("auth_token");
+    const userData =
+      localStorage.getItem("user_data") || sessionStorage.getItem("user_data");
 
     this.isLoggedIn = !!token;
     this.currentUser = userData ? JSON.parse(userData) : null;

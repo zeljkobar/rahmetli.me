@@ -9,7 +9,7 @@ import compression from "compression";
 import { testConnection } from "./config/database.js";
 
 const app = express();
-const PORT = process.env.PORT || 3000;
+const PORT = process.env.PORT || 3002;
 
 // Security middleware
 app.use(helmet());
@@ -28,7 +28,11 @@ const corsOptions = {
   origin:
     process.env.NODE_ENV === "production"
       ? ["https://rahmetli.me", "https://www.rahmetli.me"]
-      : ["http://localhost:3000", "http://localhost:5173"],
+      : [
+          "http://localhost:3002",
+          "http://localhost:5173",
+          "http://localhost:5174",
+        ],
   credentials: true,
   optionsSuccessStatus: 200,
 };

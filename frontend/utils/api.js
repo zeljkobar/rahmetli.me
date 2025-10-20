@@ -1,10 +1,10 @@
 // API Utility Class
 class API {
   constructor() {
-    // Point to backend server on port 3000
+    // Point to backend server on port 3002
     this.baseURL =
       window.location.hostname === "localhost"
-        ? "http://localhost:3000/api"
+        ? "http://localhost:3002/api"
         : "/api";
     this.token = localStorage.getItem("auth_token");
   }
