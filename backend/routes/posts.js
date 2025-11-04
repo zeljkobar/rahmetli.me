@@ -72,13 +72,13 @@ router.get("/", validateSearch, optionalAuth, async (req, res) => {
     // Return all needed fields for PostCard component
     const posts = await executeQuery(
       `SELECT 
-         id, user_id, deceased_name, deceased_death_date, deceased_age,
+         id, user_id, deceased_name, deceased_birth_date, deceased_death_date, deceased_age,
          deceased_photo_url, dzenaza_date, dzenaza_time, dzenaza_location, 
          burial_cemetery, burial_location, generated_html as content,
          custom_html, is_custom_edited, status, is_premium, is_featured, 
          expires_at, views_count, shares_count, slug, meta_description,
          created_at, updated_at,
-         'umrlica' as type,
+         'dova' as type,
          deceased_name as title,
          dzenaza_location as location,
          dzenaza_location as dzamija,
@@ -93,6 +93,20 @@ router.get("/", validateSearch, optionalAuth, async (req, res) => {
        LIMIT ${limitNum} OFFSET ${offset}`,
       queryParams
     );
+
+    // Add family members for each post
+    for (const post of posts) {
+      const familyMembers = await executeQuery(
+        `SELECT relationship, name FROM family_members 
+         WHERE post_id = ? ORDER BY sort_order, id`,
+        [post.id]
+      );
+
+      // Format family members as a string for the frontend
+      post.family_members = familyMembers
+        .map((fm) => `${fm.relationship} ${fm.name}`)
+        .join(", ");
+    }
 
     // Get total count with same filters
     const totalResult = await executeQuerySingle(

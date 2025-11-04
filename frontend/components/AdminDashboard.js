@@ -61,31 +61,38 @@ class AdminDashboard {
     if (!this.allUsers.length) return;
 
     const roleFilter = document.getElementById("user-role-filter")?.value || "";
-    const searchTerm = document.getElementById("user-search")?.value.toLowerCase() || "";
+    const searchTerm =
+      document.getElementById("user-search")?.value.toLowerCase() || "";
 
     let filteredUsers = this.allUsers;
 
     // Filter by role
     if (roleFilter) {
-      filteredUsers = filteredUsers.filter(user => user.role === roleFilter);
+      filteredUsers = filteredUsers.filter((user) => user.role === roleFilter);
     }
 
     // Filter by search term (username, email, full_name)
     if (searchTerm) {
-      filteredUsers = filteredUsers.filter(user => 
-        (user.username || "").toLowerCase().includes(searchTerm) ||
-        (user.email || "").toLowerCase().includes(searchTerm) ||
-        (user.full_name || "").toLowerCase().includes(searchTerm)
+      filteredUsers = filteredUsers.filter(
+        (user) =>
+          (user.username || "").toLowerCase().includes(searchTerm) ||
+          (user.email || "").toLowerCase().includes(searchTerm) ||
+          (user.full_name || "").toLowerCase().includes(searchTerm)
       );
     }
 
-    console.log('🔍 Filtering users:', { roleFilter, searchTerm, total: this.allUsers.length, filtered: filteredUsers.length });
+    console.log("🔍 Filtering users:", {
+      roleFilter,
+      searchTerm,
+      total: this.allUsers.length,
+      filtered: filteredUsers.length,
+    });
     this.renderUsers(filteredUsers);
   }
 
   switchTab(tab) {
-    console.log('🔄 Switching to tab:', tab);
-    
+    console.log("🔄 Switching to tab:", tab);
+
     // Update nav buttons
     document
       .querySelectorAll(".nav-btn")
@@ -95,11 +102,11 @@ class AdminDashboard {
     // Update tab content
     document
       .querySelectorAll(".tab-content")
-      .forEach((content) => content.style.display = 'none');
-    
+      .forEach((content) => (content.style.display = "none"));
+
     const activeTabContent = document.getElementById(`${tab}-tab`);
-    console.log('📍 Active tab content:', activeTabContent);
-    activeTabContent.style.display = 'block';
+    console.log("📍 Active tab content:", activeTabContent);
+    activeTabContent.style.display = "block";
 
     // Load tab data
     switch (tab) {
@@ -226,12 +233,12 @@ class AdminDashboard {
   }
 
   renderPendingComments() {
-    console.log('🎨 Rendering pending comments:', this.pendingComments);
+    console.log("🎨 Rendering pending comments:", this.pendingComments);
     const container = document.getElementById("pending-comments-list");
-    console.log('📍 Comments container:', container);
+    console.log("📍 Comments container:", container);
 
     if (this.pendingComments.length === 0) {
-      console.log('💡 No pending comments, showing empty message');
+      console.log("💡 No pending comments, showing empty message");
       container.innerHTML =
         '<div class="alert alert-info">Nema komentara na čekanju</div>';
       return;
@@ -453,9 +460,9 @@ class AdminDashboard {
 
   async loadUsers() {
     try {
-      console.log('🔄 Loading users...');
-      const users = await this.api.request('/admin/users');
-      console.log('📥 Users response:', users);
+      console.log("🔄 Loading users...");
+      const users = await this.api.request("/admin/users");
+      console.log("📥 Users response:", users);
       this.allUsers = users; // Store all users
       this.filterUsers(); // Apply current filters
     } catch (error) {
@@ -466,9 +473,9 @@ class AdminDashboard {
   }
 
   renderUsers(users) {
-    console.log('🎨 Rendering users:', users);
+    console.log("🎨 Rendering users:", users);
     const container = document.getElementById("users-list");
-    console.log('📍 Users container:', container);
+    console.log("📍 Users container:", container);
 
     container.innerHTML = `
       <div class="users-table">
