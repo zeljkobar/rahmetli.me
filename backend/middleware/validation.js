@@ -58,61 +58,53 @@ const validateUserLogin = [
   handleValidationErrors,
 ];
 
-// Post validation rules
+// Post validation rules - updated for actual database schema
 const validatePost = [
-  body("type")
-    .isIn(["dzenaza", "dova", "pomen", "hatma", "godisnjica"])
-    .withMessage("Neispravna vrsta objave"),
-
-  body("title")
-    .isLength({ min: 5, max: 200 })
-    .withMessage("Naslov mora imati 5-200 karaktera")
-    .trim(),
-
-  body("content")
-    .isLength({ min: 20, max: 5000 })
-    .withMessage("Sadržaj mora imati 20-5000 karaktera")
-    .trim(),
-
   body("deceased_name")
     .isLength({ min: 2, max: 100 })
     .withMessage("Ime pokojnog mora imati 2-100 karaktera")
     .trim(),
 
-  body("deceased_death_date")
-    .isISO8601()
-    .withMessage("Neispravan datum smrti")
-    .toDate(),
+  body("deceased_death_date").isDate().withMessage("Neispravan datum smrti"),
 
   body("deceased_birth_date")
     .optional()
-    .isISO8601()
-    .withMessage("Neispravan datum rođenja")
-    .toDate(),
+    .isDate()
+    .withMessage("Neispravan datum rođenja"),
 
-  body("location")
+  body("dzenaza_date")
     .optional()
-    .isLength({ max: 100 })
-    .withMessage("Lokacija može imati maksimalno 100 karaktera")
-    .trim(),
-
-  body("dzamija")
-    .optional()
-    .isLength({ max: 100 })
-    .withMessage("Naziv džamije može imati maksimalno 100 karaktera")
-    .trim(),
+    .isDate()
+    .withMessage("Neispravan datum dženaze"),
 
   body("dzenaza_time")
     .optional()
-    .isISO8601()
-    .withMessage("Neispravan datum i vrijeme dženaze")
-    .toDate(),
+    .matches(/^([01]?[0-9]|2[0-3]):[0-5][0-9]$/)
+    .withMessage("Neispravno vrijeme dženaze (HH:MM)"),
 
-  body("sahrana_time")
+  body("dzenaza_location")
     .optional()
-    .isISO8601()
-    .withMessage("Neispravan datum i vrijeme sahrane")
-    .toDate(),
+    .isLength({ max: 255 })
+    .withMessage("Lokacija dženaze može imati maksimalno 255 karaktera")
+    .trim(),
+
+  body("burial_cemetery")
+    .optional()
+    .isLength({ max: 255 })
+    .withMessage("Naziv groblja može imati maksimalno 255 karaktera")
+    .trim(),
+
+  body("category_id")
+    .optional()
+    .isInt({ min: 1 })
+    .withMessage("Neispravan ID kategorije")
+    .toInt(),
+
+  body("cemetery_id")
+    .optional()
+    .isInt({ min: 1 })
+    .withMessage("Neispravan ID groblja")
+    .toInt(),
 
   handleValidationErrors,
 ];

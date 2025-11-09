@@ -78,7 +78,9 @@ Thumbs.db
 uploads/
 temp/
 
-# Database backups
+# Database files and folder
+database/
+*.sql
 *.sql.backup
 *.dump
 

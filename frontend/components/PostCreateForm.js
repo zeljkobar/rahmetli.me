@@ -37,8 +37,26 @@ export class PostCreateForm {
       // Custom HTML za dodatne informacije
       custom_html: "",
 
+      // Family members (ožalošćeni)
+      family_members: [
+        { relationship: "supruga", name: "" },
+        { relationship: "sin", name: "" },
+        { relationship: "kćerka", name: "" },
+      ],
+
       errors: {},
     };
+
+    // Workflow states
+    this.currentStep = "form"; // "form" | "preview" | "edit"
+    this.generatedPreview = "";
+    this.editedHtml = "";
+
+    // Bind additional methods
+    this.showPreview = this.showPreview.bind(this);
+    this.showEditMode = this.showEditMode.bind(this);
+    this.backToForm = this.backToForm.bind(this);
+    this.saveAndPublish = this.saveAndPublish.bind(this);
 
     this.handleSubmit = this.handleSubmit.bind(this);
     this.handleInputChange = this.handleInputChange.bind(this);
@@ -55,8 +73,30 @@ export class PostCreateForm {
     this.element.innerHTML = `
       <div class="modal-overlay">
         <div class="modal-container">
+          ${this.renderModalContent()}
+        </div>
+      </div>
+    `;
+
+    this.attachModalEventListeners();
+    return this.element;
+  }
+
+  renderModalContent() {
+    switch (this.currentStep) {
+      case "preview":
+        return this.renderPreviewStep();
+      case "edit":
+        return this.renderEditStep();
+      default:
+        return this.renderFormStep();
+    }
+  }
+
+  renderFormStep() {
+    return `
           <div class="modal-header">
-            <h2>Nova objava</h2>
+            <h2>Nova objava - Korak 1</h2>
             <p>Dodajte informacije o preminuloj osobi</p>
             <button class="modal-close-btn" type="button" aria-label="Zatvori">
               <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -192,6 +232,16 @@ export class PostCreateForm {
                 </div>
               </div>
               
+              <!-- Ožalošćeni -->
+              <div class="form-section">
+                <h3>Ožalošćeni</h3>
+                <p class="section-hint">Unesite imena članova porodice koji žale preminulu osobu</p>
+                ${this.renderFamilyMembers()}
+                <button type="button" class="btn btn-outline btn-sm" id="addFamilyMember">
+                  + Dodaj člana porodice
+                </button>
+              </div>
+
               <!-- Kategorija -->
               <div class="form-section">
                 <h3>Tip objave</h3>
@@ -256,26 +306,209 @@ export class PostCreateForm {
               <button type="button" class="btn btn-secondary" id="cancelBtn">
                 Otkaži
               </button>
-              <button type="submit" class="btn btn-primary" ${
+              <button type="button" class="btn btn-primary" id="previewBtn" ${
                 this.isLoading ? "disabled" : ""
               }>
                 ${
                   this.isLoading
-                    ? `
-                  <span class="loading-spinner"></span>
-                  Objavljujem...
-                `
-                    : "Objavi"
+                    ? `<span class="loading-spinner"></span> Generišem...`
+                    : "Generiši preview"
                 }
               </button>
             </div>
           </form>
-        </div>
-      </div>
     `;
+  }
 
-    this.attachEventListeners();
-    return this.element;
+  renderPreviewStep() {
+    return `
+          <div class="modal-header">
+            <h2>Nova objava - Korak 2: Preview</h2>
+            <p>Pregledajte kako će umrlica izgledati</p>
+            <button class="modal-close-btn" type="button" aria-label="Zatvori">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="18" y1="6" x2="6" y2="18"/>
+                <line x1="6" y1="6" x2="18" y2="18"/>
+              </svg>
+            </button>
+          </div>
+
+          <div class="preview-content">
+            <div class="preview-container">
+              ${this.generatedPreview}
+            </div>
+            
+            <div class="form-actions">
+              <button type="button" class="btn btn-secondary" id="backToFormBtn">
+                Nazad na formu
+              </button>
+              <button type="button" class="btn btn-outline" id="editHtmlBtn">
+                Edituj HTML
+              </button>
+              <button type="button" class="btn btn-primary" id="publishBtn">
+                Objavi ovako
+              </button>
+            </div>
+          </div>
+    `;
+  }
+
+  renderEditStep() {
+    return `
+          <div class="modal-header">
+            <h2>Nova objava - Korak 3: Edituj HTML</h2>
+            <p>Prilagodite izgled umrlice</p>
+            <button class="modal-close-btn" type="button" aria-label="Zatvori">
+              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <line x1="18" y1="6" x2="6" y2="18"/>
+                <line x1="6" y1="6" x2="18" y2="18"/>
+              </svg>
+            </button>
+          </div>
+
+          <div class="edit-content">
+            <div class="edit-layout">
+              <div class="html-editor">
+                <h4>HTML Editor</h4>
+                <textarea id="htmlEditor" rows="20" cols="50">${this.editedHtml}</textarea>
+              </div>
+              
+              <div class="live-preview">
+                <h4>Live Preview</h4>
+                <div class="preview-container" id="livePreview">
+                  ${this.editedHtml}
+                </div>
+              </div>
+            </div>
+            
+            <div class="form-actions">
+              <button type="button" class="btn btn-secondary" id="backToPreviewBtn">
+                Nazad na preview
+              </button>
+              <button type="button" class="btn btn-primary" id="savePublishBtn">
+                Sačuvaj i objavi
+              </button>
+            </div>
+          </div>
+    `;
+  }
+
+  attachModalEventListeners() {
+    // Common close button
+    const closeBtn = this.element.querySelector(".modal-close-btn");
+    if (closeBtn) {
+      closeBtn.addEventListener("click", () => this.close());
+    }
+
+    // Step-specific event listeners
+    switch (this.currentStep) {
+      case "form":
+        this.attachFormEventListeners();
+        break;
+      case "preview":
+        this.attachPreviewEventListeners();
+        break;
+      case "edit":
+        this.attachEditEventListeners();
+        break;
+    }
+  }
+
+  attachFormEventListeners() {
+    const form = this.element.querySelector("#postCreateForm");
+    const cancelBtn = this.element.querySelector("#cancelBtn");
+    const previewBtn = this.element.querySelector("#previewBtn");
+    const addFamilyBtn = this.element.querySelector("#addFamilyMember");
+
+    if (form) {
+      form.addEventListener("submit", (e) => {
+        e.preventDefault();
+        this.showPreview();
+      });
+
+      // Input change listeners
+      const inputs = form.querySelectorAll("input, select, textarea");
+      inputs.forEach((input) => {
+        input.addEventListener("input", this.handleInputChange);
+        input.addEventListener("change", this.handleInputChange);
+      });
+
+      // Family member input listeners
+      form.addEventListener("input", (e) => {
+        if (e.target.name && e.target.name.startsWith("family_")) {
+          this.handleFamilyMemberChange(e);
+        }
+      });
+
+      form.addEventListener("change", (e) => {
+        if (e.target.name && e.target.name.startsWith("family_")) {
+          this.handleFamilyMemberChange(e);
+        }
+      });
+
+      // Remove family member listeners
+      form.addEventListener("click", (e) => {
+        if (e.target.classList.contains("remove-family-member")) {
+          const index = parseInt(e.target.dataset.index);
+          this.removeFamilyMember(index);
+        }
+      });
+    }
+
+    if (cancelBtn) {
+      cancelBtn.addEventListener("click", () => this.close());
+    }
+
+    if (previewBtn) {
+      previewBtn.addEventListener("click", () => this.showPreview());
+    }
+
+    if (addFamilyBtn) {
+      addFamilyBtn.addEventListener("click", () => this.addFamilyMember());
+    }
+  }
+
+  attachPreviewEventListeners() {
+    const backBtn = this.element.querySelector("#backToFormBtn");
+    const editBtn = this.element.querySelector("#editHtmlBtn");
+    const publishBtn = this.element.querySelector("#publishBtn");
+
+    if (backBtn) {
+      backBtn.addEventListener("click", this.backToForm);
+    }
+
+    if (editBtn) {
+      editBtn.addEventListener("click", this.showEditMode);
+    }
+
+    if (publishBtn) {
+      publishBtn.addEventListener("click", this.saveAndPublish);
+    }
+  }
+
+  attachEditEventListeners() {
+    const backBtn = this.element.querySelector("#backToPreviewBtn");
+    const saveBtn = this.element.querySelector("#savePublishBtn");
+    const htmlEditor = this.element.querySelector("#htmlEditor");
+    const livePreview = this.element.querySelector("#livePreview");
+
+    if (backBtn) {
+      backBtn.addEventListener("click", () => {
+        this.currentStep = "preview";
+        this.rerenderModal();
+      });
+    }
+
+    if (saveBtn) {
+      saveBtn.addEventListener("click", this.saveAndPublish);
+    }
+
+    if (htmlEditor && livePreview) {
+      htmlEditor.addEventListener("input", (e) => {
+        this.editedHtml = e.target.value;
+        livePreview.innerHTML = this.editedHtml;
+      });
+    }
   }
 
   async loadFormData() {
@@ -291,7 +524,7 @@ export class PostCreateForm {
         this.categories = categoriesResponse.categories;
       }
 
-      // Backend returns {cemeteries: [...]} format  
+      // Backend returns {cemeteries: [...]} format
       if (cemeteriesResponse.cemeteries) {
         this.cemeteries = cemeteriesResponse.cemeteries;
       }
@@ -324,6 +557,69 @@ export class PostCreateForm {
         }>
         ${cemetery.name} - ${cemetery.city}
       </option>
+    `
+      )
+      .join("");
+  }
+
+  renderFamilyMembers() {
+    return this.state.family_members
+      .map(
+        (member, index) => `
+      <div class="family-member-row" data-index="${index}">
+        <div class="form-row">
+          <div class="form-group">
+            <select name="family_relationship_${index}" class="family-relationship">
+              <option value="supruga" ${
+                member.relationship === "supruga" ? "selected" : ""
+              }>Supruga</option>
+              <option value="suprug" ${
+                member.relationship === "suprug" ? "selected" : ""
+              }>Suprug</option>
+              <option value="sin" ${
+                member.relationship === "sin" ? "selected" : ""
+              }>Sin</option>
+              <option value="kćerka" ${
+                member.relationship === "kćerka" ? "selected" : ""
+              }>Kćerka</option>
+              <option value="otac" ${
+                member.relationship === "otac" ? "selected" : ""
+              }>Otac</option>
+              <option value="majka" ${
+                member.relationship === "majka" ? "selected" : ""
+              }>Majka</option>
+              <option value="brat" ${
+                member.relationship === "brat" ? "selected" : ""
+              }>Brat</option>
+              <option value="sestra" ${
+                member.relationship === "sestra" ? "selected" : ""
+              }>Sestra</option>
+              <option value="unuk" ${
+                member.relationship === "unuk" ? "selected" : ""
+              }>Unuk</option>
+              <option value="unuka" ${
+                member.relationship === "unuka" ? "selected" : ""
+              }>Unuka</option>
+              <option value="ostalo" ${
+                member.relationship === "ostalo" ? "selected" : ""
+              }>Ostalo</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <input 
+              type="text" 
+              name="family_name_${index}"
+              value="${member.name}"
+              placeholder="Ime člana porodice"
+            >
+          </div>
+          <div class="form-group">
+            <button type="button" class="btn btn-secondary btn-sm remove-family-member" data-index="${index}">
+              Ukloni
+            </button>
+          </div>
+        </div>
+      </div>
     `
       )
       .join("");
@@ -428,6 +724,62 @@ export class PostCreateForm {
     // Real-time validation on blur
     if (e.type === "blur") {
       this.validateField(name, value);
+    }
+  }
+
+  handleFamilyMemberChange(e) {
+    const { name, value } = e.target;
+    const [type, field, indexStr] = name.split("_");
+    const index = parseInt(indexStr);
+
+    if (field === "relationship") {
+      this.state.family_members[index].relationship = value;
+    } else if (field === "name") {
+      this.state.family_members[index].name = value;
+    }
+  }
+
+  addFamilyMember() {
+    this.state.family_members.push({
+      relationship: "ostalo",
+      name: "",
+    });
+    this.rerenderFamilyMembers();
+  }
+
+  removeFamilyMember(index) {
+    this.state.family_members.splice(index, 1);
+    this.rerenderFamilyMembers();
+  }
+
+  rerenderFamilyMembers() {
+    const container = this.element.querySelector(
+      ".form-section:has(#addFamilyMember)"
+    );
+    if (container) {
+      const newContent = `
+        <h3>Ožalošćeni</h3>
+        <p class="section-hint">Unesite imena članova porodice koji žale preminulu osobu</p>
+        ${this.renderFamilyMembers()}
+        <button type="button" class="btn btn-outline btn-sm" id="addFamilyMember">
+          + Dodaj člana porodice
+        </button>
+      `;
+      container.innerHTML = newContent;
+
+      // Reattach listeners for new button
+      const addBtn = container.querySelector("#addFamilyMember");
+      if (addBtn) {
+        addBtn.addEventListener("click", () => this.addFamilyMember());
+      }
+
+      // Reattach listeners for remove buttons
+      container.querySelectorAll(".remove-family-member").forEach((btn) => {
+        btn.addEventListener("click", (e) => {
+          const index = parseInt(e.target.dataset.index);
+          this.removeFamilyMember(index);
+        });
+      });
     }
   }
 
@@ -673,22 +1025,317 @@ export class PostCreateForm {
   setLoading(loading) {
     this.isLoading = loading;
 
-    const submitButton = this.element.querySelector('button[type="submit"]');
+    // Check if element exists before proceeding
+    if (!this.element) {
+      console.warn('PostCreateForm: Element not found in setLoading');
+      return;
+    }
+
+    // Find the appropriate action button based on current step
+    let actionButton;
     const inputs = this.element.querySelectorAll(
       "input, select, textarea, button"
     );
 
+    switch (this.currentStep) {
+      case "form":
+        actionButton = this.element.querySelector("#previewBtn");
+        break;
+      case "preview":
+        actionButton = this.element.querySelector("#publishBtn");
+        break;
+      case "edit":
+        actionButton = this.element.querySelector("#savePublishBtn");
+        break;
+    }
+
     if (loading) {
-      submitButton.disabled = true;
+      if (actionButton) {
+        actionButton.disabled = true;
+        actionButton.innerHTML = `
+          <span class="loading-spinner"></span>
+          ${this.currentStep === "form" ? "Generišem..." : "Objavljujem..."}
+        `;
+      }
       inputs.forEach((input) => (input.disabled = true));
-      submitButton.innerHTML = `
-        <span class="loading-spinner"></span>
-        Objavljujem...
-      `;
     } else {
-      submitButton.disabled = false;
+      if (actionButton) {
+        actionButton.disabled = false;
+        switch (this.currentStep) {
+          case "form":
+            actionButton.innerHTML = "Generiši preview";
+            break;
+          case "preview":
+            actionButton.innerHTML = "Objavi ovako";
+            break;
+          case "edit":
+            actionButton.innerHTML = "Sačuvaj i objavi";
+            break;
+        }
+      }
       inputs.forEach((input) => (input.disabled = false));
-      submitButton.innerHTML = "Objavi";
+    }
+  }
+
+  // Generate preview HTML based on form data
+  generatePreviewHTML() {
+    const fullName = `${this.state.first_name} ${this.state.last_name}`.trim();
+    const deathDate = this.formatDateForDisplay(this.state.date_of_death);
+    const burialDate = this.formatDateForDisplay(
+      this.state.burial_date || this.state.date_of_death
+    );
+    const burialTime = this.state.burial_time || "13:00";
+    const age = this.calculateAge(
+      this.state.date_of_birth,
+      this.state.date_of_death
+    );
+
+    const selectedCemetery = this.cemeteries.find(
+      (c) => c.id == this.state.cemetery_id
+    );
+    const cemeteryName = selectedCemetery
+      ? selectedCemetery.name
+      : "Mezaristan Belveder";
+
+    return `
+      <article class="obituary-card preview-card" data-post-id="preview">
+        <div class="obituary-frame">
+          <div class="obituary-content">
+            <div class="obituary-header">
+              <div class="crescent-moon">☪</div>
+              <img src="images/arabic-calligraphy.png" alt="الرَّحْمَنُ الرَّحِيمُ" class="arabic-calligraphy-image">
+            </div>
+            
+            <div class="obituary-body">
+              <div class="death-announcement">
+                Dana <strong>${deathDate}</strong> god.${
+      age ? ` u <strong>${age}</strong> godini života` : ""
+    } preseli${this.state.gender === "female" ? "la" : "o"} je na ahiret
+              </div>
+              
+              <div class="deceased-name">
+                ${fullName.toUpperCase()}
+              </div>
+              
+              <div class="funeral-info">
+                <div class="funeral-detail">
+                  <strong>Dženaza se prima:</strong> ${burialDate} god. u ${burialTime} sati od IKC Bar
+                </div>
+                <div class="burial-detail">
+                  <strong>Ukop će se obaviti na groblju:</strong> ${cemeteryName}
+                </div>
+              </div>
+
+              ${
+                this.state.biography
+                  ? `
+                <div class="biography-section">
+                  <div class="obituary-separator"></div>
+                  <p>${this.state.biography}</p>
+                </div>
+              `
+                  : ""
+              }
+
+              <div class="family-section">
+                <div class="obituary-separator"></div>
+                ${this.renderFamilyMembersPreview()}
+                <div class="condolences-text">
+                  RAHMETULLAHI ALEJHI RAHMETEN VASIAH
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </article>
+    `;
+  }
+
+  formatDateForDisplay(dateString) {
+    if (!dateString) return "";
+    const date = new Date(dateString);
+    return date.toLocaleDateString("sr-RS", {
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric",
+    });
+  }
+
+  renderFamilyMembersPreview() {
+    const validMembers = this.state.family_members.filter((m) => m.name.trim());
+    if (validMembers.length === 0) return "";
+
+    return `
+      <div class="family-members">
+        <p><strong>Ožalošćeni:</strong></p>
+        <div class="family-list">
+          ${validMembers
+            .map(
+              (member) => `
+            <span class="family-member">${member.relationship}: ${member.name}</span>
+          `
+            )
+            .join("")}
+        </div>
+      </div>
+    `;
+  }
+
+  async showPreview() {
+    // Validate required fields first
+    if (!this.validateForm()) {
+      return;
+    }
+
+    this.currentStep = "preview";
+    this.generatedPreview = this.generatePreviewHTML();
+    this.rerenderModal();
+  }
+
+  showEditMode() {
+    this.currentStep = "edit";
+    this.editedHtml = this.generatedPreview;
+    this.rerenderModal();
+  }
+
+  backToForm() {
+    this.currentStep = "form";
+    this.rerenderModal();
+  }
+
+  collectFormData() {
+    // Filter valid family members
+    const validFamilyMembers = this.state.family_members.filter((m) =>
+      m.name.trim()
+    );
+    const deceasedName =
+      `${this.state.first_name} ${this.state.last_name}`.trim();
+
+    // Generate content with minimum 20 characters
+    const defaultContent = `Umrlica za ${deceasedName}. Dženaza se prima dana ${
+      this.state.burial_date || this.state.date_of_death
+    } u ${
+      this.state.burial_time || "13:00"
+    } časova u IKC Bar. Sahrana će se obaviti na ${this.getCemeteryName(
+      this.state.cemetery_id
+    )}.`;
+
+    const content =
+      this.state.biography && this.state.biography.trim().length >= 20
+        ? this.state.biography.trim()
+        : defaultContent;
+
+    return {
+      // Deceased info
+      deceased_name: deceasedName,
+      deceased_birth_date: this.state.date_of_birth || null,
+      deceased_death_date: this.state.date_of_death,
+      deceased_age: this.calculateAge(
+        this.state.date_of_birth,
+        this.state.date_of_death
+      ),
+      deceased_gender: this.state.gender,
+
+      // Funeral info - match database schema
+      dzenaza_date: this.state.burial_date || this.state.date_of_death,
+      dzenaza_time: this.state.burial_time || "13:00",
+      dzenaza_location: "IKC Bar",
+      burial_cemetery: this.getCemeteryName(this.state.cemetery_id),
+      burial_location: null,
+
+      // Categories and metadata
+      category_id: this.getCategoryId(this.state.category_slug),
+      cemetery_id: this.state.cemetery_id,
+      family_members: validFamilyMembers, // Send as array
+      is_featured: this.state.is_featured || false,
+      status: "pending", // Will be reviewed by admin
+      
+      // HTML content - will be added in saveAndPublish
+      generated_html: null,
+      custom_html: null,
+      is_custom_edited: false
+    };
+  }
+
+  getCemeteryName(cemeteryId) {
+    const cemetery = this.cemeteries.find((c) => c.id == cemeteryId);
+    return cemetery ? cemetery.name : "Nepoznato groblje";
+  }
+
+  getCategoryId(categorySlug) {
+    const category = this.categories.find((c) => c.slug === categorySlug);
+    return category ? category.id : 1; // Default to "Dženaza"
+  }
+
+  calculateAge(birthDate, deathDate) {
+    if (!birthDate || !deathDate) return null;
+
+    const birth = new Date(birthDate);
+    const death = new Date(deathDate);
+
+    if (death < birth) return null;
+
+    let age = death.getFullYear() - birth.getFullYear();
+    const monthDiff = death.getMonth() - birth.getMonth();
+
+    if (
+      monthDiff < 0 ||
+      (monthDiff === 0 && death.getDate() < birth.getDate())
+    ) {
+      age--;
+    }
+
+    return age;
+  }
+
+  formatDateTimeForBackend(date, time) {
+    if (!date) return null;
+
+    // If time is provided, combine with date, otherwise use default time
+    const timeStr = time || "13:00";
+    return `${date}T${timeStr}:00.000Z`;
+  }
+
+  async saveAndPublish() {
+    try {
+      this.setLoading(true);
+
+      // Use edited HTML if available, otherwise use generated preview
+      const finalHtml = this.editedHtml || this.generatedPreview;
+
+      const postData = this.collectFormData();
+      postData.custom_html = finalHtml;
+      postData.is_custom_edited = this.editedHtml !== this.generatedPreview;
+
+      console.log('Sending post data:', postData);
+      
+      const response = await api.createPost(postData);
+      
+      console.log('API response:', response);
+
+      if (response.success || response.post) {
+        this.setLoading(false);
+        this.onSuccess?.(response);
+        this.close();
+        return; // Exit early to avoid setLoading(false) in finally
+      } else {
+        throw new Error(response.error || "Greška pri kreiranju objave");
+      }
+    } catch (error) {
+      console.error("Save and publish error:", error);
+      this.state.errors.general = error.message;
+      this.rerenderModal();
+      this.setLoading(false);
+    }
+  }
+
+  rerenderModal() {
+    if (!this.element) return;
+
+    const modalContent = this.element.querySelector(".modal-container");
+    if (modalContent) {
+      modalContent.innerHTML = this.renderModalContent();
+      this.attachModalEventListeners();
     }
   }
 

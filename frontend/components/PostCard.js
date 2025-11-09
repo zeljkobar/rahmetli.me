@@ -29,6 +29,7 @@ export class PostCard {
       deceased_birth_date,
       deceased_death_date,
       deceased_age,
+      deceased_gender,
       dzenaza_date,
       dzenaza_time,
       dzenaza_location,
@@ -78,7 +79,7 @@ export class PostCard {
             
             <div class="obituary-body">
               <div class="death-announcement">
-                Dana <strong>${deathDate}</strong> god. u <strong>${age}</strong> godini života prešao/la je na ahiret
+                Dana <strong>${deathDate}</strong> god. u <strong>${age}</strong> godini života preseli${deceased_gender === "female" ? "la" : "o"} je na ahiret
               </div>
               
               <div class="deceased-name">

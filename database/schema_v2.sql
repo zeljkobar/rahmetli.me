@@ -107,6 +107,7 @@ CREATE TABLE posts (
     deceased_birth_date DATE,
     deceased_death_date DATE NOT NULL,
     deceased_age INT,
+    deceased_gender ENUM('male', 'female') NOT NULL,
     deceased_photo_url VARCHAR(500),
     
     -- Dženaza informacije

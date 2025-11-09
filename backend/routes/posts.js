@@ -72,7 +72,7 @@ router.get("/", validateSearch, optionalAuth, async (req, res) => {
     // Return all needed fields for PostCard component
     const posts = await executeQuery(
       `SELECT 
-         id, user_id, deceased_name, deceased_birth_date, deceased_death_date, deceased_age,
+         id, user_id, deceased_name, deceased_birth_date, deceased_death_date, deceased_age, deceased_gender,
          deceased_photo_url, dzenaza_date, dzenaza_time, dzenaza_location, 
          burial_cemetery, burial_location, generated_html as content,
          custom_html, is_custom_edited, status, is_premium, is_featured, 
@@ -158,9 +158,9 @@ router.get("/:id", validateId, optionalAuth, async (req, res) => {
             LEFT JOIN users u ON p.user_id = u.id
             LEFT JOIN categories c ON p.category_id = c.id
             LEFT JOIN cemeteries cem ON p.cemetery_id = cem.id
-            WHERE p.id = ? AND p.status = 'approved'
+            WHERE p.id = ? AND (p.status = 'approved' OR (? AND p.status IN ('pending', 'approved')))
         `,
-      [postId]
+      [postId, req.user && (req.user.role === 'admin' || req.user.role === 'moderator')]
     );
 
     if (!post) {
@@ -212,23 +212,27 @@ router.get("/:id", validateId, optionalAuth, async (req, res) => {
 });
 
 // Create new post
-router.post("/", authenticateToken, validatePost, async (req, res) => {
+router.post("/", authenticateToken, async (req, res) => {
   try {
+    console.log('POST /api/posts received:', req.body);
+    
     const {
-      type,
-      title,
-      content,
       deceased_name,
-      deceased_father_name,
       deceased_birth_date,
       deceased_death_date,
-      location,
-      dzamija,
+      deceased_gender,
+      dzenaza_date,
       dzenaza_time,
-      sahrana_time,
+      dzenaza_location,
+      burial_cemetery,
+      burial_location,
       cemetery_id,
       category_id,
+      custom_html,
+      generated_html,
+      is_custom_edited = false,
       is_premium = false,
+      family_members = [],
     } = req.body;
 
     const userId = req.user.id;
@@ -254,38 +258,60 @@ router.post("/", authenticateToken, validatePost, async (req, res) => {
     const result = await executeQuery(
       `
             INSERT INTO posts (
-                user_id, category_id, cemetery_id, type, title, content,
-                deceased_name, deceased_father_name, deceased_birth_date, 
-                deceased_death_date, deceased_age, location, dzamija,
-                dzenaza_time, sahrana_time, is_premium, expires_at, slug
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                user_id, category_id, cemetery_id, 
+                deceased_name, deceased_birth_date, deceased_death_date, deceased_age, deceased_gender,
+                dzenaza_date, dzenaza_time, dzenaza_location,
+                burial_cemetery, burial_location,
+                generated_html, custom_html, is_custom_edited,
+                is_premium, expires_at, slug, status
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         `,
       [
         userId,
         category_id || null,
         cemetery_id || null,
-        type,
-        title,
-        content,
         deceased_name,
-        deceased_father_name || null,
         deceased_birth_date || null,
         deceased_death_date,
         deceased_age,
-        location || null,
-        dzamija || null,
-        dzenaza_time || null,
-        sahrana_time || null,
+        deceased_gender || "male",
+        dzenaza_date || deceased_death_date,
+        dzenaza_time || "13:00",
+        dzenaza_location || "IKC Bar",
+        burial_cemetery || "Centralno groblje",
+        burial_location || null,
+        generated_html || null,
+        custom_html || null,
+        is_custom_edited,
         is_premium,
         expiresAt,
         slug,
+        "pending",
       ]
     );
 
+    const postId = result.insertId;
+
+    // Insert family members if provided
+    if (family_members && family_members.length > 0) {
+      for (let i = 0; i < family_members.length; i++) {
+        const member = family_members[i];
+        if (member.name && member.name.trim()) {
+          await executeQuery(
+            "INSERT INTO family_members (post_id, name, relationship, sort_order) VALUES (?, ?, ?, ?)",
+            [postId, member.name.trim(), member.relationship || "", i + 1]
+          );
+        }
+      }
+    }
+
     res.status(201).json({
+      success: true,
       message: "Objava je uspješno kreirana",
-      post_id: result.insertId,
-      status: "pending",
+      post: {
+        id: postId,
+        status: "pending",
+      },
     });
   } catch (error) {
     console.error("Create post error:", error);
