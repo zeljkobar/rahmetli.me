@@ -286,12 +286,14 @@ export class PostCreateForm {
         api.getCemeteries(),
       ]);
 
-      if (categoriesResponse.success) {
-        this.categories = categoriesResponse.data;
+      // Backend returns {categories: [...]} format
+      if (categoriesResponse.categories) {
+        this.categories = categoriesResponse.categories;
       }
 
-      if (cemeteriesResponse.success) {
-        this.cemeteries = cemeteriesResponse.data;
+      // Backend returns {cemeteries: [...]} format  
+      if (cemeteriesResponse.cemeteries) {
+        this.cemeteries = cemeteriesResponse.cemeteries;
       }
     } catch (error) {
       console.error("Failed to load form data:", error);
