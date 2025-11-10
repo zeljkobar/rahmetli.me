@@ -44,6 +44,17 @@ export class PostCreateForm {
         { relationship: "kćerka", name: "" },
       ],
 
+      // Hatar sessions (čitanje hatma)
+      hatar_sessions: [
+        { 
+          session_date: "",
+          session_time_start: "",
+          session_time_end: "",
+          session_location: "",
+          session_note: ""
+        }
+      ],
+
       errors: {},
     };
 
@@ -193,6 +204,16 @@ export class PostCreateForm {
                   <small class="form-hint">Opcionalno - kratki opis života, porodice, karijere</small>
                   ${this.renderFieldError("biography")}
                 </div>
+              </div>
+              
+              <!-- Hatar sesije -->
+              <div class="form-section">
+                <h3>Hatma sesije</h3>
+                <p class="section-hint">Informacije o čitanju hatma (opciono)</p>
+                ${this.renderHatarSessions()}
+                <button type="button" class="btn btn-outline btn-sm" id="addHatarSession">
+                  + Dodaj hatma sesiju
+                </button>
               </div>
               
               <!-- Pogreb i lokacija -->
@@ -368,13 +389,19 @@ export class PostCreateForm {
 
           <div class="edit-content">
             <div class="edit-layout">
-              <div class="html-editor">
-                <h4>HTML Editor</h4>
-                <textarea id="htmlEditor" rows="20" cols="50">${this.editedHtml}</textarea>
+              <div class="quill-editor-section">
+                <h4>Uređivanje objave</h4>
+                <div class="template-toolbar">
+                  <button type="button" class="template-btn" data-template="funeral-info">📅 Informacije o sahrani</button>
+                  <button type="button" class="template-btn" data-template="family-section">👨‍👩‍👧‍👦 Porodica</button>
+                  <button type="button" class="template-btn" data-template="prayer-section">🤲 Dova</button>
+                </div>
+                <div id="quillEditor" style="height: 300px;"></div>
+                <input type="hidden" id="hiddenContent" value="${this.editedHtml.replace(/"/g, '&quot;')}" />
               </div>
               
               <div class="live-preview">
-                <h4>Live Preview</h4>
+                <h4>Pregled kako će izgledati</h4>
                 <div class="preview-container" id="livePreview">
                   ${this.editedHtml}
                 </div>
@@ -419,6 +446,7 @@ export class PostCreateForm {
     const cancelBtn = this.element.querySelector("#cancelBtn");
     const previewBtn = this.element.querySelector("#previewBtn");
     const addFamilyBtn = this.element.querySelector("#addFamilyMember");
+    const addHatarBtn = this.element.querySelector("#addHatarSession");
 
     if (form) {
       form.addEventListener("submit", (e) => {
@@ -446,11 +474,28 @@ export class PostCreateForm {
         }
       });
 
-      // Remove family member listeners
+      // Hatar session input listeners
+      form.addEventListener("input", (e) => {
+        if (e.target.name && e.target.name.startsWith("hatar_")) {
+          this.handleHatarSessionChange(e);
+        }
+      });
+
+      form.addEventListener("change", (e) => {
+        if (e.target.name && e.target.name.startsWith("hatar_")) {
+          this.handleHatarSessionChange(e);
+        }
+      });
+
+      // Remove listeners
       form.addEventListener("click", (e) => {
         if (e.target.classList.contains("remove-family-member")) {
           const index = parseInt(e.target.dataset.index);
           this.removeFamilyMember(index);
+        }
+        if (e.target.classList.contains("remove-hatar-session")) {
+          const index = parseInt(e.target.dataset.index);
+          this.removeHatarSession(index);
         }
       });
     }
@@ -465,6 +510,10 @@ export class PostCreateForm {
 
     if (addFamilyBtn) {
       addFamilyBtn.addEventListener("click", () => this.addFamilyMember());
+    }
+
+    if (addHatarBtn) {
+      addHatarBtn.addEventListener("click", () => this.addHatarSession());
     }
   }
 
@@ -489,25 +538,137 @@ export class PostCreateForm {
   attachEditEventListeners() {
     const backBtn = this.element.querySelector("#backToPreviewBtn");
     const saveBtn = this.element.querySelector("#savePublishBtn");
-    const htmlEditor = this.element.querySelector("#htmlEditor");
     const livePreview = this.element.querySelector("#livePreview");
 
     if (backBtn) {
       backBtn.addEventListener("click", () => {
+        // Get content from Quill before leaving
+        if (this.quill) {
+          this.editedHtml = this.quill.root.innerHTML;
+        }
         this.currentStep = "preview";
         this.rerenderModal();
       });
     }
 
     if (saveBtn) {
-      saveBtn.addEventListener("click", this.saveAndPublish);
+      saveBtn.addEventListener("click", () => {
+        // Get content from Quill before saving
+        if (this.quill) {
+          this.editedHtml = this.quill.root.innerHTML;
+        }
+        this.saveAndPublish();
+      });
     }
 
-    if (htmlEditor && livePreview) {
-      htmlEditor.addEventListener("input", (e) => {
-        this.editedHtml = e.target.value;
-        livePreview.innerHTML = this.editedHtml;
+    // Initialize Quill editor
+    this.initializeQuillEditor();
+
+    // Add template button listeners
+    const templateBtns = this.element.querySelectorAll('.template-btn');
+    templateBtns.forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        const template = e.target.dataset.template;
+        this.insertQuillTemplate(template);
       });
+    });
+  }
+
+  initializeQuillEditor() {
+    if (!window.Quill) {
+      console.error('Quill.js nije učitan');
+      return;
+    }
+
+    const livePreview = this.element.querySelector("#livePreview");
+    const hiddenContent = this.element.querySelector("#hiddenContent");
+
+    // Quill toolbar configuration
+    const toolbarOptions = [
+      ['bold', 'italic', 'underline', 'strike'],
+      ['blockquote', 'code-block'],
+      [{ 'header': 1 }, { 'header': 2 }],
+      [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+      [{ 'script': 'sub'}, { 'script': 'super' }],
+      [{ 'indent': '-1'}, { 'indent': '+1' }],
+      [{ 'direction': 'rtl' }],
+      [{ 'size': ['small', false, 'large', 'huge'] }],
+      [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
+      [{ 'color': [] }, { 'background': [] }],
+      [{ 'font': [] }],
+      [{ 'align': [] }],
+      ['clean'],
+      ['link']
+    ];
+
+    // Initialize Quill
+    this.quill = new Quill('#quillEditor', {
+      theme: 'snow',
+      modules: {
+        toolbar: toolbarOptions
+      },
+      formats: ['bold', 'italic', 'underline', 'strike', 'blockquote', 'code-block', 
+               'header', 'list', 'script', 'indent', 'direction', 'size', 'color', 
+               'background', 'font', 'align', 'clean', 'link']
+    });
+
+    // Set initial content
+    if (hiddenContent && hiddenContent.value) {
+      this.quill.root.innerHTML = hiddenContent.value;
+    }
+
+    // Update preview on content change
+    this.quill.on('text-change', () => {
+      const content = this.quill.root.innerHTML;
+      this.editedHtml = content;
+      if (livePreview) {
+        livePreview.innerHTML = content;
+      }
+    });
+  }
+
+  insertQuillTemplate(templateType) {
+    if (!this.quill) return;
+
+    let templateHtml = '';
+    
+    switch (templateType) {
+      case 'funeral-info':
+        templateHtml = `
+          <div class="funeral-info">
+            <strong>Dženaza se prima:</strong> [Datum], [Vreme] sati od [Mesto]<br>
+            <strong>Ukop će se obaviti na groblju:</strong> [Ime groblja]
+          </div>
+        `;
+        break;
+      
+      case 'family-section':
+        templateHtml = `
+          <div class="family-section">
+            <h4>Ožalošćeni:</h4>
+            <p>supruga: [Ime]<br>
+            deca: [Imena dece]<br>
+            unučad: [Imena unučadi]</p>
+          </div>
+        `;
+        break;
+      
+      case 'prayer-section':
+        templateHtml = `
+          <div class="prayer-section">
+            <p>اللهم اغفر له وارحمه وعافه واعف عنه</p>
+            <p><em>Neka mu Allah oprosti, pomiluje ga, sačuva i prosti mu</em></p>
+          </div>
+        `;
+        break;
+    }
+
+    // Insert template at current cursor position
+    const range = this.quill.getSelection();
+    if (range) {
+      this.quill.clipboard.dangerouslyPasteHTML(range.index, templateHtml);
+    } else {
+      this.quill.clipboard.dangerouslyPasteHTML(templateHtml);
     }
   }
 
@@ -1208,6 +1369,11 @@ export class PostCreateForm {
     const validFamilyMembers = this.state.family_members.filter((m) =>
       m.name.trim()
     );
+
+    // Filter valid hatar sessions (must have date and location)
+    const validHatarSessions = this.state.hatar_sessions.filter((s) =>
+      s.session_date && s.session_location && s.session_location.trim()
+    );
     const deceasedName =
       `${this.state.first_name} ${this.state.last_name}`.trim();
 
@@ -1247,6 +1413,7 @@ export class PostCreateForm {
       category_id: this.getCategoryId(this.state.category_slug),
       cemetery_id: this.state.cemetery_id,
       family_members: validFamilyMembers, // Send as array
+      hatar_sessions: validHatarSessions, // Send as array
       is_featured: this.state.is_featured || false,
       status: "pending", // Will be reviewed by admin
 
@@ -1358,6 +1525,161 @@ export class PostCreateForm {
     // Call cancel callback
     if (this.onCancel) {
       this.onCancel();
+    }
+  }
+
+  // Hatar sessions methods
+  renderHatarSessions() {
+    return this.state.hatar_sessions
+      .map(
+        (session, index) => `
+      <div class="hatar-session-row" data-index="${index}">
+        <div class="form-row">
+          <div class="form-group">
+            <label for="hatar_date_${index}">Datum</label>
+            <input 
+              type="date" 
+              id="hatar_date_${index}"
+              name="hatar_date_${index}" 
+              value="${session.session_date}"
+              placeholder="Izaberite datum"
+            >
+          </div>
+          
+          <div class="form-group">
+            <label for="hatar_time_start_${index}">Vreme početka</label>
+            <input 
+              type="time" 
+              id="hatar_time_start_${index}"
+              name="hatar_time_start_${index}" 
+              value="${session.session_time_start}"
+              placeholder="09:00"
+            >
+          </div>
+          
+          <div class="form-group">
+            <label for="hatar_time_end_${index}">Vreme kraja (opciono)</label>
+            <input 
+              type="time" 
+              id="hatar_time_end_${index}"
+              name="hatar_time_end_${index}" 
+              value="${session.session_time_end}"
+              placeholder="15:00"
+            >
+          </div>
+        </div>
+        
+        <div class="form-row">
+          <div class="form-group">
+            <label for="hatar_location_${index}">Lokacija</label>
+            <input 
+              type="text" 
+              id="hatar_location_${index}"
+              name="hatar_location_${index}" 
+              value="${session.session_location}"
+              placeholder="Lokacija čitanja hatma"
+            >
+          </div>
+          
+          <div class="form-group">
+            <label for="hatar_note_${index}">Napomena (opciono)</label>
+            <input 
+              type="text" 
+              id="hatar_note_${index}"
+              name="hatar_note_${index}" 
+              value="${session.session_note || ""}"
+              placeholder="Dodatne informacije"
+            >
+          </div>
+          
+          <div class="form-group">
+            <button type="button" class="btn btn-danger btn-sm remove-hatar-session" data-index="${index}">
+              Ukloni
+            </button>
+          </div>
+        </div>
+      </div>
+    `
+      )
+      .join("");
+  }
+
+  addHatarSession() {
+    this.state.hatar_sessions.push({
+      session_date: "",
+      session_time_start: "",
+      session_time_end: "",
+      session_location: "",
+      session_note: ""
+    });
+    this.rerenderHatarSessions();
+  }
+
+  removeHatarSession(index) {
+    this.state.hatar_sessions.splice(index, 1);
+    this.rerenderHatarSessions();
+  }
+
+  rerenderHatarSessions() {
+    const container = this.element.querySelector(
+      ".form-section:has(#addHatarSession)"
+    );
+    if (container) {
+      const content = container.querySelector(".section-hint").parentNode;
+      content.innerHTML = `
+        <h3>Hatma sesije</h3>
+        <p class="section-hint">Informacije o čitanju hatma (opciono)</p>
+        ${this.renderHatarSessions()}
+        <button type="button" class="btn btn-outline btn-sm" id="addHatarSession">
+          + Dodaj hatma sesiju
+        </button>
+      `;
+
+      // Re-attach event listeners
+      const addBtn = container.querySelector("#addHatarSession");
+      if (addBtn) {
+        addBtn.addEventListener("click", () => this.addHatarSession());
+      }
+
+      container.querySelectorAll(".remove-hatar-session").forEach((btn, index) => {
+        btn.addEventListener("click", () => {
+          this.removeHatarSession(index);
+        });
+      });
+
+      // Re-attach input listeners for hatar sessions
+      container.querySelectorAll("input").forEach(input => {
+        if (input.name && input.name.startsWith("hatar_")) {
+          input.addEventListener("input", this.handleHatarSessionChange.bind(this));
+          input.addEventListener("change", this.handleHatarSessionChange.bind(this));
+        }
+      });
+    }
+  }
+
+  handleHatarSessionChange(e) {
+    const name = e.target.name;
+    const value = e.target.value;
+    
+    // Parse field name like "hatar_date_0" -> field: "session_date", index: 0
+    const match = name.match(/^hatar_(\w+)_(\d+)$/);
+    if (match) {
+      const field = match[1];
+      const index = parseInt(match[2]);
+      
+      // Map field names to database columns
+      const fieldMap = {
+        'date': 'session_date',
+        'time_start': 'session_time_start',
+        'time_end': 'session_time_end',
+        'location': 'session_location',
+        'note': 'session_note'
+      };
+      
+      const dbField = fieldMap[field];
+      if (dbField && this.state.hatar_sessions[index]) {
+        this.state.hatar_sessions[index][dbField] = value;
+      }
     }
   }
 

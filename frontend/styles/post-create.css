@@ -433,3 +433,169 @@
     opacity: 0.5;
   }
 }
+
+/* Quill.js WYSIWYG Editor Styles */
+
+.quill-editor-section {
+  flex: 1;
+  padding-right: 20px;
+}
+
+.quill-editor-section h4 {
+  font-size: 18px;
+  font-weight: 600;
+  margin-bottom: 12px;
+  color: var(--text-primary);
+}
+
+.template-toolbar {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 16px;
+  padding: 12px;
+  background: #f8f9fa;
+  border-radius: 8px;
+  border: 1px solid #e9ecef;
+  flex-wrap: wrap;
+}
+
+.template-btn {
+  padding: 8px 12px;
+  background: white;
+  border: 1px solid #dee2e6;
+  border-radius: 6px;
+  font-size: 13px;
+  color: #495057;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+}
+
+.template-btn:hover {
+  background: #e9ecef;
+  border-color: #adb5bd;
+  color: #343a40;
+  transform: translateY(-1px);
+}
+
+.template-btn:active {
+  background: #dee2e6;
+  transform: translateY(0px);
+}
+
+/* Quill editor customization */
+.ql-toolbar {
+  border: 1px solid #e9ecef !important;
+  border-bottom: none !important;
+  border-radius: 8px 8px 0 0 !important;
+  background: #f8f9fa !important;
+}
+
+.ql-container {
+  border: 1px solid #e9ecef !important;
+  border-top: none !important;
+  border-radius: 0 0 8px 8px !important;
+  font-family: Inter, Arial, sans-serif !important;
+}
+
+.ql-editor {
+  min-height: 250px;
+  font-size: 14px;
+  line-height: 1.6;
+}
+
+.ql-editor.ql-blank::before {
+  color: #adb5bd;
+  font-style: italic;
+}
+
+/* Custom styles for template content in Quill */
+.ql-editor .funeral-info {
+  background: #f8f9fa;
+  padding: 15px;
+  border-left: 4px solid #28a745;
+  margin: 10px 0;
+  border-radius: 0 8px 8px 0;
+}
+
+.ql-editor .family-section {
+  background: #fff3cd;
+  padding: 15px;
+  border-radius: 8px;
+  margin: 10px 0;
+  border: 1px solid #ffeaa7;
+}
+
+.ql-editor .prayer-section {
+  background: #d1ecf1;
+  padding: 15px;
+  border-radius: 8px;
+  margin: 10px 0;
+  text-align: center;
+  font-style: italic;
+  border: 1px solid #b8daff;
+}
+
+/* Preview container styles for template sections */
+.preview-container .funeral-info {
+  background: #f8f9fa;
+  padding: 15px;
+  border-left: 4px solid #28a745;
+  margin: 10px 0;
+  border-radius: 0 8px 8px 0;
+}
+
+.preview-container .family-section {
+  background: #fff3cd;
+  padding: 15px;
+  border-radius: 8px;
+  margin: 10px 0;
+  border: 1px solid #ffeaa7;
+}
+
+.preview-container .prayer-section {
+  background: #d1ecf1;
+  padding: 15px;
+  border-radius: 8px;
+  margin: 10px 0;
+  text-align: center;
+  font-style: italic;
+  border: 1px solid #b8daff;
+}
+
+.preview-container .family-section h4 {
+  color: #856404;
+  margin-bottom: 8px;
+}
+
+.preview-container .prayer-section p {
+  margin: 8px 0;
+}
+
+.preview-container .prayer-section em {
+  color: #0c5460;
+}
+
+/* Responsive adjustments for template toolbar */
+@media (max-width: 768px) {
+  .template-toolbar {
+    flex-direction: column;
+    gap: 6px;
+  }
+  
+  .template-btn {
+    width: 100%;
+    justify-content: center;
+  }
+  
+  .ql-toolbar {
+    padding: 8px !important;
+  }
+  
+  .ql-editor {
+    min-height: 200px;
+  }
+}

@@ -485,3 +485,134 @@
   opacity: 0.5;
   cursor: not-allowed;
 }
+
+/* Obituary Card Styles */
+.obituary-card {
+  background: var(--bg-primary);
+  border-radius: var(--border-radius-lg);
+  box-shadow: var(--shadow-md);
+  overflow: hidden;
+  transition: all var(--transition-normal);
+}
+
+.obituary-card:hover {
+  box-shadow: var(--shadow-lg);
+  transform: translateY(-2px);
+}
+
+.obituary-frame {
+  border: 2px solid var(--border-color);
+  margin: 8px;
+  border-radius: var(--border-radius-md);
+}
+
+.obituary-content {
+  padding: var(--spacing-lg);
+}
+
+.obituary-header {
+  text-align: center;
+  margin-bottom: var(--spacing-md);
+}
+
+.crescent-moon {
+  font-size: 24px;
+  color: var(--primary-color);
+  margin-bottom: var(--spacing-sm);
+}
+
+.deceased-name {
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-bold);
+  text-align: center;
+  margin: var(--spacing-md) 0;
+  color: var(--text-primary);
+}
+
+.hatar-info {
+  background: #f0f8ff;
+  padding: var(--spacing-md);
+  border-radius: var(--border-radius-md);
+  margin: var(--spacing-md) 0;
+  border-left: 4px solid #4a90e2;
+}
+
+.hatar-detail {
+  margin: var(--spacing-sm) 0;
+  line-height: 1.6;
+}
+
+.funeral-info {
+  background: var(--bg-secondary);
+  padding: var(--spacing-md);
+  border-radius: var(--border-radius-md);
+  margin: var(--spacing-md) 0;
+  border-left: 4px solid var(--primary-color);
+}
+
+.funeral-detail,
+.burial-detail {
+  margin: var(--spacing-sm) 0;
+  line-height: 1.6;
+}
+
+.rahmet-text {
+  text-align: center;
+  font-weight: var(--font-weight-bold);
+  color: var(--primary-color);
+  margin: var(--spacing-lg) 0;
+  padding: var(--spacing-md);
+  background: var(--bg-secondary);
+  border-radius: var(--border-radius-md);
+}
+
+.family-members {
+  background: var(--bg-tertiary);
+  padding: var(--spacing-md);
+  border-radius: var(--border-radius-md);
+  margin: var(--spacing-md) 0;
+  border-left: 4px solid var(--accent-color);
+}
+
+.hatar-sessions {
+  background: #f0f8ff;
+  padding: var(--spacing-md);
+  border-radius: var(--border-radius-md);
+  margin: var(--spacing-md) 0;
+  border-left: 4px solid #4a90e2;
+}
+
+.hatar-session {
+  margin: var(--spacing-sm) 0;
+  line-height: 1.5;
+}
+
+.hatar-session strong {
+  color: var(--text-primary);
+}
+
+.hatar-session em {
+  color: var(--text-secondary);
+  font-size: var(--font-size-sm);
+}
+
+.obituary-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: var(--spacing-md);
+  border-top: 1px solid var(--border-color);
+  margin-top: var(--spacing-md);
+}
+
+.obituary-stats {
+  display: flex;
+  gap: var(--spacing-md);
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary);
+}
+
+.obituary-actions {
+  display: flex;
+  gap: var(--spacing-sm);
+}

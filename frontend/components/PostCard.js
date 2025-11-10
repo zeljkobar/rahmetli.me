@@ -36,6 +36,7 @@ export class PostCard {
       burial_cemetery,
       burial_location,
       family_members,
+      hatar_sessions,
       author_name,
       username,
       views_count,
@@ -68,6 +69,36 @@ export class PostCard {
       }
     }
 
+    // Format hatar sessions
+    let hatarSectionsHtml = "";
+    if (hatar_sessions && Array.isArray(hatar_sessions) && hatar_sessions.length > 0) {
+      // Remove duplicates by session id
+      const uniqueSessions = hatar_sessions.filter((session, index, self) => 
+        self.findIndex(s => s.id === session.id) === index
+      );
+
+      const hatarItems = uniqueSessions.map(session => {
+        const sessionDate = new Date(session.date).toLocaleDateString('sr-RS', {
+          day: '2-digit',
+          month: '2-digit', 
+          year: 'numeric'
+        });
+        const timeStart = session.time_start ? session.time_start.slice(0, 5) : '';
+        const timeEnd = session.time_end ? ` do ${session.time_end.slice(0, 5)}` : '';
+        const timeInfo = timeStart ? ` od ${timeStart}${timeEnd} h.` : '';
+        
+        return `${sessionDate}.g.${timeInfo}`;
+      }).join(' i ');
+
+      hatarSectionsHtml = `
+        <div class="hatar-info">
+          <div class="hatar-detail">
+            <strong>Hatar primamo u ${uniqueSessions[0].location}:</strong> ${hatarItems}
+          </div>
+        </div>
+      `;
+    }
+
     return `
       <article class="obituary-card" data-post-id="${id}">
         <div class="obituary-frame">
@@ -87,6 +118,8 @@ export class PostCard {
               <div class="deceased-name">
                 ${deceased_name.toUpperCase()}
               </div>
+              
+              ${hatarSectionsHtml}
               
               <div class="funeral-info">
                 <div class="funeral-detail">

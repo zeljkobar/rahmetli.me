@@ -69,6 +69,9 @@ router.get("/", validateSearch, optionalAuth, async (req, res) => {
 
     const whereClause = whereConditions.join(" AND ");
 
+    // Set higher GROUP_CONCAT limit for hatar sessions
+    await executeQuery("SET SESSION group_concat_max_len = 10000");
+
     // Return all needed fields for PostCard component with family members in single query
     const posts = await executeQuery(
       `SELECT 
@@ -92,9 +95,23 @@ router.get("/", validateSearch, optionalAuth, async (req, res) => {
            THEN CONCAT(fm.relationship, ' ', fm.name) 
            ELSE NULL END 
            ORDER BY fm.sort_order, fm.id SEPARATOR ', '
-         ) as family_members
+         ) as family_members,
+         GROUP_CONCAT(
+           CASE WHEN hs.id IS NOT NULL 
+           THEN JSON_OBJECT(
+             'id', hs.id,
+             'date', hs.session_date,
+             'time_start', hs.session_time_start,
+             'time_end', hs.session_time_end,
+             'location', hs.session_location,
+             'note', hs.session_note
+           )
+           ELSE NULL END 
+           ORDER BY hs.sort_order, hs.session_date, hs.session_time_start SEPARATOR '||'
+         ) as hatar_sessions
        FROM posts p
        LEFT JOIN family_members fm ON p.id = fm.post_id
+       LEFT JOIN hatar_sessions hs ON p.id = hs.post_id
        WHERE ${whereClause}
        GROUP BY p.id, p.user_id, p.deceased_name, p.deceased_birth_date, p.deceased_death_date, 
                 p.deceased_age, p.deceased_gender, p.deceased_photo_url, p.dzenaza_date, p.dzenaza_time, 
@@ -106,6 +123,24 @@ router.get("/", validateSearch, optionalAuth, async (req, res) => {
        LIMIT ${limitNum} OFFSET ${offset}`,
       queryParams
     );
+
+    // Parse hatar_sessions from GROUP_CONCAT JSON string to array
+    const processedPosts = (posts || []).map(post => {
+      if (post.hatar_sessions && typeof post.hatar_sessions === 'string') {
+        try {
+          // Split by || and parse each JSON object
+          const sessionsArray = post.hatar_sessions
+            .split('||')
+            .filter(s => s && s !== 'null')
+            .map(jsonStr => JSON.parse(jsonStr));
+          post.hatar_sessions = sessionsArray.length > 0 ? sessionsArray : null;
+        } catch (e) {
+          console.error('Error parsing hatar_sessions:', e);
+          post.hatar_sessions = null;
+        }
+      }
+      return post;
+    });
 
     // Get total count with same filters
     const totalResult = await executeQuerySingle(
@@ -119,7 +154,7 @@ router.get("/", validateSearch, optionalAuth, async (req, res) => {
     const totalPages = Math.ceil(total / limitNum);
 
     res.json({
-      posts: posts || [],
+      posts: processedPosts,
       pagination: {
         page: pageNum,
         limit: limitNum,
@@ -161,8 +196,8 @@ router.get("/:id", validateId, optionalAuth, async (req, res) => {
         `,
       [
         postId,
-        req.user &&
-          (req.user.role === "admin" || req.user.role === "moderator"),
+        !!(req.user &&
+          (req.user.role === "admin" || req.user.role === "moderator")),
       ]
     );
 
@@ -181,6 +216,18 @@ router.get("/:id", validateId, optionalAuth, async (req, res) => {
     // Get post images
     const images = await executeQuery(
       "SELECT * FROM post_images WHERE post_id = ? ORDER BY display_order",
+      [postId]
+    );
+
+    // Get family members
+    const familyMembers = await executeQuery(
+      "SELECT * FROM family_members WHERE post_id = ? ORDER BY sort_order, id",
+      [postId]
+    );
+
+    // Get hatar sessions
+    const hatarSessions = await executeQuery(
+      "SELECT * FROM hatar_sessions WHERE post_id = ? ORDER BY sort_order, session_date, session_time_start",
       [postId]
     );
 
@@ -203,6 +250,8 @@ router.get("/:id", validateId, optionalAuth, async (req, res) => {
       post: {
         ...post,
         images,
+        family_members: familyMembers,
+        hatar_sessions: hatarSessions,
         comments,
       },
     });
@@ -236,6 +285,7 @@ router.post("/", authenticateToken, async (req, res) => {
       is_custom_edited = false,
       is_premium = false,
       family_members = [],
+      hatar_sessions = [],
     } = req.body;
 
     const userId = req.user.id;
@@ -303,6 +353,27 @@ router.post("/", authenticateToken, async (req, res) => {
           await executeQuery(
             "INSERT INTO family_members (post_id, name, relationship, sort_order) VALUES (?, ?, ?, ?)",
             [postId, member.name.trim(), member.relationship || "", i + 1]
+          );
+        }
+      }
+    }
+
+    // Insert hatar sessions if provided
+    if (hatar_sessions && hatar_sessions.length > 0) {
+      for (let i = 0; i < hatar_sessions.length; i++) {
+        const session = hatar_sessions[i];
+        if (session.session_date && session.session_location) {
+          await executeQuery(
+            "INSERT INTO hatar_sessions (post_id, session_date, session_time_start, session_time_end, session_location, session_note, sort_order) VALUES (?, ?, ?, ?, ?, ?, ?)",
+            [
+              postId,
+              session.session_date,
+              session.session_time_start || null,
+              session.session_time_end || null,
+              session.session_location,
+              session.session_note || null,
+              i + 1
+            ]
           );
         }
       }
