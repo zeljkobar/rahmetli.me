@@ -69,44 +69,43 @@ router.get("/", validateSearch, optionalAuth, async (req, res) => {
 
     const whereClause = whereConditions.join(" AND ");
 
-    // Return all needed fields for PostCard component
+    // Return all needed fields for PostCard component with family members in single query
     const posts = await executeQuery(
       `SELECT 
-         id, user_id, deceased_name, deceased_birth_date, deceased_death_date, deceased_age, deceased_gender,
-         deceased_photo_url, dzenaza_date, dzenaza_time, dzenaza_location, 
-         burial_cemetery, burial_location, generated_html as content,
-         custom_html, is_custom_edited, status, is_premium, is_featured, 
-         expires_at, views_count, shares_count, slug, meta_description,
-         created_at, updated_at,
+         p.id, p.user_id, p.deceased_name, p.deceased_birth_date, p.deceased_death_date, p.deceased_age, p.deceased_gender,
+         p.deceased_photo_url, p.dzenaza_date, p.dzenaza_time, p.dzenaza_location, 
+         p.burial_cemetery, p.burial_location, p.generated_html as content,
+         p.custom_html, p.is_custom_edited, p.status, p.is_premium, p.is_featured, 
+         p.expires_at, p.views_count, p.shares_count, p.slug, p.meta_description,
+         p.created_at, p.updated_at,
          'dova' as type,
-         deceased_name as title,
-         dzenaza_location as location,
-         dzenaza_location as dzamija,
+         p.deceased_name as title,
+         p.dzenaza_location as location,
+         p.dzenaza_location as dzamija,
          'Nepoznat' as author_name,
          'anonymous' as username,
          0 as comments_count,
          NULL as cemetery_name,
-         NULL as cemetery_city
-       FROM posts 
+         NULL as cemetery_city,
+         GROUP_CONCAT(
+           CASE WHEN fm.name IS NOT NULL 
+           THEN CONCAT(fm.relationship, ' ', fm.name) 
+           ELSE NULL END 
+           ORDER BY fm.sort_order, fm.id SEPARATOR ', '
+         ) as family_members
+       FROM posts p
+       LEFT JOIN family_members fm ON p.id = fm.post_id
        WHERE ${whereClause}
-       ORDER BY is_featured DESC, created_at DESC
+       GROUP BY p.id, p.user_id, p.deceased_name, p.deceased_birth_date, p.deceased_death_date, 
+                p.deceased_age, p.deceased_gender, p.deceased_photo_url, p.dzenaza_date, p.dzenaza_time, 
+                p.dzenaza_location, p.burial_cemetery, p.burial_location, p.generated_html,
+                p.custom_html, p.is_custom_edited, p.status, p.is_premium, p.is_featured,
+                p.expires_at, p.views_count, p.shares_count, p.slug, p.meta_description,
+                p.created_at, p.updated_at
+       ORDER BY p.is_featured DESC, p.created_at DESC
        LIMIT ${limitNum} OFFSET ${offset}`,
       queryParams
     );
-
-    // Add family members for each post
-    for (const post of posts) {
-      const familyMembers = await executeQuery(
-        `SELECT relationship, name FROM family_members 
-         WHERE post_id = ? ORDER BY sort_order, id`,
-        [post.id]
-      );
-
-      // Format family members as a string for the frontend
-      post.family_members = familyMembers
-        .map((fm) => `${fm.relationship} ${fm.name}`)
-        .join(", ");
-    }
 
     // Get total count with same filters
     const totalResult = await executeQuerySingle(
@@ -355,17 +354,13 @@ router.put(
       const status = userRole === "admin" ? existingPost.status : "pending";
 
       const {
-        type,
-        title,
-        content,
+        content, // will be mapped to custom_html
         deceased_name,
-        deceased_father_name,
         deceased_birth_date,
         deceased_death_date,
-        location,
-        dzamija,
+        location, // will be mapped to dzenaza_location/burial_cemetery
+        dzamija, // fallback for dzenaza_location
         dzenaza_time,
-        sahrana_time,
         cemetery_id,
         category_id,
       } = req.body;
@@ -373,26 +368,26 @@ router.put(
       await executeQuery(
         `
             UPDATE posts SET 
-                category_id = ?, cemetery_id = ?, type = ?, title = ?, content = ?,
-                deceased_name = ?, deceased_father_name = ?, deceased_birth_date = ?,
-                deceased_death_date = ?, location = ?, dzamija = ?,
-                dzenaza_time = ?, sahrana_time = ?, status = ?
+                category_id = ?, cemetery_id = ?, 
+                deceased_name = ?, deceased_birth_date = ?, deceased_death_date = ?,
+                dzenaza_date = ?, dzenaza_time = ?, dzenaza_location = ?,
+                burial_cemetery = ?, burial_location = ?, 
+                custom_html = ?, is_custom_edited = ?, status = ?
             WHERE id = ?
         `,
         [
           category_id || null,
           cemetery_id || null,
-          type,
-          title,
-          content,
           deceased_name,
-          deceased_father_name || null,
           deceased_birth_date || null,
           deceased_death_date,
-          location || null,
-          dzamija || null,
-          dzenaza_time || null,
-          sahrana_time || null,
+          deceased_death_date, // fallback za dzenaza_date
+          dzenaza_time || "13:00",
+          location || dzamija || "IKC Bar", // map to dzenaza_location
+          location || "Centralno groblje", // map to burial_cemetery  
+          null, // burial_location
+          content || null, // map content to custom_html
+          content ? true : false, // is_custom_edited if content provided
           status,
           postId,
         ]

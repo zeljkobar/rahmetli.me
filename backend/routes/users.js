@@ -29,7 +29,13 @@ router.get("/:id", async (req, res) => {
     const recentPosts = await executeQuery(
       `
             SELECT 
-                id, title, deceased_name, type, created_at
+                id, 
+                deceased_name as title,
+                deceased_name,
+                'dzenaza' as type,
+                dzenaza_date,
+                status,
+                created_at
             FROM posts 
             WHERE user_id = ? AND status = 'approved'
             ORDER BY created_at DESC

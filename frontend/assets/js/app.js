@@ -143,6 +143,11 @@ class App {
       });
     }
 
+    // Custom events
+    window.addEventListener("showLogin", () => {
+      this.showLoginModal();
+    });
+
     // Navigation links
     const navLinks = document.querySelectorAll(".nav-link");
     navLinks.forEach((link) => {

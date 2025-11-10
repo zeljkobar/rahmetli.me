@@ -112,7 +112,8 @@ const validatePost = [
 // Comment validation rules
 const validateComment = [
   body("post_id")
-    .optional()
+    .notEmpty()
+    .withMessage("ID objave je obavezan")
     .isInt({ min: 1 })
     .withMessage("Neispravan ID objave")
     .toInt(),
