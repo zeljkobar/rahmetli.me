@@ -1027,7 +1027,7 @@ export class PostCreateForm {
 
     // Check if element exists before proceeding
     if (!this.element) {
-      console.warn('PostCreateForm: Element not found in setLoading');
+      console.warn("PostCreateForm: Element not found in setLoading");
       return;
     }
 
@@ -1249,11 +1249,11 @@ export class PostCreateForm {
       family_members: validFamilyMembers, // Send as array
       is_featured: this.state.is_featured || false,
       status: "pending", // Will be reviewed by admin
-      
+
       // HTML content - will be added in saveAndPublish
       generated_html: null,
       custom_html: null,
-      is_custom_edited: false
+      is_custom_edited: false,
     };
   }
 
@@ -1307,11 +1307,11 @@ export class PostCreateForm {
       postData.custom_html = finalHtml;
       postData.is_custom_edited = this.editedHtml !== this.generatedPreview;
 
-      console.log('Sending post data:', postData);
-      
+      console.log("Sending post data:", postData);
+
       const response = await api.createPost(postData);
-      
-      console.log('API response:', response);
+
+      console.log("API response:", response);
 
       if (response.success || response.post) {
         this.setLoading(false);

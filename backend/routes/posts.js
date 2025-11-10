@@ -20,7 +20,7 @@ router.get("/", validateSearch, optionalAuth, async (req, res) => {
       type,
       location,
       page = 1,
-      limit = 12,
+      limit = 12, // BACKEND DEFAULT: Broj postova po stranici ako frontend ne pošalje
       sort = "created_at",
       order = "DESC",
     } = req.query;
@@ -159,7 +159,11 @@ router.get("/:id", validateId, optionalAuth, async (req, res) => {
             LEFT JOIN cemeteries cem ON p.cemetery_id = cem.id
             WHERE p.id = ? AND (p.status = 'approved' OR (? AND p.status IN ('pending', 'approved')))
         `,
-      [postId, req.user && (req.user.role === 'admin' || req.user.role === 'moderator')]
+      [
+        postId,
+        req.user &&
+          (req.user.role === "admin" || req.user.role === "moderator"),
+      ]
     );
 
     if (!post) {
@@ -213,8 +217,8 @@ router.get("/:id", validateId, optionalAuth, async (req, res) => {
 // Create new post
 router.post("/", authenticateToken, async (req, res) => {
   try {
-    console.log('POST /api/posts received:', req.body);
-    
+    console.log("POST /api/posts received:", req.body);
+
     const {
       deceased_name,
       deceased_birth_date,
@@ -384,7 +388,7 @@ router.put(
           deceased_death_date, // fallback za dzenaza_date
           dzenaza_time || "13:00",
           location || dzamija || "IKC Bar", // map to dzenaza_location
-          location || "Centralno groblje", // map to burial_cemetery  
+          location || "Centralno groblje", // map to burial_cemetery
           null, // burial_location
           content || null, // map content to custom_html
           content ? true : false, // is_custom_edited if content provided

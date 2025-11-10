@@ -284,6 +284,8 @@ class App {
                             <p>Učitavanje objava...</p>
                         </div>
                     </div>
+                    
+                    <div id="recentPostsPagination"></div>
                 </div>
             </section>
         `;
@@ -313,13 +315,28 @@ class App {
     await this.loadRecentPosts();
   }
 
-  async loadRecentPosts() {
+  async loadRecentPosts(page = 1) {
     try {
-      const response = await api.getPosts({ page: 1, limit: 6 });
+      // POČETNA STRANICA: Broj postova po stranici (trenutno 6)
+      const response = await api.getPosts({ page, limit: 6 });
       const postsContainer = document.getElementById("recentPosts");
+      const paginationContainer = document.getElementById(
+        "recentPostsPagination"
+      );
 
       if (postsContainer) {
         postsContainer.innerHTML = PostCard.renderGrid(response.posts);
+      }
+
+      // Add pagination if there are multiple pages
+      if (paginationContainer && response.pagination.totalPages > 1) {
+        const pagination = new Pagination(response.pagination, (newPage) => {
+          this.loadRecentPosts(newPage);
+        });
+        paginationContainer.innerHTML = pagination.render();
+        pagination.attachEventListeners(paginationContainer);
+      } else if (paginationContainer) {
+        paginationContainer.innerHTML = "";
       }
     } catch (error) {
       const postsContainer = document.getElementById("recentPosts");
@@ -393,6 +410,7 @@ class App {
     try {
       showLoading(document.querySelector("#postsContent .loading"));
 
+      // OSTALE STRANICE: Broj postova po stranici (trenutno 12)
       const params = { page, limit: 12, ...filters };
       const response = await api.getPosts(params);
 
