@@ -8,6 +8,7 @@ import { Pagination } from "../../components/Pagination.js";
 import { UserDashboard } from "../../components/UserDashboard.js";
 import { UserProfile } from "../../components/UserProfile.js";
 import { AdminDashboard } from "../../components/AdminDashboard.js";
+import { SubscriptionPayment } from "../../pages/SubscriptionPayment.js";
 import {
   show,
   hide,
@@ -209,6 +210,8 @@ class App {
         this.showDashboardPage();
       } else if (path === "/admin") {
         this.showAdminPage();
+      } else if (path === "/subscription-payment") {
+        this.showSubscriptionPaymentPage();
       } else if (path.startsWith("/korisnik/")) {
         const userId = path.split("/")[2];
         this.showUserProfilePage(userId);
@@ -607,23 +610,29 @@ class App {
 
   showLoginModal() {
     AuthManager.showAuthModal("login", (authData) => {
-      this.onAuthSuccess(authData);
+      this.onAuthSuccess(authData, false); // false = not new registration
     });
   }
 
   showRegisterModal() {
     AuthManager.showAuthModal("register", (authData) => {
-      this.onAuthSuccess(authData);
+      this.onAuthSuccess(authData, true); // true = new registration
     });
   }
 
-  onAuthSuccess(authData) {
+  onAuthSuccess(authData, isNewRegistration = false) {
     this.currentUser = authData.user;
     this.updateAuthUI();
-    showToast("Uspešno ste se prijavili!", "success");
-
-    // Reload posts to show user-specific content
-    this.loadPosts();
+    
+    if (isNewRegistration) {
+      showToast("Dobrodošli! Aktivirajte sve funkcionalnosti pretplatom.", "success");
+      // Redirect na subscription payment stranicu
+      this.navigate("/subscription-payment");
+    } else {
+      showToast("Uspešno ste se prijavili!", "success");
+      // Reload posts to show user-specific content
+      this.loadPosts();
+    }
   }
 
   logout() {
@@ -821,6 +830,27 @@ class App {
       console.error("Failed to load user profile:", error);
       showToast("Greška pri učitavanju korisničkog profila", "error");
       this.show404();
+    }
+  }
+
+  async showSubscriptionPaymentPage() {
+    // Provjeri da li je korisnik prijavljen
+    if (!AuthManager.isAuthenticated()) {
+      showToast("Morate biti prijavljeni", "warning");
+      this.navigate("/");
+      return;
+    }
+
+    try {
+      showLoading();
+      const subscriptionPayment = new SubscriptionPayment();
+      await subscriptionPayment.render();
+      hideLoading();
+    } catch (error) {
+      hideLoading();
+      console.error("Failed to load subscription payment page:", error);
+      showToast("Greška pri učitavanju stranice", "error");
+      this.navigate("/");
     }
   }
 }

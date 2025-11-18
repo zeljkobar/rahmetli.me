@@ -376,6 +376,10 @@
   border-bottom: 1px solid #e5e7eb;
 }
 
+.table td {
+  color: #1f2937;
+}
+
 .table th {
   background-color: #f9fafb;
   font-weight: 600;

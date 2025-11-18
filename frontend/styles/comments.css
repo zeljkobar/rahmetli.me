@@ -96,6 +96,40 @@
   font-size: 1.1rem;
 }
 
+/* Subscription Prompt */
+.subscription-prompt {
+  background: linear-gradient(135deg, #fff5e1 0%, #ffe4b3 100%);
+  border: 2px solid #ffa500;
+  border-radius: 12px;
+  padding: 2.5rem;
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.subscription-prompt-content i {
+  font-size: 3rem;
+  color: #ff8c00;
+  margin-bottom: 1rem;
+}
+
+.subscription-prompt-content h4 {
+  font-size: 1.5rem;
+  color: #1f2937;
+  margin-bottom: 1rem;
+}
+
+.subscription-prompt-content p {
+  color: #4b5563;
+  margin-bottom: 0.75rem;
+  font-size: 1.05rem;
+}
+
+.subscription-prompt-content .benefits {
+  font-size: 0.95rem;
+  color: #6b7280;
+  margin-bottom: 1.5rem;
+}
+
 /* Comments List */
 .comments-list {
   margin-top: 1rem;

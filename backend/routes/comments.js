@@ -41,6 +41,19 @@ router.post("/", validateComment, authenticateToken, async (req, res) => {
     const { post_id, content } = req.body;
     const user_id = req.user.id;
 
+    // Check if user has active subscription
+    const user = await executeQuerySingle(
+      "SELECT subscription_status FROM users WHERE id = ?",
+      [user_id]
+    );
+
+    if (!user || user.subscription_status !== "active") {
+      return res.status(403).json({
+        error: "Potrebna je aktivna pretplata za izjavljivanje hatara",
+        requiresSubscription: true,
+      });
+    }
+
     // Check if post exists
     const post = await executeQuerySingle(
       "SELECT id FROM posts WHERE id = ? AND status = 'approved'",

@@ -7,14 +7,28 @@ export class CommentsSection {
     this.comments = [];
     this.isLoggedIn = false;
     this.currentUser = null;
+    this.hasActiveSubscription = false;
     this.init();
   }
 
   async init() {
     this.checkAuthStatus();
+    if (this.isLoggedIn) {
+      await this.checkSubscriptionStatus();
+    }
     await this.loadComments();
     this.render();
     this.attachEventListeners();
+  }
+
+  async checkSubscriptionStatus() {
+    try {
+      const response = await api.get("/subscription/status");
+      this.hasActiveSubscription = response.hasActiveSubscription || false;
+    } catch (error) {
+      console.error("Error checking subscription status:", error);
+      this.hasActiveSubscription = false;
+    }
   }
 
   checkAuthStatus() {
@@ -49,7 +63,9 @@ export class CommentsSection {
           </h3>
         </div>
 
-        ${this.isLoggedIn ? this.renderCommentForm() : this.renderLoginPrompt()}
+        ${this.isLoggedIn 
+          ? (this.hasActiveSubscription ? this.renderCommentForm() : this.renderSubscriptionPrompt())
+          : this.renderLoginPrompt()}
 
         <div class="comments-list">
           ${
@@ -103,6 +119,22 @@ export class CommentsSection {
           <p>Prijavite se da biste izjavili hatar</p>
           <button class="btn btn-primary" id="showLoginBtn">
             Prijavite se
+          </button>
+        </div>
+      </div>
+    `;
+  }
+
+  renderSubscriptionPrompt() {
+    return `
+      <div class="subscription-prompt">
+        <div class="subscription-prompt-content">
+          <i class="fas fa-lock"></i>
+          <h4>Potrebna je aktivna pretplata</h4>
+          <p>Za izjavljivanje hatara potrebna je godišnja pretplata od 15 EUR.</p>
+          <p class="benefits">Pretplatom dobijate i email notifikacije o dženazama za vaše gradove.</p>
+          <button class="btn btn-primary" id="goToSubscriptionBtn">
+            Aktiviraj pretplatu
           </button>
         </div>
       </div>
@@ -200,6 +232,14 @@ export class CommentsSection {
     if (loginBtn) {
       loginBtn.addEventListener("click", () => {
         window.dispatchEvent(new CustomEvent("showLogin"));
+      });
+    }
+
+    // Subscription button
+    const subscriptionBtn = this.container.querySelector("#goToSubscriptionBtn");
+    if (subscriptionBtn) {
+      subscriptionBtn.addEventListener("click", () => {
+        window.location.href = "/subscription-payment";
       });
     }
 
