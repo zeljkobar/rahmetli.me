@@ -1,7 +1,8 @@
-const express = require("express");
+import express from "express";
+import { executeQuery, executeQuerySingle } from "../config/database.js";
+import { authenticateToken } from "../middleware/auth.js";
+
 const router = express.Router();
-const { executeQuery, executeQuerySingle } = require("../config/database");
-const { authenticate } = require("../middleware/auth");
 
 // Gradovi u Crnoj Gori za email notifikacije
 const AVAILABLE_CITIES = [
@@ -32,7 +33,7 @@ const AVAILABLE_CITIES = [
  * GET /api/subscription/status
  * Vraća status pretplate za trenutno prijavljenog korisnika
  */
-router.get("/status", authenticate, async (req, res) => {
+router.get("/status", authenticateToken, async (req, res) => {
   try {
     const userId = req.user.id;
 
@@ -75,7 +76,7 @@ router.get("/status", authenticate, async (req, res) => {
  * POST /api/subscription/create
  * Kreira pending subscription i čuva gradove za notifikacije
  */
-router.post("/create", authenticate, async (req, res) => {
+router.post("/create", authenticateToken, async (req, res) => {
   try {
     const userId = req.user.id;
     const { notificationCities } = req.body;
@@ -154,7 +155,7 @@ router.get("/cities", (req, res) => {
  * GET /api/subscription/check-comment-access
  * Provjerava da li korisnik može ostavljati komentare/hatare
  */
-router.get("/check-comment-access", authenticate, async (req, res) => {
+router.get("/check-comment-access", authenticateToken, async (req, res) => {
   try {
     const userId = req.user.id;
 
@@ -180,4 +181,4 @@ router.get("/check-comment-access", authenticate, async (req, res) => {
   }
 });
 
-module.exports = router;
+export default router;
