@@ -46,13 +46,13 @@ export class PostCreateForm {
 
       // Hatar sessions (čitanje hatma)
       hatar_sessions: [
-        { 
+        {
           session_date: "",
           session_time_start: "",
           session_time_end: "",
           session_location: "",
-          session_note: ""
-        }
+          session_note: "",
+        },
       ],
 
       errors: {},
@@ -208,11 +208,11 @@ export class PostCreateForm {
               
               <!-- Hatar sesije -->
               <div class="form-section">
-                <h3>Hatma sesije</h3>
-                <p class="section-hint">Informacije o čitanju hatma (opciono)</p>
+                <h3>Hatar sesije</h3>
+                <p class="section-hint">Informacije o čitanju hatara (opciono)</p>
                 ${this.renderHatarSessions()}
                 <button type="button" class="btn btn-outline btn-sm" id="addHatarSession">
-                  + Dodaj hatma sesiju
+                  + Dodaj hatar sesiju
                 </button>
               </div>
               
@@ -397,7 +397,10 @@ export class PostCreateForm {
                   <button type="button" class="template-btn" data-template="prayer-section">🤲 Dova</button>
                 </div>
                 <div id="quillEditor" style="height: 300px;"></div>
-                <input type="hidden" id="hiddenContent" value="${this.editedHtml.replace(/"/g, '&quot;')}" />
+                <input type="hidden" id="hiddenContent" value="${this.editedHtml.replace(
+                  /"/g,
+                  "&quot;"
+                )}" />
               </div>
               
               <div class="live-preview">
@@ -565,9 +568,9 @@ export class PostCreateForm {
     this.initializeQuillEditor();
 
     // Add template button listeners
-    const templateBtns = this.element.querySelectorAll('.template-btn');
-    templateBtns.forEach(btn => {
-      btn.addEventListener('click', (e) => {
+    const templateBtns = this.element.querySelectorAll(".template-btn");
+    templateBtns.forEach((btn) => {
+      btn.addEventListener("click", (e) => {
         const template = e.target.dataset.template;
         this.insertQuillTemplate(template);
       });
@@ -576,7 +579,7 @@ export class PostCreateForm {
 
   initializeQuillEditor() {
     if (!window.Quill) {
-      console.error('Quill.js nije učitan');
+      console.error("Quill.js nije učitan");
       return;
     }
 
@@ -585,31 +588,48 @@ export class PostCreateForm {
 
     // Quill toolbar configuration
     const toolbarOptions = [
-      ['bold', 'italic', 'underline', 'strike'],
-      ['blockquote', 'code-block'],
-      [{ 'header': 1 }, { 'header': 2 }],
-      [{ 'list': 'ordered'}, { 'list': 'bullet' }],
-      [{ 'script': 'sub'}, { 'script': 'super' }],
-      [{ 'indent': '-1'}, { 'indent': '+1' }],
-      [{ 'direction': 'rtl' }],
-      [{ 'size': ['small', false, 'large', 'huge'] }],
-      [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
-      [{ 'color': [] }, { 'background': [] }],
-      [{ 'font': [] }],
-      [{ 'align': [] }],
-      ['clean'],
-      ['link']
+      ["bold", "italic", "underline", "strike"],
+      ["blockquote", "code-block"],
+      [{ header: 1 }, { header: 2 }],
+      [{ list: "ordered" }, { list: "bullet" }],
+      [{ script: "sub" }, { script: "super" }],
+      [{ indent: "-1" }, { indent: "+1" }],
+      [{ direction: "rtl" }],
+      [{ size: ["small", false, "large", "huge"] }],
+      [{ header: [1, 2, 3, 4, 5, 6, false] }],
+      [{ color: [] }, { background: [] }],
+      [{ font: [] }],
+      [{ align: [] }],
+      ["clean"],
+      ["link"],
     ];
 
     // Initialize Quill
-    this.quill = new Quill('#quillEditor', {
-      theme: 'snow',
+    this.quill = new Quill("#quillEditor", {
+      theme: "snow",
       modules: {
-        toolbar: toolbarOptions
+        toolbar: toolbarOptions,
       },
-      formats: ['bold', 'italic', 'underline', 'strike', 'blockquote', 'code-block', 
-               'header', 'list', 'script', 'indent', 'direction', 'size', 'color', 
-               'background', 'font', 'align', 'clean', 'link']
+      formats: [
+        "bold",
+        "italic",
+        "underline",
+        "strike",
+        "blockquote",
+        "code-block",
+        "header",
+        "list",
+        "script",
+        "indent",
+        "direction",
+        "size",
+        "color",
+        "background",
+        "font",
+        "align",
+        "clean",
+        "link",
+      ],
     });
 
     // Set initial content
@@ -618,7 +638,7 @@ export class PostCreateForm {
     }
 
     // Update preview on content change
-    this.quill.on('text-change', () => {
+    this.quill.on("text-change", () => {
       const content = this.quill.root.innerHTML;
       this.editedHtml = content;
       if (livePreview) {
@@ -630,10 +650,10 @@ export class PostCreateForm {
   insertQuillTemplate(templateType) {
     if (!this.quill) return;
 
-    let templateHtml = '';
-    
+    let templateHtml = "";
+
     switch (templateType) {
-      case 'funeral-info':
+      case "funeral-info":
         templateHtml = `
           <div class="funeral-info">
             <strong>Dženaza se prima:</strong> [Datum], [Vreme] sati od [Mesto]<br>
@@ -641,8 +661,8 @@ export class PostCreateForm {
           </div>
         `;
         break;
-      
-      case 'family-section':
+
+      case "family-section":
         templateHtml = `
           <div class="family-section">
             <h4>Ožalošćeni:</h4>
@@ -652,8 +672,8 @@ export class PostCreateForm {
           </div>
         `;
         break;
-      
-      case 'prayer-section':
+
+      case "prayer-section":
         templateHtml = `
           <div class="prayer-section">
             <p>اللهم اغفر له وارحمه وعافه واعف عنه</p>
@@ -1371,8 +1391,8 @@ export class PostCreateForm {
     );
 
     // Filter valid hatar sessions (must have date and location)
-    const validHatarSessions = this.state.hatar_sessions.filter((s) =>
-      s.session_date && s.session_location && s.session_location.trim()
+    const validHatarSessions = this.state.hatar_sessions.filter(
+      (s) => s.session_date && s.session_location && s.session_location.trim()
     );
     const deceasedName =
       `${this.state.first_name} ${this.state.last_name}`.trim();
@@ -1610,7 +1630,7 @@ export class PostCreateForm {
       session_time_start: "",
       session_time_end: "",
       session_location: "",
-      session_note: ""
+      session_note: "",
     });
     this.rerenderHatarSessions();
   }
@@ -1641,17 +1661,25 @@ export class PostCreateForm {
         addBtn.addEventListener("click", () => this.addHatarSession());
       }
 
-      container.querySelectorAll(".remove-hatar-session").forEach((btn, index) => {
-        btn.addEventListener("click", () => {
-          this.removeHatarSession(index);
+      container
+        .querySelectorAll(".remove-hatar-session")
+        .forEach((btn, index) => {
+          btn.addEventListener("click", () => {
+            this.removeHatarSession(index);
+          });
         });
-      });
 
       // Re-attach input listeners for hatar sessions
-      container.querySelectorAll("input").forEach(input => {
+      container.querySelectorAll("input").forEach((input) => {
         if (input.name && input.name.startsWith("hatar_")) {
-          input.addEventListener("input", this.handleHatarSessionChange.bind(this));
-          input.addEventListener("change", this.handleHatarSessionChange.bind(this));
+          input.addEventListener(
+            "input",
+            this.handleHatarSessionChange.bind(this)
+          );
+          input.addEventListener(
+            "change",
+            this.handleHatarSessionChange.bind(this)
+          );
         }
       });
     }
@@ -1660,22 +1688,22 @@ export class PostCreateForm {
   handleHatarSessionChange(e) {
     const name = e.target.name;
     const value = e.target.value;
-    
+
     // Parse field name like "hatar_date_0" -> field: "session_date", index: 0
     const match = name.match(/^hatar_(\w+)_(\d+)$/);
     if (match) {
       const field = match[1];
       const index = parseInt(match[2]);
-      
+
       // Map field names to database columns
       const fieldMap = {
-        'date': 'session_date',
-        'time_start': 'session_time_start',
-        'time_end': 'session_time_end',
-        'location': 'session_location',
-        'note': 'session_note'
+        date: "session_date",
+        time_start: "session_time_start",
+        time_end: "session_time_end",
+        location: "session_location",
+        note: "session_note",
       };
-      
+
       const dbField = fieldMap[field];
       if (dbField && this.state.hatar_sessions[index]) {
         this.state.hatar_sessions[index][dbField] = value;

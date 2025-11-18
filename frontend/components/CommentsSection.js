@@ -45,7 +45,7 @@ export class CommentsSection {
         <div class="comments-header">
           <h3 class="comments-title">
             <i class="fas fa-heart"></i>
-            Poslednji pozdravi (${this.comments.length})
+            Hatari (${this.comments.length})
           </h3>
         </div>
 
@@ -57,7 +57,7 @@ export class CommentsSection {
               ? this.comments
                   .map((comment) => this.renderComment(comment))
                   .join("")
-              : '<div class="no-comments">Još nema pozdrava. Budite prvi koji će ostaviti poslednji pozdrav.</div>'
+              : '<div class="no-comments">Još nema hatara. Budite prvi koji će izjaviti hatar.</div>'
           }
         </div>
       </div>
@@ -69,11 +69,11 @@ export class CommentsSection {
       <div class="comment-form-container">
         <form class="comment-form" id="commentForm">
           <div class="form-group">
-            <label for="commentContent">Vaš poslednji pozdrav:</label>
+            <label for="commentContent">Vaš hatar:</label>
             <textarea 
               id="commentContent" 
               name="content" 
-              placeholder="Podelite svoje sećanje, pozdrav ili saučešće..."
+              placeholder="Izjavite svoj hatar..."
               rows="4"
               minlength="5"
               maxlength="1000"
@@ -87,7 +87,7 @@ export class CommentsSection {
           <div class="form-actions">
             <button type="submit" class="btn btn-primary">
               <i class="fas fa-paper-plane"></i>
-              Pošalji pozdrav
+              Izjavi hatar
             </button>
           </div>
         </form>
@@ -100,7 +100,7 @@ export class CommentsSection {
       <div class="login-prompt">
         <div class="login-prompt-content">
           <i class="fas fa-sign-in-alt"></i>
-          <p>Prijavite se da biste ostavili poslednji pozdrav</p>
+          <p>Prijavite se da biste izjavili hatar</p>
           <button class="btn btn-primary" id="showLoginBtn">
             Prijavite se
           </button>
@@ -240,7 +240,7 @@ export class CommentsSection {
       });
 
       this.showSuccess(
-        "Pozdrav je poslat na moderaciju i biće prikazan nakon odobrenja"
+        "Hatar je poslat na moderaciju i biće prikazan nakon odobrenja"
       );
 
       // Reset form
@@ -340,7 +340,7 @@ export class CommentsSection {
     if (submitBtn) {
       submitBtn.disabled = false;
       submitBtn.innerHTML =
-        '<i class="fas fa-paper-plane"></i> Pošalji pozdrav';
+        '<i class="fas fa-paper-plane"></i> Izjavi hatar';
     }
   }
 

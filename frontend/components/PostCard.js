@@ -61,39 +61,80 @@ export class PostCard {
           typeof family_members === "string"
             ? JSON.parse(family_members)
             : family_members;
-        familyList = Array.isArray(members)
-          ? members.map((m) => m.name).join(", ")
-          : "";
+        
+        if (Array.isArray(members)) {
+          familyList = members.map((m) => {
+            // Format: relationship name (e.g., "supruga Amra")
+            const relationship = (m.relationship || "").toLowerCase();
+            const name = m.name || "";
+            const capitalizedName = name.charAt(0).toUpperCase() + name.slice(1).toLowerCase();
+            return `${relationship} ${capitalizedName}`.trim();
+          }).join(", ");
+        } else {
+          familyList = "";
+        }
       } catch (e) {
-        familyList = family_members;
+        // If it's a plain string, split by comma and capitalize only names (not relationships)
+        familyList = family_members
+          .split(",")
+          .map((member) => {
+            const trimmed = member.trim();
+            const words = trimmed.split(" ");
+            // First word is relationship (lowercase), rest are names (capitalize)
+            return words
+              .map((word, index) => {
+                if (index === 0) {
+                  // Keep relationship lowercase
+                  return word.toLowerCase();
+                } else {
+                  // Capitalize names
+                  return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
+                }
+              })
+              .join(" ");
+          })
+          .join(", ");
       }
     }
 
     // Format hatar sessions
     let hatarSectionsHtml = "";
-    if (hatar_sessions && Array.isArray(hatar_sessions) && hatar_sessions.length > 0) {
+    if (
+      hatar_sessions &&
+      Array.isArray(hatar_sessions) &&
+      hatar_sessions.length > 0
+    ) {
       // Remove duplicates by session id
-      const uniqueSessions = hatar_sessions.filter((session, index, self) => 
-        self.findIndex(s => s.id === session.id) === index
+      const uniqueSessions = hatar_sessions.filter(
+        (session, index, self) =>
+          self.findIndex((s) => s.id === session.id) === index
       );
 
-      const hatarItems = uniqueSessions.map(session => {
-        const sessionDate = new Date(session.date).toLocaleDateString('sr-RS', {
-          day: '2-digit',
-          month: '2-digit', 
-          year: 'numeric'
-        });
-        const timeStart = session.time_start ? session.time_start.slice(0, 5) : '';
-        const timeEnd = session.time_end ? ` do ${session.time_end.slice(0, 5)}` : '';
-        const timeInfo = timeStart ? ` od ${timeStart}${timeEnd} h.` : '';
-        
-        return `${sessionDate}.g.${timeInfo}`;
-      }).join(' i ');
+      const hatarItems = uniqueSessions
+        .map((session) => {
+          const sessionDate = new Date(session.date).toLocaleDateString(
+            "sr-RS",
+            {
+              day: "2-digit",
+              month: "2-digit",
+              year: "numeric",
+            }
+          );
+          const displayTimeStart = session.time_start
+            ? session.time_start.slice(0, 5)
+            : "";
+          const displayTimeEnd = session.time_end
+            ? ` do ${session.time_end.slice(0, 5)}`
+            : "";
+          
+          return `<strong>Hatar se prima ${sessionDate} od ${displayTimeStart}${displayTimeEnd} u ${session.location}</strong>`;
+        })
+        .join("<br>");
 
       hatarSectionsHtml = `
         <div class="hatar-info">
           <div class="hatar-detail">
-            <strong>Hatar primamo u ${uniqueSessions[0].location}:</strong> ${hatarItems}
+            ${hatarItems}
           </div>
         </div>
       `;
@@ -105,7 +146,7 @@ export class PostCard {
           <div class="obituary-content">
             <div class="obituary-header">
               <div class="crescent-moon">☪</div>
-              <img src="images/arabic-calligraphy.png" alt="الرَّحْمَنُ الرَّحِيمُ" class="arabic-calligraphy-image">
+              <img src="/images/arabic-calligraphy.png" alt="الرَّحْمَنُ الرَّحِيمُ" class="arabic-calligraphy-image">
             </div>
             
             <div class="obituary-body">
@@ -123,7 +164,7 @@ export class PostCard {
               
               <div class="funeral-info">
                 <div class="funeral-detail">
-                  <strong>Dženaza se prima:</strong> ${funeralDate} god. u ${funeralTime} sati od ${dzenaza_location}
+                  <strong>Dženaza se klanja:</strong> ${funeralDate} god. u ${funeralTime} sati u ${dzenaza_location}
                 </div>
                 ${
                   burial_cemetery

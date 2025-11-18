@@ -585,16 +585,16 @@
     flex-direction: column;
     gap: 6px;
   }
-  
+
   .template-btn {
     width: 100%;
     justify-content: center;
   }
-  
+
   .ql-toolbar {
     padding: 8px !important;
   }
-  
+
   .ql-editor {
     min-height: 200px;
   }

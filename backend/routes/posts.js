@@ -125,17 +125,17 @@ router.get("/", validateSearch, optionalAuth, async (req, res) => {
     );
 
     // Parse hatar_sessions from GROUP_CONCAT JSON string to array
-    const processedPosts = (posts || []).map(post => {
-      if (post.hatar_sessions && typeof post.hatar_sessions === 'string') {
+    const processedPosts = (posts || []).map((post) => {
+      if (post.hatar_sessions && typeof post.hatar_sessions === "string") {
         try {
           // Split by || and parse each JSON object
           const sessionsArray = post.hatar_sessions
-            .split('||')
-            .filter(s => s && s !== 'null')
-            .map(jsonStr => JSON.parse(jsonStr));
+            .split("||")
+            .filter((s) => s && s !== "null")
+            .map((jsonStr) => JSON.parse(jsonStr));
           post.hatar_sessions = sessionsArray.length > 0 ? sessionsArray : null;
         } catch (e) {
-          console.error('Error parsing hatar_sessions:', e);
+          console.error("Error parsing hatar_sessions:", e);
           post.hatar_sessions = null;
         }
       }
@@ -196,8 +196,10 @@ router.get("/:id", validateId, optionalAuth, async (req, res) => {
         `,
       [
         postId,
-        !!(req.user &&
-          (req.user.role === "admin" || req.user.role === "moderator")),
+        !!(
+          req.user &&
+          (req.user.role === "admin" || req.user.role === "moderator")
+        ),
       ]
     );
 
@@ -372,7 +374,7 @@ router.post("/", authenticateToken, async (req, res) => {
               session.session_time_end || null,
               session.session_location,
               session.session_note || null,
-              i + 1
+              i + 1,
             ]
           );
         }

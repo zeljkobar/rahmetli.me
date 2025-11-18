@@ -533,7 +533,11 @@ class App {
         return;
       }
 
-      // Render post detail page
+      // Use PostCard component to render obituary
+      const postCard = new PostCard(post);
+      const obituaryHtml = postCard.renderObituary();
+      
+      // Render post detail page with obituary format
       mainContent.innerHTML = `
         <div class="post-detail">
           <div class="container">
@@ -543,96 +547,7 @@ class App {
               </button>
             </div>
             
-            <article class="post-detail-content">
-              <div class="post-detail-main">
-                <div class="post-header">
-                  <h1 class="post-title">${this.escapeHtml(
-                    post.deceased_name
-                  )}</h1>
-                  <div class="post-meta">
-                    <span class="post-date">
-                      <i class="fas fa-calendar"></i>
-                      ${this.formatDate(post.deceased_death_date)}
-                    </span>
-                    ${
-                      post.deceased_age
-                        ? `<span class="post-age">
-                      <i class="fas fa-user"></i>
-                      ${post.deceased_age} godina
-                    </span>`
-                        : ""
-                    }
-                  </div>
-                </div>
-
-                ${
-                  post.deceased_photo_url
-                    ? `
-                  <div class="post-image">
-                    <img src="${
-                      post.deceased_photo_url
-                    }" alt="${this.escapeHtml(post.deceased_name)}" />
-                  </div>
-                `
-                    : ""
-                }
-
-                <div class="post-content">
-                  ${post.content || post.generated_html || ""}
-                </div>
-
-                <div class="post-details-grid">
-                  ${
-                    post.dzenaza_date
-                      ? `
-                    <div class="detail-item">
-                      <h3><i class="fas fa-mosque"></i> Dženaza</h3>
-                      <p><strong>Datum:</strong> ${this.formatDate(
-                        post.dzenaza_date
-                      )}</p>
-                      ${
-                        post.dzenaza_time
-                          ? `<p><strong>Vreme:</strong> ${post.dzenaza_time}</p>`
-                          : ""
-                      }
-                      ${
-                        post.dzenaza_location
-                          ? `<p><strong>Lokacija:</strong> ${this.escapeHtml(
-                              post.dzenaza_location
-                            )}</p>`
-                          : ""
-                      }
-                    </div>
-                  `
-                      : ""
-                  }
-                  
-                  ${
-                    post.burial_cemetery || post.burial_location
-                      ? `
-                    <div class="detail-item">
-                      <h3><i class="fas fa-map-marker-alt"></i> Sahrana</h3>
-                      ${
-                        post.burial_cemetery
-                          ? `<p><strong>Mezaristan:</strong> ${this.escapeHtml(
-                              post.burial_cemetery
-                            )}</p>`
-                          : ""
-                      }
-                      ${
-                        post.burial_location
-                          ? `<p><strong>Lokacija:</strong> ${this.escapeHtml(
-                              post.burial_location
-                            )}</p>`
-                          : ""
-                      }
-                    </div>
-                  `
-                      : ""
-                  }
-                </div>
-              </div>
-            </article>
+            ${obituaryHtml}
 
             <!-- Comments Section -->
             <div id="commentsContainer" class="comments-container">
