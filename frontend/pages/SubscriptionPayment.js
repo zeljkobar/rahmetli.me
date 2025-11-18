@@ -19,7 +19,7 @@ export class SubscriptionPayment {
           <div class="container">
             <div class="subscription-card">
               <div class="subscription-header">
-                <div class="icon">🎉</div>
+                <div class="icon">☪</div>
                 <h1>Dobrodošli na Rahmetli.me!</h1>
                 <p class="subtitle">Zahvaljujemo na registraciji. Aktivirajte sve funkcionalnosti pretplatom.</p>
               </div>
