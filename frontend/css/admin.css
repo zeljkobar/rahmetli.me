@@ -594,3 +594,175 @@
     padding: 8px 10px;
   }
 }
+
+/* Subscription Management Styles */
+.subscriptions-filters {
+  display: flex;
+  gap: 15px;
+  margin-bottom: 20px;
+  flex-wrap: wrap;
+}
+
+.subscriptions-filters select,
+.subscriptions-filters input {
+  padding: 10px;
+  border: 1px solid #e5e7eb;
+  border-radius: 8px;
+  font-size: 0.875rem;
+  min-width: 200px;
+}
+
+.subscriptions-filters input {
+  flex: 1;
+}
+
+.subscriptions-list {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.subscription-card {
+  background: white;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 20px;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.subscription-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.subscription-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 15px;
+  padding-bottom: 15px;
+  border-bottom: 1px solid #e5e7eb;
+}
+
+.subscription-user strong {
+  font-size: 1.1rem;
+  color: #1f2937;
+}
+
+.subscription-email {
+  color: #6b7280;
+  font-size: 0.875rem;
+  margin-left: 8px;
+}
+
+.subscription-status {
+  padding: 6px 12px;
+  border-radius: 20px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.subscription-status.status-pending {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+.subscription-status.status-active {
+  background: #d1fae5;
+  color: #065f46;
+}
+
+.subscription-status.status-expired {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+.subscription-status.status-cancelled {
+  background: #f3f4f6;
+  color: #4b5563;
+}
+
+.subscription-details {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-bottom: 15px;
+}
+
+.subscription-info {
+  display: flex;
+  gap: 20px;
+  flex-wrap: wrap;
+  color: #6b7280;
+  font-size: 0.875rem;
+}
+
+.subscription-info span {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.subscription-info i {
+  color: #9ca3af;
+}
+
+.subscription-cities,
+.subscription-notes {
+  background: #f9fafb;
+  padding: 10px;
+  border-radius: 6px;
+  font-size: 0.875rem;
+  color: #4b5563;
+}
+
+.subscription-cities i,
+.subscription-notes i {
+  margin-right: 8px;
+  color: #6b7280;
+}
+
+.subscription-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+  padding-top: 15px;
+  border-top: 1px solid #e5e7eb;
+}
+
+.subscription-actions .btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+@media (max-width: 768px) {
+  .subscriptions-filters {
+    flex-direction: column;
+  }
+
+  .subscriptions-filters select,
+  .subscriptions-filters input {
+    min-width: 100%;
+  }
+
+  .subscription-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+
+  .subscription-info {
+    flex-direction: column;
+    gap: 8px;
+  }
+
+  .subscription-actions {
+    justify-content: stretch;
+  }
+
+  .subscription-actions .btn {
+    flex: 1;
+  }
+}

@@ -324,4 +324,175 @@ router.get(
     }
   }
 );
+
+// ============================================
+// SUBSCRIPTION MANAGEMENT ENDPOINTS
+// ============================================
+
+// Get all subscriptions (pending, active, expired)
+router.get(
+  "/subscriptions",
+  authenticateToken,
+  requireAdmin,
+  async (req, res) => {
+    try {
+      const { status } = req.query;
+      let whereClause = "";
+      let params = [];
+
+      if (status && status !== "all") {
+        whereClause = "WHERE s.status = ?";
+        params.push(status);
+      }
+
+      const subscriptions = await executeQuery(
+        `SELECT 
+          s.*,
+          u.username,
+          u.email,
+          u.full_name,
+          u.notification_cities,
+          DATEDIFF(s.end_date, CURDATE()) as days_remaining,
+          activator.full_name as activated_by_name
+        FROM subscriptions s
+        JOIN users u ON s.user_id = u.id
+        LEFT JOIN users activator ON s.activated_by = activator.id
+        ${whereClause}
+        ORDER BY s.created_at DESC`,
+        params
+      );
+
+      res.json({ subscriptions });
+    } catch (error) {
+      console.error("Error fetching subscriptions:", error);
+      res.status(500).json({
+        error: "Greška pri dohvatanju pretplata",
+      });
+    }
+  }
+);
+
+// Activate subscription manually
+router.post(
+  "/subscriptions/:id/activate",
+  authenticateToken,
+  requireAdmin,
+  async (req, res) => {
+    try {
+      const subscriptionId = req.params.id;
+      const { payment_reference, admin_notes } = req.body;
+      const adminId = req.user.id;
+
+      // Call stored procedure
+      await executeQuery(
+        "CALL ActivateSubscription(?, ?, ?, ?)",
+        [
+          subscriptionId, // user_id će se dobiti iz subscription zapisa
+          payment_reference,
+          adminId,
+          admin_notes || "Manuelno aktivirana pretplata",
+        ]
+      );
+
+      // Get subscription details to extract user_id
+      const subscription = await executeQuerySingle(
+        "SELECT user_id FROM subscriptions WHERE id = ?",
+        [subscriptionId]
+      );
+
+      if (!subscription) {
+        return res.status(404).json({ error: "Pretplata nije pronađena" });
+      }
+
+      // Update subscription with payment info
+      await executeQuery(
+        `UPDATE subscriptions 
+         SET 
+           status = 'active',
+           payment_reference = ?,
+           payment_completed_at = NOW(),
+           admin_notes = ?,
+           manually_activated = TRUE,
+           activated_by = ?
+         WHERE id = ?`,
+        [payment_reference, admin_notes, adminId, subscriptionId]
+      );
+
+      // Update user subscription status
+      const startDate = new Date();
+      const endDate = new Date();
+      endDate.setFullYear(endDate.getFullYear() + 1);
+
+      await executeQuery(
+        `UPDATE users 
+         SET 
+           subscription_status = 'active',
+           subscription_start = ?,
+           subscription_end = ?
+         WHERE id = ?`,
+        [
+          startDate.toISOString().split("T")[0],
+          endDate.toISOString().split("T")[0],
+          subscription.user_id,
+        ]
+      );
+
+      res.json({
+        success: true,
+        message: "Pretplata uspješno aktivirana",
+      });
+    } catch (error) {
+      console.error("Error activating subscription:", error);
+      res.status(500).json({
+        error: "Greška pri aktivaciji pretplate",
+      });
+    }
+  }
+);
+
+// Cancel subscription
+router.post(
+  "/subscriptions/:id/cancel",
+  authenticateToken,
+  requireAdmin,
+  async (req, res) => {
+    try {
+      const subscriptionId = req.params.id;
+      const { reason } = req.body;
+
+      await executeQuery(
+        `UPDATE subscriptions 
+         SET status = 'cancelled', admin_notes = ? 
+         WHERE id = ?`,
+        [reason || "Otkazana od strane admina", subscriptionId]
+      );
+
+      // Get user_id
+      const subscription = await executeQuerySingle(
+        "SELECT user_id FROM subscriptions WHERE id = ?",
+        [subscriptionId]
+      );
+
+      if (subscription) {
+        await executeQuery(
+          `UPDATE users 
+           SET subscription_status = 'expired' 
+           WHERE id = ?`,
+          [subscription.user_id]
+        );
+      }
+
+      res.json({
+        success: true,
+        message: "Pretplata otkazana",
+      });
+    } catch (error) {
+      console.error("Error cancelling subscription:", error);
+      res.status(500).json({
+        error: "Greška pri otkazivanju pretplate",
+      });
+    }
+  }
+);
+
 export default router;

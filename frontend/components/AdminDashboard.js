@@ -55,6 +55,28 @@ class AdminDashboard {
         this.filterUsers();
       });
     }
+
+    // Subscription filters
+    const statusFilter = document.getElementById("subscription-status-filter");
+    if (statusFilter) {
+      statusFilter.addEventListener("change", () => {
+        this.filterSubscriptions();
+      });
+    }
+
+    const paymentFilter = document.getElementById("subscription-payment-filter");
+    if (paymentFilter) {
+      paymentFilter.addEventListener("change", () => {
+        this.filterSubscriptions();
+      });
+    }
+
+    const subscriptionSearch = document.getElementById("subscription-search");
+    if (subscriptionSearch) {
+      subscriptionSearch.addEventListener("input", () => {
+        this.filterSubscriptions();
+      });
+    }
   }
 
   filterUsers() {
@@ -122,6 +144,9 @@ class AdminDashboard {
       case "stats":
         this.loadDetailedStats();
         break;
+      case "subscriptions":
+        this.loadSubscriptions();
+        break;
     }
   }
 
@@ -148,6 +173,9 @@ class AdminDashboard {
           </button>
           <button class="nav-btn" data-tab="users">
             <i class="fas fa-users"></i> Korisnici
+          </button>
+          <button class="nav-btn" data-tab="subscriptions">
+            <i class="fas fa-credit-card"></i> Pretplate
           </button>
           <button class="nav-btn" data-tab="stats">
             <i class="fas fa-chart-bar"></i> Statistike
@@ -210,6 +238,29 @@ class AdminDashboard {
         <div class="admin-section tab-content" id="stats-tab" style="display: none;">
           <h3><i class="fas fa-chart-bar"></i> Detaljne statistike</h3>
           <div id="detailed-stats" class="stats-grid">
+            <div class="loading">Učitavanje...</div>
+          </div>
+        </div>
+
+        <!-- Subscriptions Tab -->
+        <div class="admin-section tab-content" id="subscriptions-tab" style="display: none;">
+          <h3><i class="fas fa-credit-card"></i> Upravljanje pretplatama</h3>
+          <div class="subscriptions-filters">
+            <select id="subscription-status-filter">
+              <option value="">Svi statusi</option>
+              <option value="pending">Na čekanju</option>
+              <option value="active">Aktivne</option>
+              <option value="expired">Istekle</option>
+              <option value="cancelled">Otkazane</option>
+            </select>
+            <select id="subscription-payment-filter">
+              <option value="">Sve metode plaćanja</option>
+              <option value="bank_transfer">Bankovna transakcija</option>
+              <option value="card">Kartica</option>
+            </select>
+            <input type="text" id="subscription-search" placeholder="Pretraži po korisniku...">
+          </div>
+          <div id="subscriptions-list" class="subscriptions-list">
             <div class="loading">Učitavanje...</div>
           </div>
         </div>
@@ -646,6 +697,197 @@ class AdminDashboard {
         </div>
       </div>
     `;
+  }
+
+  async loadSubscriptions() {
+    try {
+      console.log("🔄 Loading subscriptions...");
+      const response = await this.api.request("/admin/subscriptions");
+      console.log("📥 Subscriptions response:", response);
+      this.allSubscriptions = response;
+      this.filterSubscriptions();
+    } catch (error) {
+      console.error("❌ Error loading subscriptions:", error);
+      document.getElementById("subscriptions-list").innerHTML =
+        '<div class="alert alert-danger">Greška pri učitavanju pretplata</div>';
+    }
+  }
+
+  filterSubscriptions() {
+    if (!this.allSubscriptions || !this.allSubscriptions.length) {
+      this.renderSubscriptions([]);
+      return;
+    }
+
+    const statusFilter = document.getElementById("subscription-status-filter")?.value || "";
+    const paymentFilter = document.getElementById("subscription-payment-filter")?.value || "";
+    const searchTerm = document.getElementById("subscription-search")?.value.toLowerCase() || "";
+
+    let filtered = this.allSubscriptions;
+
+    if (statusFilter) {
+      filtered = filtered.filter((sub) => sub.status === statusFilter);
+    }
+
+    if (paymentFilter) {
+      filtered = filtered.filter((sub) => sub.payment_method === paymentFilter);
+    }
+
+    if (searchTerm) {
+      filtered = filtered.filter((sub) =>
+        (sub.username || "").toLowerCase().includes(searchTerm) ||
+        (sub.email || "").toLowerCase().includes(searchTerm) ||
+        (sub.full_name || "").toLowerCase().includes(searchTerm)
+      );
+    }
+
+    console.log("🔍 Filtering subscriptions:", {
+      statusFilter,
+      paymentFilter,
+      searchTerm,
+      total: this.allSubscriptions.length,
+      filtered: filtered.length,
+    });
+
+    this.renderSubscriptions(filtered);
+  }
+
+  renderSubscriptions(subscriptions) {
+    const container = document.getElementById("subscriptions-list");
+
+    if (!subscriptions || subscriptions.length === 0) {
+      container.innerHTML = '<div class="alert alert-info">Nema pretplata</div>';
+      return;
+    }
+
+    container.innerHTML = subscriptions
+      .map(
+        (sub) => `
+      <div class="subscription-card" data-subscription-id="${sub.id}">
+        <div class="subscription-header">
+          <div class="subscription-user">
+            <strong>${sub.full_name || sub.username}</strong>
+            <span class="subscription-email">(${sub.email})</span>
+          </div>
+          <div class="subscription-status status-${sub.status}">
+            ${this.getStatusLabel(sub.status)}
+          </div>
+        </div>
+        
+        <div class="subscription-details">
+          <div class="subscription-info">
+            <span><i class="fas fa-calendar-alt"></i> Kreirana: ${new Date(sub.created_at).toLocaleDateString("sr-RS")}</span>
+            ${sub.start_date ? `<span><i class="fas fa-play"></i> Početak: ${new Date(sub.start_date).toLocaleDateString("sr-RS")}</span>` : ""}
+            ${sub.end_date ? `<span><i class="fas fa-stop"></i> Kraj: ${new Date(sub.end_date).toLocaleDateString("sr-RS")}</span>` : ""}
+          </div>
+          <div class="subscription-info">
+            <span><i class="fas fa-credit-card"></i> Metoda: ${this.getPaymentMethodLabel(sub.payment_method)}</span>
+            ${sub.payment_reference ? `<span><i class="fas fa-hashtag"></i> Referenca: ${sub.payment_reference}</span>` : ""}
+            <span><i class="fas fa-euro-sign"></i> Cijena: ${sub.price} EUR</span>
+          </div>
+          ${sub.notification_cities ? `
+            <div class="subscription-cities">
+              <i class="fas fa-map-marker-alt"></i> Gradovi: ${JSON.parse(sub.notification_cities).join(", ")}
+            </div>
+          ` : ""}
+          ${sub.admin_notes ? `
+            <div class="subscription-notes">
+              <i class="fas fa-sticky-note"></i> Napomena: ${sub.admin_notes}
+            </div>
+          ` : ""}
+        </div>
+
+        <div class="subscription-actions">
+          ${sub.status === "pending" ? `
+            <button class="btn btn-success btn-sm" data-action="activate" data-subscription-id="${sub.id}">
+              <i class="fas fa-check"></i> Aktiviraj
+            </button>
+          ` : ""}
+          ${sub.status === "active" ? `
+            <button class="btn btn-danger btn-sm" data-action="cancel" data-subscription-id="${sub.id}">
+              <i class="fas fa-times"></i> Otkaži
+            </button>
+          ` : ""}
+        </div>
+      </div>
+    `
+      )
+      .join("");
+
+    // Attach event listeners
+    this.attachSubscriptionEventListeners();
+  }
+
+  getStatusLabel(status) {
+    const labels = {
+      pending: "Na čekanju",
+      active: "Aktivna",
+      expired: "Istekla",
+      cancelled: "Otkazana",
+    };
+    return labels[status] || status;
+  }
+
+  getPaymentMethodLabel(method) {
+    const labels = {
+      bank_transfer: "Bankovna transakcija",
+      card: "Kartica",
+    };
+    return labels[method] || method;
+  }
+
+  attachSubscriptionEventListeners() {
+    const buttons = document.querySelectorAll(".subscription-card button");
+    buttons.forEach((button) => {
+      button.addEventListener("click", async (e) => {
+        const subscriptionId = parseInt(e.target.closest("button").dataset.subscriptionId);
+        const action = e.target.closest("button").dataset.action;
+
+        if (action === "activate") {
+          await this.activateSubscription(subscriptionId);
+        } else if (action === "cancel") {
+          await this.cancelSubscription(subscriptionId);
+        }
+      });
+    });
+  }
+
+  async activateSubscription(subscriptionId) {
+    const notes = prompt("Unesite napomenu (opciono):");
+    
+    try {
+      await this.api.request(`/admin/subscriptions/${subscriptionId}/activate`, {
+        method: "POST",
+        body: JSON.stringify({ admin_notes: notes }),
+      });
+
+      this.showNotification("Pretplata je aktivirana", "success");
+      await this.loadSubscriptions();
+    } catch (error) {
+      console.error("Error activating subscription:", error);
+      this.showNotification("Greška pri aktivaciji pretplate", "error");
+    }
+  }
+
+  async cancelSubscription(subscriptionId) {
+    if (!confirm("Da li ste sigurni da želite otkazati ovu pretplatu?")) {
+      return;
+    }
+
+    const reason = prompt("Unesite razlog (opciono):");
+
+    try {
+      await this.api.request(`/admin/subscriptions/${subscriptionId}/cancel`, {
+        method: "POST",
+        body: JSON.stringify({ reason }),
+      });
+
+      this.showNotification("Pretplata je otkazana", "success");
+      await this.loadSubscriptions();
+    } catch (error) {
+      console.error("Error canceling subscription:", error);
+      this.showNotification("Greška pri otkazivanju pretplate", "error");
+    }
   }
 
   showNotification(message, type = "info") {
