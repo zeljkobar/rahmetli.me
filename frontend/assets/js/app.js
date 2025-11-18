@@ -539,7 +539,7 @@ class App {
       // Use PostCard component to render obituary
       const postCard = new PostCard(post);
       const obituaryHtml = postCard.renderObituary();
-      
+
       // Render post detail page with obituary format
       mainContent.innerHTML = `
         <div class="post-detail">
@@ -623,9 +623,12 @@ class App {
   onAuthSuccess(authData, isNewRegistration = false) {
     this.currentUser = authData.user;
     this.updateAuthUI();
-    
+
     if (isNewRegistration) {
-      showToast("Dobrodošli! Aktivirajte sve funkcionalnosti pretplatom.", "success");
+      showToast(
+        "Dobrodošli! Aktivirajte sve funkcionalnosti pretplatom.",
+        "success"
+      );
       // Redirect na subscription payment stranicu
       this.navigate("/subscription-payment");
     } else {

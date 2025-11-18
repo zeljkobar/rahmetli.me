@@ -64,7 +64,9 @@ class AdminDashboard {
       });
     }
 
-    const paymentFilter = document.getElementById("subscription-payment-filter");
+    const paymentFilter = document.getElementById(
+      "subscription-payment-filter"
+    );
     if (paymentFilter) {
       paymentFilter.addEventListener("change", () => {
         this.filterSubscriptions();
@@ -719,9 +721,12 @@ class AdminDashboard {
       return;
     }
 
-    const statusFilter = document.getElementById("subscription-status-filter")?.value || "";
-    const paymentFilter = document.getElementById("subscription-payment-filter")?.value || "";
-    const searchTerm = document.getElementById("subscription-search")?.value.toLowerCase() || "";
+    const statusFilter =
+      document.getElementById("subscription-status-filter")?.value || "";
+    const paymentFilter =
+      document.getElementById("subscription-payment-filter")?.value || "";
+    const searchTerm =
+      document.getElementById("subscription-search")?.value.toLowerCase() || "";
 
     let filtered = this.allSubscriptions;
 
@@ -734,10 +739,11 @@ class AdminDashboard {
     }
 
     if (searchTerm) {
-      filtered = filtered.filter((sub) =>
-        (sub.username || "").toLowerCase().includes(searchTerm) ||
-        (sub.email || "").toLowerCase().includes(searchTerm) ||
-        (sub.full_name || "").toLowerCase().includes(searchTerm)
+      filtered = filtered.filter(
+        (sub) =>
+          (sub.username || "").toLowerCase().includes(searchTerm) ||
+          (sub.email || "").toLowerCase().includes(searchTerm) ||
+          (sub.full_name || "").toLowerCase().includes(searchTerm)
       );
     }
 
@@ -756,7 +762,8 @@ class AdminDashboard {
     const container = document.getElementById("subscriptions-list");
 
     if (!subscriptions || subscriptions.length === 0) {
-      container.innerHTML = '<div class="alert alert-info">Nema pretplata</div>';
+      container.innerHTML =
+        '<div class="alert alert-info">Nema pretplata</div>';
       return;
     }
 
@@ -776,38 +783,78 @@ class AdminDashboard {
         
         <div class="subscription-details">
           <div class="subscription-info">
-            <span><i class="fas fa-calendar-alt"></i> Kreirana: ${new Date(sub.created_at).toLocaleDateString("sr-RS")}</span>
-            ${sub.start_date ? `<span><i class="fas fa-play"></i> Početak: ${new Date(sub.start_date).toLocaleDateString("sr-RS")}</span>` : ""}
-            ${sub.end_date ? `<span><i class="fas fa-stop"></i> Kraj: ${new Date(sub.end_date).toLocaleDateString("sr-RS")}</span>` : ""}
+            <span><i class="fas fa-calendar-alt"></i> Kreirana: ${new Date(
+              sub.created_at
+            ).toLocaleDateString("sr-RS")}</span>
+            ${
+              sub.start_date
+                ? `<span><i class="fas fa-play"></i> Početak: ${new Date(
+                    sub.start_date
+                  ).toLocaleDateString("sr-RS")}</span>`
+                : ""
+            }
+            ${
+              sub.end_date
+                ? `<span><i class="fas fa-stop"></i> Kraj: ${new Date(
+                    sub.end_date
+                  ).toLocaleDateString("sr-RS")}</span>`
+                : ""
+            }
           </div>
           <div class="subscription-info">
-            <span><i class="fas fa-credit-card"></i> Metoda: ${this.getPaymentMethodLabel(sub.payment_method)}</span>
-            ${sub.payment_reference ? `<span><i class="fas fa-hashtag"></i> Referenca: ${sub.payment_reference}</span>` : ""}
-            <span><i class="fas fa-euro-sign"></i> Cijena: ${sub.price} EUR</span>
+            <span><i class="fas fa-credit-card"></i> Metoda: ${this.getPaymentMethodLabel(
+              sub.payment_method
+            )}</span>
+            ${
+              sub.payment_reference
+                ? `<span><i class="fas fa-hashtag"></i> Referenca: ${sub.payment_reference}</span>`
+                : ""
+            }
+            <span><i class="fas fa-euro-sign"></i> Cijena: ${
+              sub.price
+            } EUR</span>
           </div>
-          ${sub.notification_cities ? `
+          ${
+            sub.notification_cities
+              ? `
             <div class="subscription-cities">
-              <i class="fas fa-map-marker-alt"></i> Gradovi: ${JSON.parse(sub.notification_cities).join(", ")}
+              <i class="fas fa-map-marker-alt"></i> Gradovi: ${JSON.parse(
+                sub.notification_cities
+              ).join(", ")}
             </div>
-          ` : ""}
-          ${sub.admin_notes ? `
+          `
+              : ""
+          }
+          ${
+            sub.admin_notes
+              ? `
             <div class="subscription-notes">
               <i class="fas fa-sticky-note"></i> Napomena: ${sub.admin_notes}
             </div>
-          ` : ""}
+          `
+              : ""
+          }
         </div>
 
         <div class="subscription-actions">
-          ${sub.status === "pending" ? `
+          ${
+            sub.status === "pending"
+              ? `
             <button class="btn btn-success btn-sm" data-action="activate" data-subscription-id="${sub.id}">
               <i class="fas fa-check"></i> Aktiviraj
             </button>
-          ` : ""}
-          ${sub.status === "active" ? `
+          `
+              : ""
+          }
+          ${
+            sub.status === "active"
+              ? `
             <button class="btn btn-danger btn-sm" data-action="cancel" data-subscription-id="${sub.id}">
               <i class="fas fa-times"></i> Otkaži
             </button>
-          ` : ""}
+          `
+              : ""
+          }
         </div>
       </div>
     `
@@ -840,7 +887,9 @@ class AdminDashboard {
     const buttons = document.querySelectorAll(".subscription-card button");
     buttons.forEach((button) => {
       button.addEventListener("click", async (e) => {
-        const subscriptionId = parseInt(e.target.closest("button").dataset.subscriptionId);
+        const subscriptionId = parseInt(
+          e.target.closest("button").dataset.subscriptionId
+        );
         const action = e.target.closest("button").dataset.action;
 
         if (action === "activate") {
@@ -854,12 +903,15 @@ class AdminDashboard {
 
   async activateSubscription(subscriptionId) {
     const notes = prompt("Unesite napomenu (opciono):");
-    
+
     try {
-      await this.api.request(`/admin/subscriptions/${subscriptionId}/activate`, {
-        method: "POST",
-        body: JSON.stringify({ admin_notes: notes }),
-      });
+      await this.api.request(
+        `/admin/subscriptions/${subscriptionId}/activate`,
+        {
+          method: "POST",
+          body: JSON.stringify({ admin_notes: notes }),
+        }
+      );
 
       this.showNotification("Pretplata je aktivirana", "success");
       await this.loadSubscriptions();

@@ -244,10 +244,7 @@ export class SubscriptionPayment {
       }, 3000);
     } catch (error) {
       console.error("Error creating subscription:", error);
-      showToast(
-        error.message || "Greška pri kreiranju pretplate",
-        "error"
-      );
+      showToast(error.message || "Greška pri kreiranju pretplate", "error");
     }
   }
 }

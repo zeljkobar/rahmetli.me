@@ -63,9 +63,13 @@ export class CommentsSection {
           </h3>
         </div>
 
-        ${this.isLoggedIn 
-          ? (this.hasActiveSubscription ? this.renderCommentForm() : this.renderSubscriptionPrompt())
-          : this.renderLoginPrompt()}
+        ${
+          this.isLoggedIn
+            ? this.hasActiveSubscription
+              ? this.renderCommentForm()
+              : this.renderSubscriptionPrompt()
+            : this.renderLoginPrompt()
+        }
 
         <div class="comments-list">
           ${
@@ -236,7 +240,9 @@ export class CommentsSection {
     }
 
     // Subscription button
-    const subscriptionBtn = this.container.querySelector("#goToSubscriptionBtn");
+    const subscriptionBtn = this.container.querySelector(
+      "#goToSubscriptionBtn"
+    );
     if (subscriptionBtn) {
       subscriptionBtn.addEventListener("click", () => {
         window.location.href = "/subscription-payment";
@@ -379,8 +385,7 @@ export class CommentsSection {
     const submitBtn = this.container.querySelector('button[type="submit"]');
     if (submitBtn) {
       submitBtn.disabled = false;
-      submitBtn.innerHTML =
-        '<i class="fas fa-paper-plane"></i> Izjavi hatar';
+      submitBtn.innerHTML = '<i class="fas fa-paper-plane"></i> Izjavi hatar';
     }
   }
 

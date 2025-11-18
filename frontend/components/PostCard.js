@@ -61,15 +61,18 @@ export class PostCard {
           typeof family_members === "string"
             ? JSON.parse(family_members)
             : family_members;
-        
+
         if (Array.isArray(members)) {
-          familyList = members.map((m) => {
-            // Format: relationship name (e.g., "supruga Amra")
-            const relationship = (m.relationship || "").toLowerCase();
-            const name = m.name || "";
-            const capitalizedName = name.charAt(0).toUpperCase() + name.slice(1).toLowerCase();
-            return `${relationship} ${capitalizedName}`.trim();
-          }).join(", ");
+          familyList = members
+            .map((m) => {
+              // Format: relationship name (e.g., "supruga Amra")
+              const relationship = (m.relationship || "").toLowerCase();
+              const name = m.name || "";
+              const capitalizedName =
+                name.charAt(0).toUpperCase() + name.slice(1).toLowerCase();
+              return `${relationship} ${capitalizedName}`.trim();
+            })
+            .join(", ");
         } else {
           familyList = "";
         }
@@ -88,7 +91,9 @@ export class PostCard {
                   return word.toLowerCase();
                 } else {
                   // Capitalize names
-                  return word.charAt(0).toUpperCase() + word.slice(1).toLowerCase();
+                  return (
+                    word.charAt(0).toUpperCase() + word.slice(1).toLowerCase()
+                  );
                 }
               })
               .join(" ");
@@ -126,7 +131,7 @@ export class PostCard {
           const displayTimeEnd = session.time_end
             ? ` do ${session.time_end.slice(0, 5)}`
             : "";
-          
+
           return `<strong>Hatar se prima ${sessionDate} od ${displayTimeStart}${displayTimeEnd} u ${session.location}</strong>`;
         })
         .join("<br>");

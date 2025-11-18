@@ -384,15 +384,12 @@ router.post(
       const adminId = req.user.id;
 
       // Call stored procedure
-      await executeQuery(
-        "CALL ActivateSubscription(?, ?, ?, ?)",
-        [
-          subscriptionId, // user_id će se dobiti iz subscription zapisa
-          payment_reference,
-          adminId,
-          admin_notes || "Manuelno aktivirana pretplata",
-        ]
-      );
+      await executeQuery("CALL ActivateSubscription(?, ?, ?, ?)", [
+        subscriptionId, // user_id će se dobiti iz subscription zapisa
+        payment_reference,
+        adminId,
+        admin_notes || "Manuelno aktivirana pretplata",
+      ]);
 
       // Get subscription details to extract user_id
       const subscription = await executeQuerySingle(
