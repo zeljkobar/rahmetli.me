@@ -27,11 +27,19 @@ app.use("/api/", limiter);
 const corsOptions = {
   origin:
     process.env.NODE_ENV === "production"
-      ? ["https://rahmetli.me", "https://www.rahmetli.me"]
+      ? [
+          "https://rahmetli.me",
+          "https://www.rahmetli.me",
+          "http://localhost:3002",
+          "http://localhost:8081", // Expo Dev Server
+          "http://192.168.0.33:8081", // Expo Dev Server (local network)
+        ]
       : [
           "http://localhost:3002",
           "http://localhost:5173",
           "http://localhost:5174",
+          "http://localhost:8081", // Expo Dev Server
+          "http://192.168.0.33:8081", // Expo Dev Server (local network)
         ],
   credentials: true,
   optionsSuccessStatus: 200,
