@@ -1023,10 +1023,10 @@ class AdminDashboard {
                 <td>${cemetery.address || '-'}</td>
                 <td>${cemetery.latitude && cemetery.longitude ? `${cemetery.latitude}, ${cemetery.longitude}` : '-'}</td>
                 <td class="actions">
-                  <button class="btn btn-sm btn-secondary" onclick="adminDashboard.editCemetery(${cemetery.id})">
+                  <button class="btn btn-sm btn-secondary cemetery-edit-btn" data-id="${cemetery.id}">
                     <i class="fas fa-edit"></i> Izmeni
                   </button>
-                  <button class="btn btn-sm btn-danger" onclick="adminDashboard.deleteCemetery(${cemetery.id})">
+                  <button class="btn btn-sm btn-danger cemetery-delete-btn" data-id="${cemetery.id}">
                     <i class="fas fa-trash"></i> Obriši
                   </button>
                 </td>
@@ -1036,6 +1036,21 @@ class AdminDashboard {
         </table>
       </div>
     `;
+
+    // Add event listeners for edit and delete buttons
+    container.querySelectorAll('.cemetery-edit-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        const id = parseInt(e.currentTarget.dataset.id);
+        this.editCemetery(id);
+      });
+    });
+
+    container.querySelectorAll('.cemetery-delete-btn').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        const id = parseInt(e.currentTarget.dataset.id);
+        this.deleteCemetery(id);
+      });
+    });
   }
 
   showCemeteryModal(cemetery = null) {
@@ -1045,7 +1060,7 @@ class AdminDashboard {
         <div class="modal-content">
           <div class="modal-header">
             <h3>${isEdit ? 'Izmeni' : 'Dodaj'} mezaristan</h3>
-            <button class="modal-close" onclick="document.getElementById('cemeteryModal').remove()">&times;</button>
+            <button class="modal-close cemetery-modal-close">&times;</button>
           </div>
           <form id="cemeteryForm">
             <div class="form-group">
@@ -1075,7 +1090,7 @@ class AdminDashboard {
               <textarea name="description" rows="3">${cemetery?.description || ''}</textarea>
             </div>
             <div class="modal-actions">
-              <button type="button" class="btn btn-secondary" onclick="document.getElementById('cemeteryModal').remove()">Otkaži</button>
+              <button type="button" class="btn btn-secondary cemetery-modal-cancel">Otkaži</button>
               <button type="submit" class="btn btn-primary">${isEdit ? 'Sačuvaj' : 'Dodaj'}</button>
             </div>
           </form>
@@ -1084,6 +1099,17 @@ class AdminDashboard {
     `;
 
     document.body.insertAdjacentHTML('beforeend', modalHTML);
+
+    const modal = document.getElementById('cemeteryModal');
+    
+    // Close button handlers
+    modal.querySelector('.cemetery-modal-close').addEventListener('click', () => {
+      modal.remove();
+    });
+    
+    modal.querySelector('.cemetery-modal-cancel').addEventListener('click', () => {
+      modal.remove();
+    });
 
     const form = document.getElementById('cemeteryForm');
     form.addEventListener('submit', async (e) => {
