@@ -128,6 +128,17 @@ npm run build
 npm start
 ```
 
+#### Deploy na production server
+
+```bash
+deploy-rahmetli
+```
+
+Ova komanda automatski:
+- Pull-uje najnovije izmene sa GitHub-a
+- Instalira dependencies
+- Restartuje PM2 proces
+
 ## 📁 Struktura projekta
 
 ```
