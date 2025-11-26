@@ -149,6 +149,9 @@ class AdminDashboard {
       case "subscriptions":
         this.loadSubscriptions();
         break;
+      case "cemeteries":
+        this.loadCemeteries();
+        break;
     }
   }
 
@@ -178,6 +181,9 @@ class AdminDashboard {
           </button>
           <button class="nav-btn" data-tab="subscriptions">
             <i class="fas fa-credit-card"></i> Pretplate
+          </button>
+          <button class="nav-btn" data-tab="cemeteries">
+            <i class="fas fa-mosque"></i> Mezaristani
           </button>
           <button class="nav-btn" data-tab="stats">
             <i class="fas fa-chart-bar"></i> Statistike
@@ -263,6 +269,19 @@ class AdminDashboard {
             <input type="text" id="subscription-search" placeholder="Pretraži po korisniku...">
           </div>
           <div id="subscriptions-list" class="subscriptions-list">
+            <div class="loading">Učitavanje...</div>
+          </div>
+        </div>
+
+        <!-- Cemeteries Tab -->
+        <div class="admin-section tab-content" id="cemeteries-tab" style="display: none;">
+          <div class="section-header-with-action">
+            <h3><i class="fas fa-mosque"></i> Upravljanje mezaristanima</h3>
+            <button class="btn btn-primary" id="add-cemetery-btn">
+              <i class="fas fa-plus"></i> Dodaj mezaristan
+            </button>
+          </div>
+          <div id="cemeteries-list" class="cemeteries-list">
             <div class="loading">Učitavanje...</div>
           </div>
         </div>
@@ -952,6 +971,178 @@ class AdminDashboard {
     setTimeout(() => {
       notification.remove();
     }, 5000);
+  }
+
+  // Cemeteries Management
+  async loadCemeteries() {
+    try {
+      const response = await this.api.get("/cemeteries");
+      this.allCemeteries = response.cemeteries || [];
+      this.renderCemeteries(this.allCemeteries);
+      
+      // Setup add cemetery button
+      const addBtn = document.getElementById("add-cemetery-btn");
+      if (addBtn) {
+        addBtn.addEventListener("click", () => this.showCemeteryModal());
+      }
+    } catch (error) {
+      console.error("Failed to load cemeteries:", error);
+      this.showNotification("Greška pri učitavanju mezaristana", "error");
+    }
+  }
+
+  renderCemeteries(cemeteries) {
+    const container = document.getElementById("cemeteries-list");
+
+    if (!cemeteries || cemeteries.length === 0) {
+      container.innerHTML = '<div class="alert alert-info">Nema unesenih mezaristana</div>';
+      return;
+    }
+
+    container.innerHTML = `
+      <div class="table-responsive">
+        <table class="admin-table">
+          <thead>
+            <tr>
+              <th>Naziv</th>
+              <th>Grad</th>
+              <th>Adresa</th>
+              <th>Koordinate</th>
+              <th>Akcije</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${cemeteries.map(cemetery => `
+              <tr>
+                <td><strong>${cemetery.name}</strong></td>
+                <td>${cemetery.city || '-'}</td>
+                <td>${cemetery.address || '-'}</td>
+                <td>${cemetery.latitude && cemetery.longitude ? `${cemetery.latitude}, ${cemetery.longitude}` : '-'}</td>
+                <td class="actions">
+                  <button class="btn btn-sm btn-secondary" onclick="adminDashboard.editCemetery(${cemetery.id})">
+                    <i class="fas fa-edit"></i> Izmeni
+                  </button>
+                  <button class="btn btn-sm btn-danger" onclick="adminDashboard.deleteCemetery(${cemetery.id})">
+                    <i class="fas fa-trash"></i> Obriši
+                  </button>
+                </td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+      </div>
+    `;
+  }
+
+  showCemeteryModal(cemetery = null) {
+    const isEdit = cemetery !== null;
+    const modalHTML = `
+      <div class="modal" id="cemeteryModal">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h3>${isEdit ? 'Izmeni' : 'Dodaj'} mezaristan</h3>
+            <button class="modal-close" onclick="document.getElementById('cemeteryModal').remove()">&times;</button>
+          </div>
+          <form id="cemeteryForm">
+            <div class="form-group">
+              <label>Naziv *</label>
+              <input type="text" name="name" value="${cemetery?.name || ''}" required>
+            </div>
+            <div class="form-group">
+              <label>Grad *</label>
+              <input type="text" name="city" value="${cemetery?.city || ''}" required>
+            </div>
+            <div class="form-group">
+              <label>Adresa</label>
+              <input type="text" name="address" value="${cemetery?.address || ''}">
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label>Latitude</label>
+                <input type="number" step="any" name="latitude" value="${cemetery?.latitude || ''}" placeholder="42.0942">
+              </div>
+              <div class="form-group">
+                <label>Longitude</label>
+                <input type="number" step="any" name="longitude" value="${cemetery?.longitude || ''}" placeholder="19.0894">
+              </div>
+            </div>
+            <div class="form-group">
+              <label>Opis</label>
+              <textarea name="description" rows="3">${cemetery?.description || ''}</textarea>
+            </div>
+            <div class="modal-actions">
+              <button type="button" class="btn btn-secondary" onclick="document.getElementById('cemeteryModal').remove()">Otkaži</button>
+              <button type="submit" class="btn btn-primary">${isEdit ? 'Sačuvaj' : 'Dodaj'}</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    `;
+
+    document.body.insertAdjacentHTML('beforeend', modalHTML);
+
+    const form = document.getElementById('cemeteryForm');
+    form.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const formData = new FormData(form);
+      const data = Object.fromEntries(formData.entries());
+      
+      if (isEdit) {
+        await this.updateCemetery(cemetery.id, data);
+      } else {
+        await this.createCemetery(data);
+      }
+    });
+  }
+
+  async createCemetery(data) {
+    try {
+      await this.api.post("/admin/cemeteries", data);
+      this.showNotification("Mezaristan uspešno dodat", "success");
+      document.getElementById('cemeteryModal').remove();
+      await this.loadCemeteries();
+    } catch (error) {
+      console.error("Failed to create cemetery:", error);
+      this.showNotification("Greška pri dodavanju mezaristana", "error");
+    }
+  }
+
+  async editCemetery(id) {
+    try {
+      const cemetery = this.allCemeteries.find(c => c.id === id);
+      if (cemetery) {
+        this.showCemeteryModal(cemetery);
+      }
+    } catch (error) {
+      console.error("Failed to edit cemetery:", error);
+    }
+  }
+
+  async updateCemetery(id, data) {
+    try {
+      await this.api.put(`/admin/cemeteries/${id}`, data);
+      this.showNotification("Mezaristan uspešno izmenjen", "success");
+      document.getElementById('cemeteryModal').remove();
+      await this.loadCemeteries();
+    } catch (error) {
+      console.error("Failed to update cemetery:", error);
+      this.showNotification("Greška pri izmeni mezaristana", "error");
+    }
+  }
+
+  async deleteCemetery(id) {
+    if (!confirm("Da li ste sigurni da želite obrisati ovaj mezaristan?")) {
+      return;
+    }
+
+    try {
+      await this.api.delete(`/admin/cemeteries/${id}`);
+      this.showNotification("Mezaristan uspešno obrisan", "success");
+      await this.loadCemeteries();
+    } catch (error) {
+      console.error("Failed to delete cemetery:", error);
+      this.showNotification("Greška pri brisanju mezaristana", "error");
+    }
   }
 }
 

@@ -492,4 +492,117 @@ router.post(
   }
 );
 
+// ============= CEMETERY MANAGEMENT =============
+
+// Create cemetery
+router.post(
+  "/cemeteries",
+  authenticateToken,
+  requireAdmin,
+  async (req, res) => {
+    try {
+      const { name, city, address, latitude, longitude, description } = req.body;
+
+      if (!name || !city || !address) {
+        return res.status(400).json({
+          error: "Ime, grad i adresa su obavezni",
+        });
+      }
+
+      const result = await executeQuery(
+        `INSERT INTO cemeteries (name, city, address, latitude, longitude, description, is_active) 
+         VALUES (?, ?, ?, ?, ?, ?, 1)`,
+        [name, city, address, latitude || null, longitude || null, description || null]
+      );
+
+      res.json({
+        success: true,
+        message: "Mezaristan uspješno dodat",
+        id: result.insertId,
+      });
+    } catch (error) {
+      console.error("Error creating cemetery:", error);
+      res.status(500).json({
+        error: "Greška pri dodavanju mezaristana",
+      });
+    }
+  }
+);
+
+// Update cemetery
+router.put(
+  "/cemeteries/:id",
+  authenticateToken,
+  requireAdmin,
+  async (req, res) => {
+    try {
+      const { id } = req.params;
+      const { name, city, address, latitude, longitude, description } = req.body;
+
+      if (!name || !city || !address) {
+        return res.status(400).json({
+          error: "Ime, grad i adresa su obavezni",
+        });
+      }
+
+      await executeQuery(
+        `UPDATE cemeteries 
+         SET name = ?, city = ?, address = ?, latitude = ?, longitude = ?, description = ?
+         WHERE id = ?`,
+        [name, city, address, latitude || null, longitude || null, description || null, id]
+      );
+
+      res.json({
+        success: true,
+        message: "Mezaristan uspješno ažuriran",
+      });
+    } catch (error) {
+      console.error("Error updating cemetery:", error);
+      res.status(500).json({
+        error: "Greška pri ažuriranju mezaristana",
+      });
+    }
+  }
+);
+
+// Delete cemetery (soft delete)
+router.delete(
+  "/cemeteries/:id",
+  authenticateToken,
+  requireAdmin,
+  async (req, res) => {
+    try {
+      const { id } = req.params;
+
+      // Check if cemetery has posts
+      const posts = await executeQuerySingle(
+        "SELECT COUNT(*) as count FROM posts WHERE cemetery_id = ?",
+        [id]
+      );
+
+      if (posts.count > 0) {
+        return res.status(400).json({
+          error: `Ne možete obrisati mezaristan koji ima ${posts.count} objava`,
+        });
+      }
+
+      // Soft delete
+      await executeQuery(
+        "UPDATE cemeteries SET is_active = 0 WHERE id = ?",
+        [id]
+      );
+
+      res.json({
+        success: true,
+        message: "Mezaristan uspješno obrisan",
+      });
+    } catch (error) {
+      console.error("Error deleting cemetery:", error);
+      res.status(500).json({
+        error: "Greška pri brisanju mezaristana",
+      });
+    }
+  }
+);
+
 export default router;
