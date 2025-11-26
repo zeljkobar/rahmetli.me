@@ -305,7 +305,7 @@ class App {
 
     if (heroCreateBtn) {
       heroCreateBtn.addEventListener("click", () => {
-        if (this.auth.isLoggedIn()) {
+        if (AuthManager.isAuthenticated()) {
           this.showCreatePostModal();
         } else {
           showToast("Morate se prijaviti da biste kreirali objavu", "warning");
