@@ -976,12 +976,16 @@ class AdminDashboard {
   // Cemeteries Management
   async loadCemeteries() {
     try {
+      console.log("Loading cemeteries...");
       const response = await this.api.get("/cemeteries");
+      console.log("Cemeteries response:", response);
       this.allCemeteries = response.cemeteries || [];
+      console.log("All cemeteries:", this.allCemeteries);
       this.renderCemeteries(this.allCemeteries);
       
       // Setup add cemetery button
       const addBtn = document.getElementById("add-cemetery-btn");
+      console.log("Add button:", addBtn);
       if (addBtn) {
         addBtn.addEventListener("click", () => this.showCemeteryModal());
       }

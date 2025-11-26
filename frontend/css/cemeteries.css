@@ -45,7 +45,7 @@
 .cemetery-name {
   font-size: 1.25rem;
   font-weight: 600;
-  color: var(--text-primary);
+  color: #1a1a1a;
   margin-bottom: 0.75rem;
   display: flex;
   align-items: center;
@@ -58,7 +58,7 @@
 }
 
 .cemetery-address {
-  color: var(--text-secondary);
+  color: #4a5568;
   font-size: 0.95rem;
   margin-bottom: 0.75rem;
   display: flex;
@@ -72,7 +72,7 @@
 }
 
 .cemetery-description {
-  color: var(--text-secondary);
+  color: #4a5568;
   font-size: 0.9rem;
   line-height: 1.5;
   margin-bottom: 1rem;
