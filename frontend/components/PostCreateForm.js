@@ -282,7 +282,7 @@ export class PostCreateForm {
                   <label>Dodaj slike</label>
                   <div class="image-upload-area">
                     <input type="file" id="imageUpload" multiple accept="image/*" style="display: none;">
-                    <button type="button" class="upload-btn" onclick="document.getElementById('imageUpload').click()">
+                    <button type="button" class="upload-btn image-upload-trigger">
                       <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                         <rect x="3" y="3" width="18" height="18" rx="2" ry="2"/>
                         <circle cx="8.5" cy="8.5" r="1.5"/>
@@ -839,6 +839,7 @@ export class PostCreateForm {
     const closeBtn = this.element.querySelector(".modal-close-btn");
     const cancelBtn = this.element.querySelector("#cancelBtn");
     const imageUpload = this.element.querySelector("#imageUpload");
+    const imageUploadTrigger = this.element.querySelector(".image-upload-trigger");
     const overlay = this.element.querySelector(".modal-overlay");
 
     // Form submission
@@ -850,6 +851,13 @@ export class PostCreateForm {
       input.addEventListener("input", this.handleInputChange);
       input.addEventListener("blur", this.handleInputChange);
     });
+
+    // Image upload trigger button
+    if (imageUploadTrigger && imageUpload) {
+      imageUploadTrigger.addEventListener("click", () => {
+        imageUpload.click();
+      });
+    }
 
     // Image upload
     if (imageUpload) {

@@ -394,11 +394,19 @@ export class UserDashboard {
       postsList.innerHTML = `
         <div class="error-message" style="padding: 2rem; text-align: center; color: #dc2626;">
           <p>${message}</p>
-          <button onclick="location.reload()" class="btn btn-primary" style="margin-top: 1rem;">
+          <button class="btn btn-primary reload-btn" style="margin-top: 1rem;">
             Pokušaj ponovo
           </button>
         </div>
       `;
+
+      // Add event listener for reload button
+      setTimeout(() => {
+        const reloadBtn = container.querySelector('.reload-btn');
+        if (reloadBtn) {
+          reloadBtn.addEventListener('click', () => location.reload());
+        }
+      }, 0);
     }
   }
 

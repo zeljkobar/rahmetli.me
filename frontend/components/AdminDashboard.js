@@ -485,9 +485,9 @@ class AdminDashboard {
           }" data-action="reject">
             <i class="fas fa-times"></i> Odbaci objavu
           </button>
-          <button class="btn btn-info btn-sm" onclick="window.open('/objava/${
+          <button class="btn btn-info btn-sm post-preview-btn" data-id="${
             post.id
-          }', '_blank')">
+          }">
             <i class="fas fa-eye"></i> Pregledaj
           </button>
         </div>
@@ -509,6 +509,14 @@ class AdminDashboard {
           );
         });
       });
+
+    // Add event listeners for preview buttons
+    container.querySelectorAll('.post-preview-btn').forEach((button) => {
+      button.addEventListener('click', (e) => {
+        const postId = e.currentTarget.dataset.id;
+        window.open(`/objava/${postId}`, '_blank');
+      });
+    });
   }
 
   async updatePostStatus(postId, status) {
@@ -591,10 +599,10 @@ class AdminDashboard {
                 <td>
                   <button class="btn btn-sm ${
                     user.is_active ? "btn-warning" : "btn-success"
-                  }" 
-                          onclick="adminDashboard.toggleUserStatus(${
+                  } user-toggle-btn" 
+                          data-id="${
                             user.id
-                          }, ${!user.is_active})">
+                          }" data-active="${user.is_active}">
                     <i class="fas fa-${user.is_active ? "ban" : "check"}"></i>
                     ${user.is_active ? "Deaktiviraj" : "Aktiviraj"}
                   </button>
@@ -607,6 +615,15 @@ class AdminDashboard {
         </table>
       </div>
     `;
+
+    // Add event listeners for user toggle buttons
+    container.querySelectorAll('.user-toggle-btn').forEach((button) => {
+      button.addEventListener('click', (e) => {
+        const userId = parseInt(e.currentTarget.dataset.id);
+        const isActive = e.currentTarget.dataset.active === 'true';
+        this.toggleUserStatus(userId, !isActive);
+      });
+    });
   }
 
   async toggleUserStatus(userId, activate) {
