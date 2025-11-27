@@ -1,11 +1,11 @@
-import nodemailer from 'nodemailer';
-import dotenv from 'dotenv';
+import nodemailer from "nodemailer";
+import dotenv from "dotenv";
 
 dotenv.config();
 
 // Create reusable transporter
 const transporter = nodemailer.createTransport({
-  host: process.env.EMAIL_HOST || 'smtp.gmail.com',
+  host: process.env.EMAIL_HOST || "smtp.gmail.com",
   port: parseInt(process.env.EMAIL_PORT) || 587,
   secure: false, // true for 465, false for other ports
   auth: {
@@ -17,9 +17,9 @@ const transporter = nodemailer.createTransport({
 // Verify connection configuration
 transporter.verify(function (error, success) {
   if (error) {
-    console.error('❌ Email configuration error:', error);
+    console.error("❌ Email configuration error:", error);
   } else {
-    console.log('✅ Email server is ready to send messages');
+    console.log("✅ Email server is ready to send messages");
   }
 });
 
@@ -42,10 +42,10 @@ export async function sendEmail({ to, subject, html, text }) {
     };
 
     const info = await transporter.sendMail(mailOptions);
-    console.log('📧 Email sent:', info.messageId);
+    console.log("✅ Email sent successfully:", info.messageId);
     return { success: true, messageId: info.messageId };
   } catch (error) {
-    console.error('❌ Email send error:', error);
+    console.error("❌ Email send error:", error);
     return { success: false, error: error.message };
   }
 }
@@ -53,9 +53,15 @@ export async function sendEmail({ to, subject, html, text }) {
 /**
  * Send verification email
  */
-export async function sendVerificationEmail(email, username, verificationToken) {
-  const verificationUrl = `${process.env.FRONTEND_URL || 'http://localhost:3002'}/verify-email?token=${verificationToken}`;
-  
+export async function sendVerificationEmail(
+  email,
+  username,
+  verificationToken
+) {
+  const verificationUrl = `${
+    process.env.FRONTEND_URL || "http://localhost:3002"
+  }/verify-email?token=${verificationToken}`;
+
   const html = `
     <!DOCTYPE html>
     <html>
@@ -100,7 +106,7 @@ export async function sendVerificationEmail(email, username, verificationToken) 
 
   return await sendEmail({
     to: email,
-    subject: 'Potvrdite vašu email adresu - Rahmetli.me',
+    subject: "Potvrdite vašu email adresu - Rahmetli.me",
     html,
   });
 }
@@ -109,8 +115,10 @@ export async function sendVerificationEmail(email, username, verificationToken) 
  * Send password reset email
  */
 export async function sendPasswordResetEmail(email, username, resetToken) {
-  const resetUrl = `${process.env.FRONTEND_URL || 'http://localhost:3002'}/reset-password?token=${resetToken}`;
-  
+  const resetUrl = `${
+    process.env.FRONTEND_URL || "http://localhost:3002"
+  }/reset-password?token=${resetToken}`;
+
   const html = `
     <!DOCTYPE html>
     <html>
@@ -159,7 +167,7 @@ export async function sendPasswordResetEmail(email, username, resetToken) {
 
   return await sendEmail({
     to: email,
-    subject: 'Reset lozinke - Rahmetli.me',
+    subject: "Reset lozinke - Rahmetli.me",
     html,
   });
 }
@@ -168,8 +176,10 @@ export async function sendPasswordResetEmail(email, username, resetToken) {
  * Send new post notification to subscribers
  */
 export async function sendNewPostNotification(subscriberEmail, post) {
-  const postUrl = `${process.env.FRONTEND_URL || 'http://localhost:3002'}/objava/${post.id}`;
-  
+  const postUrl = `${
+    process.env.FRONTEND_URL || "http://localhost:3002"
+  }/objava/${post.id}`;
+
   const html = `
     <!DOCTYPE html>
     <html>
@@ -196,15 +206,21 @@ export async function sendNewPostNotification(subscriberEmail, post) {
           <p>Obavještavamo vas o novoj objavi:</p>
           <div class="post-card">
             <h3>${post.deceased_name}</h3>
-            <p><strong>📍 Lokacija:</strong> ${post.location || 'N/A'}</p>
-            <p><strong>📅 Datum:</strong> ${post.death_date || 'N/A'}</p>
-            ${post.funeral_date ? `<p><strong>⏰ Dženaza:</strong> ${post.funeral_date}</p>` : ''}
+            <p><strong>📍 Lokacija:</strong> ${post.location || "N/A"}</p>
+            <p><strong>📅 Datum:</strong> ${post.death_date || "N/A"}</p>
+            ${
+              post.funeral_date
+                ? `<p><strong>⏰ Dženaza:</strong> ${post.funeral_date}</p>`
+                : ""
+            }
           </div>
           <div style="text-align: center;">
             <a href="${postUrl}" class="button">Pogledaj objavu</a>
           </div>
           <p style="margin-top: 30px; font-size: 14px; color: #666;">
-            Primili ste ovaj email jer ste pretplaćeni na notifikacije za grad ${post.location}.
+            Primili ste ovaj email jer ste pretplaćeni na notifikacije za grad ${
+              post.location
+            }.
             <br>Možete upravljati pretplatom u postavkama vašeg profila.
           </p>
         </div>
@@ -228,8 +244,10 @@ export async function sendNewPostNotification(subscriberEmail, post) {
  * Send comment notification to post author
  */
 export async function sendCommentNotification(authorEmail, comment, post) {
-  const postUrl = `${process.env.FRONTEND_URL || 'http://localhost:3002'}/objava/${post.id}#komentar-${comment.id}`;
-  
+  const postUrl = `${
+    process.env.FRONTEND_URL || "http://localhost:3002"
+  }/objava/${post.id}#komentar-${comment.id}`;
+
   const html = `
     <!DOCTYPE html>
     <html>
@@ -251,15 +269,17 @@ export async function sendCommentNotification(authorEmail, comment, post) {
           <h1>🕌 Rahmetli.me</h1>
         </div>
         <div class="content">
-          <h2>Novi komentar na vašoj objavi</h2>
-          <p>Neko je ostavio saučešće na objavu "${post.deceased_name}":</p>
+          <h2>Novi hatar na vašoj objavi</h2>
+          <p>Neko je ostavio hatar na objavu "${post.deceased_name}":</p>
           <div class="comment-card">
             <p><strong>${comment.author_name}</strong></p>
             <p style="margin: 15px 0;">${comment.content}</p>
-            <p style="font-size: 12px; color: #666;">${new Date(comment.created_at).toLocaleString('bs-BA')}</p>
+            <p style="font-size: 12px; color: #666;">${new Date(
+              comment.created_at
+            ).toLocaleString("bs-BA")}</p>
           </div>
           <div style="text-align: center;">
-            <a href="${postUrl}" class="button">Pogledaj komentar</a>
+            <a href="${postUrl}" class="button">Pogledaj hatar</a>
           </div>
         </div>
         <div class="footer">
@@ -282,8 +302,10 @@ export async function sendCommentNotification(authorEmail, comment, post) {
  * Send admin notification for pending post
  */
 export async function sendAdminPendingPostNotification(adminEmail, post) {
-  const adminUrl = `${process.env.FRONTEND_URL || 'http://localhost:3002'}/admin`;
-  
+  const adminUrl = `${
+    process.env.FRONTEND_URL || "http://localhost:3002"
+  }/admin`;
+
   const html = `
     <!DOCTYPE html>
     <html>
@@ -311,8 +333,10 @@ export async function sendAdminPendingPostNotification(adminEmail, post) {
           <div class="post-card">
             <h3>${post.deceased_name}</h3>
             <p><strong>Autor:</strong> ${post.author_username}</p>
-            <p><strong>Lokacija:</strong> ${post.location || 'N/A'}</p>
-            <p><strong>Datum:</strong> ${new Date(post.created_at).toLocaleString('bs-BA')}</p>
+            <p><strong>Lokacija:</strong> ${post.location || "N/A"}</p>
+            <p><strong>Datum:</strong> ${new Date(
+              post.created_at
+            ).toLocaleString("bs-BA")}</p>
           </div>
           <div style="text-align: center;">
             <a href="${adminUrl}" class="button">Otvori Admin Panel</a>
@@ -328,7 +352,7 @@ export async function sendAdminPendingPostNotification(adminEmail, post) {
 
   return await sendEmail({
     to: adminEmail,
-    subject: '🔔 Nova objava na čekanju - Rahmetli.me',
+    subject: "🔔 Nova objava na čekanju - Rahmetli.me",
     html,
   });
 }
@@ -336,9 +360,15 @@ export async function sendAdminPendingPostNotification(adminEmail, post) {
 /**
  * Send admin notification for pending comment
  */
-export async function sendAdminPendingCommentNotification(adminEmail, comment, post) {
-  const adminUrl = `${process.env.FRONTEND_URL || 'http://localhost:3002'}/admin`;
-  
+export async function sendAdminPendingCommentNotification(
+  adminEmail,
+  comment,
+  post
+) {
+  const adminUrl = `${
+    process.env.FRONTEND_URL || "http://localhost:3002"
+  }/admin`;
+
   const html = `
     <!DOCTYPE html>
     <html>
@@ -367,7 +397,9 @@ export async function sendAdminPendingCommentNotification(adminEmail, comment, p
             <p><strong>Na objavi:</strong> ${post.deceased_name}</p>
             <p><strong>Autor:</strong> ${comment.author_name}</p>
             <p style="margin: 15px 0;">${comment.content}</p>
-            <p style="font-size: 12px; color: #666;">${new Date(comment.created_at).toLocaleString('bs-BA')}</p>
+            <p style="font-size: 12px; color: #666;">${new Date(
+              comment.created_at
+            ).toLocaleString("bs-BA")}</p>
           </div>
           <div style="text-align: center;">
             <a href="${adminUrl}" class="button">Otvori Admin Panel</a>
@@ -383,7 +415,7 @@ export async function sendAdminPendingCommentNotification(adminEmail, comment, p
 
   return await sendEmail({
     to: adminEmail,
-    subject: '🔔 Novi komentar na čekanju - Rahmetli.me',
+    subject: "🔔 Novi komentar na čekanju - Rahmetli.me",
     html,
   });
 }
@@ -392,7 +424,7 @@ export async function sendAdminPendingCommentNotification(adminEmail, comment, p
  * Helper function to strip HTML tags from text
  */
 function stripHtml(html) {
-  return html.replace(/<[^>]*>/g, '');
+  return html.replace(/<[^>]*>/g, "");
 }
 
 export default {

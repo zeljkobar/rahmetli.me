@@ -135,6 +135,7 @@ deploy-rahmetli
 ```
 
 Ova komanda automatski:
+
 - Pull-uje najnovije izmene sa GitHub-a
 - Instalira dependencies
 - Restartuje PM2 proces
@@ -296,6 +297,127 @@ curl -X GET http://localhost:3000/api/health
 # Importuj Postman collection iz docs/
 ```
 
+## 📧 Email Sistem
+
+### Konfiguracija
+
+Email sistem koristi **Nodemailer** sa Gmail SMTP servisom. Potrebno je podesiti u `.env` fajlu:
+
+```env
+EMAIL_HOST=smtp.gmail.com
+EMAIL_PORT=587
+EMAIL_USER=your-email@gmail.com
+EMAIL_PASSWORD=your-app-password
+FRONTEND_URL=http://localhost:5173
+```
+
+**Napomena**: Za Gmail, koristi App Password (ne običnu lozinku):
+
+1. Uđi u Google Account Settings
+2. Security → 2-Step Verification
+3. App passwords → Generate new
+
+### Tipovi emailova
+
+Svi email template-i se nalaze u `/backend/utils/email.js`:
+
+#### 1. **Verifikacioni Email** (`sendVerificationEmail`)
+
+- **Kada se šalje**: Pri registraciji novog korisnika
+- **Endpoint**: `POST /api/auth/register` (linija 35 u `/backend/routes/auth.js`)
+- **Sadržaj**:
+  - Dobrodošlica na Rahmetli.me
+  - Link za verifikaciju email adrese (`/verify-email?token=...`)
+  - Token važi 24 sata
+- **Template lokacija**: Linija 62-89 u `/backend/utils/email.js`
+
+#### 2. **Password Reset Email** (`sendPasswordResetEmail`)
+
+- **Kada se šalje**: Kada korisnik zatraži reset lozinke
+- **Endpoint**: `POST /api/auth/forgot-password` (linija 90 u `/backend/routes/auth.js`)
+- **Sadržaj**:
+  - Link za resetovanje lozinke (`/reset-password?token=...`)
+  - Token važi 1 sat
+  - Upozorenje ako nije zatraženo
+- **Template lokacija**: Linija 91-118 u `/backend/utils/email.js`
+
+#### 3. **Welcome Email** (`sendWelcomeEmail`)
+
+- **Kada se šalje**: Nakon što korisnik potvrdi email verifikaciju
+- **Endpoint**: `GET /api/auth/verify-email?token=...` (linija 62 u `/backend/routes/auth.js`)
+- **Sadržaj**:
+  - Čestitka za uspješnu verifikaciju
+  - Uputstva za korištenje platforme
+  - Link za kreiranje prve objave
+- **Template lokacija**: Linija 120-146 u `/backend/utils/email.js`
+
+#### 4. **Password Changed Email** (`sendPasswordChangedEmail`)
+
+- **Kada se šalje**: Nakon uspješne promjene lozinke
+- **Endpoint**: `POST /api/auth/reset-password` (linija 139 u `/backend/routes/auth.js`)
+- **Sadržaj**:
+  - Potvrda da je lozinka promijenjena
+  - Sigurnosne preporuke
+  - Kontakt podrška ako nije korisnik promijenio
+- **Template lokacija**: Linija 148-175 u `/backend/utils/email.js`
+
+#### 5. **Comment Notification** (`sendCommentNotification`)
+
+- **Kada se šalje**: Kada neko ostavi komentar na objavu
+- **Endpoint**: `POST /api/comments` (linija 24 u `/backend/routes/comments.js`)
+- **Prima**: Vlasnik objave
+- **Sadržaj**:
+  - Ime osobe koja je komentarisala
+  - Tekst komentara
+  - Link na objavu
+  - Vrijeme komentara
+- **Template lokacija**: Linija 177-211 u `/backend/utils/email.js`
+
+#### 6. **Admin Comment Notification** (`sendAdminCommentNotification`)
+
+- **Kada se šalje**: Kada neko ostavi komentar (notifikacija za admina)
+- **Endpoint**: `POST /api/comments` (linija 39 u `/backend/routes/comments.js`)
+- **Prima**: Admin (admin@rahmetli.me)
+- **Sadržaj**:
+  - Detalji o korisniku koji je komentarisao
+  - Tekst komentara
+  - Link na objavu
+  - Moderacioni linkovi
+- **Template lokacija**: Linija 213-248 u `/backend/utils/email.js`
+
+#### 7. **New Post Notification** (`sendNewPostNotification`)
+
+- **Kada se šalje**: Kada admin odobri novu objavu
+- **Endpoint**: `PUT /api/admin/posts/:id/approve` (linija 88 u `/backend/routes/admin.js`)
+- **Prima**: Svi pretplatnici (iz `subscriptions` tabele)
+- **Sadržaj**:
+  - Naslov objave
+  - Kratak opis
+  - Lokacija i datum
+  - Link na punu objavu
+  - Link za odjavljivanje (`/unsubscribe?token=...`)
+- **Template lokacija**: Linija 250-288 u `/backend/utils/email.js`
+
+### Email funkcionalnost po endpointima
+
+```
+POST /api/auth/register           → sendVerificationEmail (korisnik)
+GET  /api/auth/verify-email       → sendWelcomeEmail (korisnik)
+POST /api/auth/forgot-password    → sendPasswordResetEmail (korisnik)
+POST /api/auth/reset-password     → sendPasswordChangedEmail (korisnik)
+POST /api/comments                → sendCommentNotification (vlasnik) + sendAdminCommentNotification (admin)
+PUT  /api/admin/posts/:id/approve → sendNewPostNotification (svi pretplatnici)
+```
+
+### Testiranje emailova
+
+Za development, preporučene opcije:
+
+1. **Mailtrap.io** - Besplatno hvatanje emailova
+2. **Gmail App Password** - Pravi emailovi (limit 500/dan)
+3. **SendGrid** - 100 emailova/dan besplatno
+4. **Console logs** - Provjeriti da li se pozivaju funkcije
+
 ## 🚀 Deployment
 
 ### Production build
@@ -315,6 +437,11 @@ NODE_ENV=production
 PORT=80
 DB_HOST=production-db-host
 JWT_SECRET=secure-production-secret
+EMAIL_HOST=smtp.gmail.com
+EMAIL_PORT=587
+EMAIL_USER=noreply@rahmetli.me
+EMAIL_PASSWORD=production-app-password
+FRONTEND_URL=https://rahmetli.me
 ```
 
 ### Server requirements

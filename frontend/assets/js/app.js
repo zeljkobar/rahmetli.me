@@ -884,11 +884,11 @@ class App {
       showLoading();
       const response = await api.getCemeteries();
       const cemeteries = response.cemeteries || [];
-      
+
       // Group cemeteries by city
       const citiesMap = {};
-      cemeteries.forEach(cemetery => {
-        const city = cemetery.city || 'Ostalo';
+      cemeteries.forEach((cemetery) => {
+        const city = cemetery.city || "Ostalo";
         if (!citiesMap[city]) {
           citiesMap[city] = [];
         }
@@ -906,26 +906,41 @@ class App {
             </div>
 
             <div class="cemeteries-grid">
-              ${Object.keys(citiesMap).sort().map(city => `
+              ${Object.keys(citiesMap)
+                .sort()
+                .map(
+                  (city) => `
                 <div class="city-group">
                   <h2 class="city-name">${city}</h2>
                   <div class="cemeteries-list">
-                    ${citiesMap[city].map(cemetery => `
+                    ${citiesMap[city]
+                      .map(
+                        (cemetery) => `
                       <div class="cemetery-card">
                         <h3 class="cemetery-name">
                           <i class="fas fa-mosque"></i>
                           ${cemetery.name}
                         </h3>
-                        ${cemetery.address ? `
+                        ${
+                          cemetery.address
+                            ? `
                           <p class="cemetery-address">
                             <i class="fas fa-map-marker-alt"></i>
                             ${cemetery.address}
                           </p>
-                        ` : ''}
-                        ${cemetery.description ? `
+                        `
+                            : ""
+                        }
+                        ${
+                          cemetery.description
+                            ? `
                           <p class="cemetery-description">${cemetery.description}</p>
-                        ` : ''}
-                        ${cemetery.latitude && cemetery.longitude ? `
+                        `
+                            : ""
+                        }
+                        ${
+                          cemetery.latitude && cemetery.longitude
+                            ? `
                           <a 
                             href="https://www.google.com/maps?q=${cemetery.latitude},${cemetery.longitude}" 
                             target="_blank"
@@ -933,19 +948,29 @@ class App {
                           >
                             <i class="fas fa-map"></i> Vidi na mapi
                           </a>
-                        ` : ''}
+                        `
+                            : ""
+                        }
                       </div>
-                    `).join('')}
+                    `
+                      )
+                      .join("")}
                   </div>
                 </div>
-              `).join('')}
+              `
+                )
+                .join("")}
             </div>
 
-            ${cemeteries.length === 0 ? `
+            ${
+              cemeteries.length === 0
+                ? `
               <div class="alert alert-info">
                 Trenutno nema unesenih mezaristana.
               </div>
-            ` : ''}
+            `
+                : ""
+            }
           </div>
         </section>
       `;
@@ -953,7 +978,7 @@ class App {
       hideLoading();
     } catch (error) {
       hideLoading();
-      console.error('Failed to load cemeteries:', error);
+      console.error("Failed to load cemeteries:", error);
       mainContent.innerHTML = `
         <section class="section">
           <div class="container">

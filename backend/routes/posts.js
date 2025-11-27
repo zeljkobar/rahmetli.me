@@ -386,23 +386,22 @@ router.post("/", authenticateToken, async (req, res) => {
     const admins = await executeQuery(
       "SELECT email FROM users WHERE role = 'admin' AND email IS NOT NULL"
     );
-    
+
     const userInfo = await executeQuerySingle(
       "SELECT username FROM users WHERE id = ?",
       [userId]
     );
-    
-    admins.forEach(admin => {
-      sendAdminPendingPostNotification(
-        admin.email,
-        {
-          id: postId,
-          deceased_name,
-          author_username: userInfo.username,
-          location: burial_location,
-          created_at: new Date()
-        }
-      ).catch(err => console.error('Failed to send admin notification:', err));
+
+    admins.forEach((admin) => {
+      sendAdminPendingPostNotification(admin.email, {
+        id: postId,
+        deceased_name,
+        author_username: userInfo.username,
+        location: burial_location,
+        created_at: new Date(),
+      }).catch((err) =>
+        console.error("Failed to send admin notification:", err)
+      );
     });
 
     res.status(201).json({

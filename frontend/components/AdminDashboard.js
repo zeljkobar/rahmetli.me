@@ -511,10 +511,10 @@ class AdminDashboard {
       });
 
     // Add event listeners for preview buttons
-    container.querySelectorAll('.post-preview-btn').forEach((button) => {
-      button.addEventListener('click', (e) => {
+    container.querySelectorAll(".post-preview-btn").forEach((button) => {
+      button.addEventListener("click", (e) => {
         const postId = e.currentTarget.dataset.id;
-        window.open(`/objava/${postId}`, '_blank');
+        window.open(`/objava/${postId}`, "_blank");
       });
     });
   }
@@ -600,9 +600,7 @@ class AdminDashboard {
                   <button class="btn btn-sm ${
                     user.is_active ? "btn-warning" : "btn-success"
                   } user-toggle-btn" 
-                          data-id="${
-                            user.id
-                          }" data-active="${user.is_active}">
+                          data-id="${user.id}" data-active="${user.is_active}">
                     <i class="fas fa-${user.is_active ? "ban" : "check"}"></i>
                     ${user.is_active ? "Deaktiviraj" : "Aktiviraj"}
                   </button>
@@ -617,10 +615,10 @@ class AdminDashboard {
     `;
 
     // Add event listeners for user toggle buttons
-    container.querySelectorAll('.user-toggle-btn').forEach((button) => {
-      button.addEventListener('click', (e) => {
+    container.querySelectorAll(".user-toggle-btn").forEach((button) => {
+      button.addEventListener("click", (e) => {
         const userId = parseInt(e.currentTarget.dataset.id);
-        const isActive = e.currentTarget.dataset.active === 'true';
+        const isActive = e.currentTarget.dataset.active === "true";
         this.toggleUserStatus(userId, !isActive);
       });
     });
@@ -999,7 +997,7 @@ class AdminDashboard {
       this.allCemeteries = response.cemeteries || [];
       console.log("All cemeteries:", this.allCemeteries);
       this.renderCemeteries(this.allCemeteries);
-      
+
       // Setup add cemetery button
       const addBtn = document.getElementById("add-cemetery-btn");
       console.log("Add button:", addBtn);
@@ -1016,7 +1014,8 @@ class AdminDashboard {
     const container = document.getElementById("cemeteries-list");
 
     if (!cemeteries || cemeteries.length === 0) {
-      container.innerHTML = '<div class="alert alert-info">Nema unesenih mezaristana</div>';
+      container.innerHTML =
+        '<div class="alert alert-info">Nema unesenih mezaristana</div>';
       return;
     }
 
@@ -1033,37 +1032,49 @@ class AdminDashboard {
             </tr>
           </thead>
           <tbody>
-            ${cemeteries.map(cemetery => `
+            ${cemeteries
+              .map(
+                (cemetery) => `
               <tr>
                 <td><strong>${cemetery.name}</strong></td>
-                <td>${cemetery.city || '-'}</td>
-                <td>${cemetery.address || '-'}</td>
-                <td>${cemetery.latitude && cemetery.longitude ? `${cemetery.latitude}, ${cemetery.longitude}` : '-'}</td>
+                <td>${cemetery.city || "-"}</td>
+                <td>${cemetery.address || "-"}</td>
+                <td>${
+                  cemetery.latitude && cemetery.longitude
+                    ? `${cemetery.latitude}, ${cemetery.longitude}`
+                    : "-"
+                }</td>
                 <td class="actions">
-                  <button class="btn btn-sm btn-secondary cemetery-edit-btn" data-id="${cemetery.id}">
+                  <button class="btn btn-sm btn-secondary cemetery-edit-btn" data-id="${
+                    cemetery.id
+                  }">
                     <i class="fas fa-edit"></i> Izmeni
                   </button>
-                  <button class="btn btn-sm btn-danger cemetery-delete-btn" data-id="${cemetery.id}">
+                  <button class="btn btn-sm btn-danger cemetery-delete-btn" data-id="${
+                    cemetery.id
+                  }">
                     <i class="fas fa-trash"></i> Obriši
                   </button>
                 </td>
               </tr>
-            `).join('')}
+            `
+              )
+              .join("")}
           </tbody>
         </table>
       </div>
     `;
 
     // Add event listeners for edit and delete buttons
-    container.querySelectorAll('.cemetery-edit-btn').forEach(btn => {
-      btn.addEventListener('click', (e) => {
+    container.querySelectorAll(".cemetery-edit-btn").forEach((btn) => {
+      btn.addEventListener("click", (e) => {
         const id = parseInt(e.currentTarget.dataset.id);
         this.editCemetery(id);
       });
     });
 
-    container.querySelectorAll('.cemetery-delete-btn').forEach(btn => {
-      btn.addEventListener('click', (e) => {
+    container.querySelectorAll(".cemetery-delete-btn").forEach((btn) => {
+      btn.addEventListener("click", (e) => {
         const id = parseInt(e.currentTarget.dataset.id);
         this.deleteCemetery(id);
       });
@@ -1076,64 +1087,82 @@ class AdminDashboard {
       <div class="modal" id="cemeteryModal">
         <div class="modal-content">
           <div class="modal-header">
-            <h3>${isEdit ? 'Izmeni' : 'Dodaj'} mezaristan</h3>
+            <h3>${isEdit ? "Izmeni" : "Dodaj"} mezaristan</h3>
             <button class="modal-close cemetery-modal-close">&times;</button>
           </div>
           <form id="cemeteryForm">
             <div class="form-group">
               <label>Naziv *</label>
-              <input type="text" name="name" value="${cemetery?.name || ''}" required>
+              <input type="text" name="name" value="${
+                cemetery?.name || ""
+              }" required>
             </div>
             <div class="form-group">
               <label>Grad *</label>
-              <input type="text" name="city" value="${cemetery?.city || ''}" required>
+              <input type="text" name="city" value="${
+                cemetery?.city || ""
+              }" required>
             </div>
             <div class="form-group">
               <label>Adresa</label>
-              <input type="text" name="address" value="${cemetery?.address || ''}">
+              <input type="text" name="address" value="${
+                cemetery?.address || ""
+              }">
             </div>
             <div class="form-row">
               <div class="form-group">
                 <label>Latitude</label>
-                <input type="number" step="any" name="latitude" value="${cemetery?.latitude || ''}" placeholder="42.0942">
+                <input type="number" step="any" name="latitude" value="${
+                  cemetery?.latitude || ""
+                }" placeholder="42.0942">
               </div>
               <div class="form-group">
                 <label>Longitude</label>
-                <input type="number" step="any" name="longitude" value="${cemetery?.longitude || ''}" placeholder="19.0894">
+                <input type="number" step="any" name="longitude" value="${
+                  cemetery?.longitude || ""
+                }" placeholder="19.0894">
               </div>
             </div>
             <div class="form-group">
               <label>Opis</label>
-              <textarea name="description" rows="3">${cemetery?.description || ''}</textarea>
+              <textarea name="description" rows="3">${
+                cemetery?.description || ""
+              }</textarea>
             </div>
             <div class="modal-actions">
               <button type="button" class="btn btn-secondary cemetery-modal-cancel">Otkaži</button>
-              <button type="submit" class="btn btn-primary">${isEdit ? 'Sačuvaj' : 'Dodaj'}</button>
+              <button type="submit" class="btn btn-primary">${
+                isEdit ? "Sačuvaj" : "Dodaj"
+              }</button>
             </div>
           </form>
         </div>
       </div>
     `;
 
-    document.body.insertAdjacentHTML('beforeend', modalHTML);
+    document.body.insertAdjacentHTML("beforeend", modalHTML);
 
-    const modal = document.getElementById('cemeteryModal');
-    
+    const modal = document.getElementById("cemeteryModal");
+
     // Close button handlers
-    modal.querySelector('.cemetery-modal-close').addEventListener('click', () => {
-      modal.remove();
-    });
-    
-    modal.querySelector('.cemetery-modal-cancel').addEventListener('click', () => {
-      modal.remove();
-    });
+    modal
+      .querySelector(".cemetery-modal-close")
+      .addEventListener("click", () => {
+        modal.remove();
+      });
 
-    const form = document.getElementById('cemeteryForm');
-    form.addEventListener('submit', async (e) => {
+    modal
+      .querySelector(".cemetery-modal-cancel")
+      .addEventListener("click", () => {
+        modal.remove();
+      });
+
+    const form = document.getElementById("cemeteryForm");
+    form.addEventListener("submit", async (e) => {
       e.preventDefault();
       const formData = new FormData(form);
       const data = Object.fromEntries(formData.entries());
-      
+
       if (isEdit) {
         await this.updateCemetery(cemetery.id, data);
       } else {
@@ -1146,7 +1175,7 @@ class AdminDashboard {
     try {
       await this.api.post("/admin/cemeteries", data);
       this.showNotification("Mezaristan uspešno dodat", "success");
-      document.getElementById('cemeteryModal').remove();
+      document.getElementById("cemeteryModal").remove();
       await this.loadCemeteries();
     } catch (error) {
       console.error("Failed to create cemetery:", error);
@@ -1156,7 +1185,7 @@ class AdminDashboard {
 
   async editCemetery(id) {
     try {
-      const cemetery = this.allCemeteries.find(c => c.id === id);
+      const cemetery = this.allCemeteries.find((c) => c.id === id);
       if (cemetery) {
         this.showCemeteryModal(cemetery);
       }
@@ -1169,7 +1198,7 @@ class AdminDashboard {
     try {
       await this.api.put(`/admin/cemeteries/${id}`, data);
       this.showNotification("Mezaristan uspešno izmenjen", "success");
-      document.getElementById('cemeteryModal').remove();
+      document.getElementById("cemeteryModal").remove();
       await this.loadCemeteries();
     } catch (error) {
       console.error("Failed to update cemetery:", error);

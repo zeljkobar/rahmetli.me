@@ -402,9 +402,9 @@ export class UserDashboard {
 
       // Add event listener for reload button
       setTimeout(() => {
-        const reloadBtn = container.querySelector('.reload-btn');
+        const reloadBtn = container.querySelector(".reload-btn");
         if (reloadBtn) {
-          reloadBtn.addEventListener('click', () => location.reload());
+          reloadBtn.addEventListener("click", () => location.reload());
         }
       }, 0);
     }

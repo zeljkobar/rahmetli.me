@@ -3,6 +3,7 @@
 Ovu folder treba da sadrži ikone aplikacije u sledećim veličinama:
 
 ## Potrebne ikone:
+
 - icon-72x72.png
 - icon-96x96.png
 - icon-128x128.png
@@ -15,15 +16,18 @@ Ovu folder treba da sadrži ikone aplikacije u sledećim veličinama:
 ## Kako kreirati ikone:
 
 ### Opcija 1: Online alati
+
 - https://realfavicongenerator.net/
 - https://www.pwabuilder.com/imageGenerator
 
 ### Opcija 2: Photoshop/Figma
+
 1. Kreiraj kvadratni logo (1024x1024px)
 2. Izvezi u svim potrebnim veličinama
 3. Sačuvaj kao PNG sa transparentnom pozadinom
 
 ### Opcija 3: ImageMagick (command line)
+
 ```bash
 # Instaliraj ImageMagick
 brew install imagemagick
@@ -40,6 +44,7 @@ convert logo.png -resize 512x512 icon-512x512.png
 ```
 
 ## Privremeno rešenje:
+
 Za testiranje PWA-a bez ikona, možeš koristiti placeholder boju ili jednostavan text logo.
 
 **Važno:** Bez ikona, PWA će raditi ali neće izgledati profesionalno na home screen-u telefona.

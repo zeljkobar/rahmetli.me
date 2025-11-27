@@ -839,7 +839,9 @@ export class PostCreateForm {
     const closeBtn = this.element.querySelector(".modal-close-btn");
     const cancelBtn = this.element.querySelector("#cancelBtn");
     const imageUpload = this.element.querySelector("#imageUpload");
-    const imageUploadTrigger = this.element.querySelector(".image-upload-trigger");
+    const imageUploadTrigger = this.element.querySelector(
+      ".image-upload-trigger"
+    );
     const overlay = this.element.querySelector(".modal-overlay");
 
     // Form submission

@@ -52,8 +52,8 @@ router.post("/register", validateUserRegistration, async (req, res) => {
     );
 
     // Send verification email (non-blocking)
-    sendVerificationEmail(email, username, verification_token).catch(err => {
-      console.error('Failed to send verification email:', err);
+    sendVerificationEmail(email, username, verification_token).catch((err) => {
+      console.error("Failed to send verification email:", err);
     });
 
     // Generate JWT token
@@ -306,9 +306,11 @@ router.post("/forgot-password", async (req, res) => {
 
     // Send reset email (non-blocking)
     const { sendPasswordResetEmail } = await import("../utils/email.js");
-    sendPasswordResetEmail(user.email, user.username, resetToken).catch(err => {
-      console.error('Failed to send password reset email:', err);
-    });
+    sendPasswordResetEmail(user.email, user.username, resetToken).catch(
+      (err) => {
+        console.error("Failed to send password reset email:", err);
+      }
+    );
 
     res.json({
       message: "Ako email postoji, poslaćemo vam link za reset lozinke",

@@ -194,20 +194,22 @@ router.put(
            AND notification_cities IS NOT NULL`
         );
 
-        subscribers.forEach(subscriber => {
+        subscribers.forEach((subscriber) => {
           try {
-            const cities = JSON.parse(subscriber.notification_cities || '[]');
+            const cities = JSON.parse(subscriber.notification_cities || "[]");
             if (cities.includes(post.location)) {
               sendNewPostNotification(subscriber.email, {
                 id: post.id,
                 deceased_name: post.deceased_name,
                 location: post.location,
                 death_date: post.death_date,
-                funeral_date: post.funeral_date
-              }).catch(err => console.error('Failed to send notification:', err));
+                funeral_date: post.funeral_date,
+              }).catch((err) =>
+                console.error("Failed to send notification:", err)
+              );
             }
           } catch (e) {
-            console.error('Error parsing notification_cities:', e);
+            console.error("Error parsing notification_cities:", e);
           }
         });
       }
@@ -541,7 +543,8 @@ router.post(
   requireAdmin,
   async (req, res) => {
     try {
-      const { name, city, address, latitude, longitude, description } = req.body;
+      const { name, city, address, latitude, longitude, description } =
+        req.body;
 
       if (!name || !city || !address) {
         return res.status(400).json({
@@ -552,7 +555,14 @@ router.post(
       const result = await executeQuery(
         `INSERT INTO cemeteries (name, city, address, latitude, longitude, description, is_active) 
          VALUES (?, ?, ?, ?, ?, ?, 1)`,
-        [name, city, address, latitude || null, longitude || null, description || null]
+        [
+          name,
+          city,
+          address,
+          latitude || null,
+          longitude || null,
+          description || null,
+        ]
       );
 
       res.json({
@@ -577,7 +587,8 @@ router.put(
   async (req, res) => {
     try {
       const { id } = req.params;
-      const { name, city, address, latitude, longitude, description } = req.body;
+      const { name, city, address, latitude, longitude, description } =
+        req.body;
 
       if (!name || !city || !address) {
         return res.status(400).json({
@@ -589,7 +600,15 @@ router.put(
         `UPDATE cemeteries 
          SET name = ?, city = ?, address = ?, latitude = ?, longitude = ?, description = ?
          WHERE id = ?`,
-        [name, city, address, latitude || null, longitude || null, description || null, id]
+        [
+          name,
+          city,
+          address,
+          latitude || null,
+          longitude || null,
+          description || null,
+          id,
+        ]
       );
 
       res.json({
@@ -627,10 +646,9 @@ router.delete(
       }
 
       // Soft delete
-      await executeQuery(
-        "UPDATE cemeteries SET is_active = 0 WHERE id = ?",
-        [id]
-      );
+      await executeQuery("UPDATE cemeteries SET is_active = 0 WHERE id = ?", [
+        id,
+      ]);
 
       res.json({
         success: true,

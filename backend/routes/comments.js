@@ -3,7 +3,10 @@ const router = express.Router();
 import { executeQuery, executeQuerySingle } from "../config/database.js";
 import { authenticateToken, optionalAuth } from "../middleware/auth.js";
 import { validateComment, validateId } from "../middleware/validation.js";
-import { sendCommentNotification, sendAdminPendingCommentNotification } from "../utils/email.js";
+import {
+  sendCommentNotification,
+  sendAdminPendingCommentNotification,
+} from "../utils/email.js";
 
 // Get comments for a specific post
 router.get("/post/:id", validateId, optionalAuth, async (req, res) => {
@@ -102,34 +105,38 @@ router.post("/", validateComment, authenticateToken, async (req, res) => {
           id: newComment.id,
           author_name: newComment.author_name,
           content: newComment.content,
-          created_at: newComment.created_at
+          created_at: newComment.created_at,
         },
         {
           id: newComment.post_id,
-          deceased_name: newComment.deceased_name
+          deceased_name: newComment.deceased_name,
         }
-      ).catch(err => console.error('Failed to send comment notification:', err));
+      ).catch((err) =>
+        console.error("Failed to send comment notification:", err)
+      );
     }
 
     // Send notification to admin (non-blocking)
     const admins = await executeQuery(
       "SELECT email FROM users WHERE role = 'admin' AND email IS NOT NULL"
     );
-    
-    admins.forEach(admin => {
+
+    admins.forEach((admin) => {
       sendAdminPendingCommentNotification(
         admin.email,
         {
           id: newComment.id,
           author_name: newComment.author_name,
           content: newComment.content,
-          created_at: newComment.created_at
+          created_at: newComment.created_at,
         },
         {
           id: newComment.post_id,
-          deceased_name: newComment.deceased_name
+          deceased_name: newComment.deceased_name,
         }
-      ).catch(err => console.error('Failed to send admin notification:', err));
+      ).catch((err) =>
+        console.error("Failed to send admin notification:", err)
+      );
     });
 
     res.status(201).json({
