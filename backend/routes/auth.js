@@ -12,6 +12,7 @@ import {
   validateUserLogin,
 } from "../middleware/validation.js";
 import { authenticateToken } from "../middleware/auth.js";
+import { sendVerificationEmail } from "../utils/email.js";
 
 // Register new user
 router.post("/register", validateUserRegistration, async (req, res) => {
@@ -50,6 +51,11 @@ router.post("/register", validateUserRegistration, async (req, res) => {
       ]
     );
 
+    // Send verification email (non-blocking)
+    sendVerificationEmail(email, username, verification_token).catch(err => {
+      console.error('Failed to send verification email:', err);
+    });
+
     // Generate JWT token
     const token = generateToken({
       id: result.insertId,
@@ -59,7 +65,7 @@ router.post("/register", validateUserRegistration, async (req, res) => {
     });
 
     res.status(201).json({
-      message: "Registracija uspješna",
+      message: "Registracija uspješna. Provjerite email za verifikaciju.",
       token,
       user: {
         id: result.insertId,
@@ -67,6 +73,7 @@ router.post("/register", validateUserRegistration, async (req, res) => {
         email,
         full_name,
         role: "user",
+        email_verified: false,
       },
     });
   } catch (error) {
@@ -224,6 +231,139 @@ router.put("/change-password", authenticateToken, async (req, res) => {
     });
   } catch (error) {
     console.error("Password change error:", error);
+    res.status(500).json({
+      error: "Greška pri promjeni lozinke",
+    });
+  }
+});
+
+// Verify email
+router.get("/verify-email/:token", async (req, res) => {
+  try {
+    const { token } = req.params;
+
+    const user = await executeQuerySingle(
+      "SELECT id, username, email FROM users WHERE verification_token = ?",
+      [token]
+    );
+
+    if (!user) {
+      return res.status(400).json({
+        error: "Nevažeći ili istekli verifikacioni link",
+      });
+    }
+
+    // Update user email_verified status
+    await executeQuery(
+      "UPDATE users SET email_verified = TRUE, verification_token = NULL WHERE id = ?",
+      [user.id]
+    );
+
+    res.json({
+      message: "Email adresa je uspješno verifikovana",
+      success: true,
+    });
+  } catch (error) {
+    console.error("Email verification error:", error);
+    res.status(500).json({
+      error: "Greška pri verifikaciji email-a",
+    });
+  }
+});
+
+// Request password reset
+router.post("/forgot-password", async (req, res) => {
+  try {
+    const { email } = req.body;
+
+    if (!email) {
+      return res.status(400).json({
+        error: "Email adresa je obavezna",
+      });
+    }
+
+    const user = await executeQuerySingle(
+      "SELECT id, username, email FROM users WHERE email = ?",
+      [email]
+    );
+
+    if (!user) {
+      // Return success even if user doesn't exist (security best practice)
+      return res.json({
+        message: "Ako email postoji, poslaćemo vam link za reset lozinke",
+      });
+    }
+
+    // Generate reset token
+    const resetToken = generateRandomToken();
+    const resetTokenExpires = new Date(Date.now() + 3600000); // 1 hour
+
+    // Save reset token
+    await executeQuery(
+      "UPDATE users SET reset_token = ?, reset_token_expires = ? WHERE id = ?",
+      [resetToken, resetTokenExpires, user.id]
+    );
+
+    // Send reset email (non-blocking)
+    const { sendPasswordResetEmail } = await import("../utils/email.js");
+    sendPasswordResetEmail(user.email, user.username, resetToken).catch(err => {
+      console.error('Failed to send password reset email:', err);
+    });
+
+    res.json({
+      message: "Ako email postoji, poslaćemo vam link za reset lozinke",
+    });
+  } catch (error) {
+    console.error("Forgot password error:", error);
+    res.status(500).json({
+      error: "Greška pri slanju zahtjeva za reset lozinke",
+    });
+  }
+});
+
+// Reset password with token
+router.post("/reset-password", async (req, res) => {
+  try {
+    const { token, newPassword } = req.body;
+
+    if (!token || !newPassword) {
+      return res.status(400).json({
+        error: "Token i nova lozinka su obavezni",
+      });
+    }
+
+    if (newPassword.length < 6) {
+      return res.status(400).json({
+        error: "Lozinka mora imati najmanje 6 karaktera",
+      });
+    }
+
+    const user = await executeQuerySingle(
+      "SELECT id FROM users WHERE reset_token = ? AND reset_token_expires > NOW()",
+      [token]
+    );
+
+    if (!user) {
+      return res.status(400).json({
+        error: "Nevažeći ili istekli reset token",
+      });
+    }
+
+    // Hash new password
+    const password_hash = await hashPassword(newPassword);
+
+    // Update password and clear reset token
+    await executeQuery(
+      "UPDATE users SET password_hash = ?, reset_token = NULL, reset_token_expires = NULL WHERE id = ?",
+      [password_hash, user.id]
+    );
+
+    res.json({
+      message: "Lozinka je uspješno promijenjena",
+      success: true,
+    });
+  } catch (error) {
+    console.error("Password reset error:", error);
     res.status(500).json({
       error: "Greška pri promjeni lozinke",
     });

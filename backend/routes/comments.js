@@ -3,6 +3,7 @@ const router = express.Router();
 import { executeQuery, executeQuerySingle } from "../config/database.js";
 import { authenticateToken, optionalAuth } from "../middleware/auth.js";
 import { validateComment, validateId } from "../middleware/validation.js";
+import { sendCommentNotification, sendAdminPendingCommentNotification } from "../utils/email.js";
 
 // Get comments for a specific post
 router.get("/post/:id", validateId, optionalAuth, async (req, res) => {
@@ -75,19 +76,61 @@ router.post("/", validateComment, authenticateToken, async (req, res) => {
 
     const commentId = result.insertId;
 
-    // Get the created comment with user info
+    // Get the created comment with user info and post details
     const newComment = await executeQuerySingle(
       `SELECT 
          c.id, c.user_id, c.post_id, c.content, c.status, 
          c.created_at, c.updated_at,
          u.full_name, u.username, u.email,
          COALESCE(u.full_name, 'Anoniman') as author_name,
-         COALESCE(u.username, 'anonymous') as author_username
+         COALESCE(u.username, 'anonymous') as author_username,
+         p.deceased_name, p.user_id as post_author_id,
+         author.email as post_author_email
        FROM comments c
        LEFT JOIN users u ON c.user_id = u.id
+       LEFT JOIN posts p ON c.post_id = p.id
+       LEFT JOIN users author ON p.user_id = author.id
        WHERE c.id = ?`,
       [commentId]
     );
+
+    // Send email notification to post author (non-blocking)
+    if (newComment.post_author_email && newComment.post_author_id !== user_id) {
+      sendCommentNotification(
+        newComment.post_author_email,
+        {
+          id: newComment.id,
+          author_name: newComment.author_name,
+          content: newComment.content,
+          created_at: newComment.created_at
+        },
+        {
+          id: newComment.post_id,
+          deceased_name: newComment.deceased_name
+        }
+      ).catch(err => console.error('Failed to send comment notification:', err));
+    }
+
+    // Send notification to admin (non-blocking)
+    const admins = await executeQuery(
+      "SELECT email FROM users WHERE role = 'admin' AND email IS NOT NULL"
+    );
+    
+    admins.forEach(admin => {
+      sendAdminPendingCommentNotification(
+        admin.email,
+        {
+          id: newComment.id,
+          author_name: newComment.author_name,
+          content: newComment.content,
+          created_at: newComment.created_at
+        },
+        {
+          id: newComment.post_id,
+          deceased_name: newComment.deceased_name
+        }
+      ).catch(err => console.error('Failed to send admin notification:', err));
+    });
 
     res.status(201).json({
       message: "Komentar je uspešno poslat na moderaciju",

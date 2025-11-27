@@ -2,6 +2,7 @@ import express from "express";
 const router = express.Router();
 import { executeQuery, executeQuerySingle } from "../config/database.js";
 import { authenticateToken, requireAdmin } from "../middleware/auth.js";
+import { sendNewPostNotification } from "../utils/email.js";
 
 // Get pending comments (admin only)
 router.get(
@@ -160,15 +161,54 @@ router.put(
         });
       }
 
+      // Get post details before updating
+      const post = await executeQuerySingle(
+        `SELECT p.*, c.name as cemetery_name, c.city as location 
+         FROM posts p 
+         LEFT JOIN cemeteries c ON p.cemetery_id = c.id 
+         WHERE p.id = ?`,
+        [id]
+      );
+
+      if (!post) {
+        return res.status(404).json({
+          error: "Objava nije pronađena",
+        });
+      }
+
       // Update post status
       const result = await executeQuery(
         "UPDATE posts SET status = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?",
         [status, id]
       );
 
-      if (result.affectedRows === 0) {
-        return res.status(404).json({
-          error: "Objava nije pronađena",
+      // If approved, send notifications to subscribed users
+      if (status === "approved" && post.location) {
+        // Get users subscribed to this city
+        const subscribers = await executeQuery(
+          `SELECT email, notification_cities 
+           FROM users 
+           WHERE subscription_status = 'active' 
+           AND email IS NOT NULL 
+           AND email_verified = TRUE
+           AND notification_cities IS NOT NULL`
+        );
+
+        subscribers.forEach(subscriber => {
+          try {
+            const cities = JSON.parse(subscriber.notification_cities || '[]');
+            if (cities.includes(post.location)) {
+              sendNewPostNotification(subscriber.email, {
+                id: post.id,
+                deceased_name: post.deceased_name,
+                location: post.location,
+                death_date: post.death_date,
+                funeral_date: post.funeral_date
+              }).catch(err => console.error('Failed to send notification:', err));
+            }
+          } catch (e) {
+            console.error('Error parsing notification_cities:', e);
+          }
         });
       }
 
