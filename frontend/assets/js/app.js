@@ -70,9 +70,29 @@ class App {
     const nav = document.getElementById("mainNav");
 
     if (mobileMenuBtn && nav) {
-      mobileMenuBtn.addEventListener("click", () => {
+      mobileMenuBtn.addEventListener("click", (e) => {
+        e.stopPropagation();
         nav.classList.toggle("mobile-active");
         mobileMenuBtn.classList.toggle("active");
+      });
+
+      // Close mobile menu when clicking outside
+      document.addEventListener("click", (e) => {
+        if (nav.classList.contains("mobile-active")) {
+          if (!nav.contains(e.target) && !mobileMenuBtn.contains(e.target)) {
+            nav.classList.remove("mobile-active");
+            mobileMenuBtn.classList.remove("active");
+          }
+        }
+      });
+
+      // Close mobile menu when clicking on a nav link
+      const navLinks = nav.querySelectorAll(".nav-link");
+      navLinks.forEach((link) => {
+        link.addEventListener("click", () => {
+          nav.classList.remove("mobile-active");
+          mobileMenuBtn.classList.remove("active");
+        });
       });
     }
 
