@@ -31,7 +31,7 @@ export class SubscriptionPayment {
                     <span class="benefit-icon">✅</span>
                     <div>
                       <h3>Izjavljivanje hatara</h3>
-                      <p>Neograničeno ostavljanje hatara i saučešća</p>
+                      <p>Neograničeno ostavljanje komentara</p>
                     </div>
                   </div>
                   <div class="benefit-item">

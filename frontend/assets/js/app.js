@@ -217,10 +217,6 @@ class App {
         this.showHomePage();
       } else if (path === "/dzenaze") {
         this.showPostsPage("dzenaza");
-      } else if (path === "/saucesca") {
-        this.showPostsPage("dova");
-      } else if (path === "/pomeni") {
-        this.showPostsPage("pomen");
       } else if (path.startsWith("/objava/")) {
         const postId = path.split("/")[2];
         this.showPostPage(postId);
@@ -277,7 +273,7 @@ class App {
                 <div class="container">
                     <h1 class="hero-title">Rahmetli.me</h1>
                     <p class="hero-subtitle">
-                        Prvi bosanski portal za obavještenja o odlasku u ahiret i saučešća
+                        Prvi bosanski portal za obavještenja o odlasku u ahiret
                     </p>
                     <div class="hero-actions">
                         <button class="btn btn-primary btn-lg" id="heroSearchBtn">
@@ -296,7 +292,7 @@ class App {
                         <h2 class="section-title">Najnovije objave</h2>
                         <p class="section-subtitle">
                             <p class="section-description">
-                            Najnovija obavještenja o odlasku u ahiret, saučešća i pomeni
+                            Najnovija obavještenja o odlasku u ahiret
                         </p>
                         </p>
                     </div>
@@ -487,8 +483,6 @@ class App {
   getTypePageTitle(type) {
     const titles = {
       dzenaza: "Dženaze",
-      dova: "Saučešća",
-      pomen: "Pomeni",
       hatma: "Hatme",
     };
     return titles[type] || "Objave";
