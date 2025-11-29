@@ -273,7 +273,7 @@ class App {
                 <div class="container">
                     <h1 class="hero-title">Rahmetli.me</h1>
                     <p class="hero-subtitle">
-                        Prvi bosanski portal za obavještenja o odlasku u ahiret
+                        Prvi islamski portal za obavještenja o prelasku na ahiret
                     </p>
                     <div class="hero-actions">
                         <button class="btn btn-primary btn-lg" id="heroSearchBtn">
