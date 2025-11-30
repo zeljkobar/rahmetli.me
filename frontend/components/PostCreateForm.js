@@ -781,6 +781,24 @@ export class PostCreateForm {
               <option value="unuka" ${
                 member.relationship === "unuka" ? "selected" : ""
               }>Unuka</option>
+              <option value="djed" ${
+                member.relationship === "djed" ? "selected" : ""
+              }>Djed</option>
+              <option value="baba" ${
+                member.relationship === "baba" ? "selected" : ""
+              }>Baba</option>
+              <option value="ujak" ${
+                member.relationship === "ujak" ? "selected" : ""
+              }>Ujak</option>
+              <option value="ujna" ${
+                member.relationship === "ujna" ? "selected" : ""
+              }>Ujna</option>
+              <option value="stric" ${
+                member.relationship === "stric" ? "selected" : ""
+              }>Stric</option>
+              <option value="strina" ${
+                member.relationship === "strina" ? "selected" : ""
+              }>Strina</option>
               <option value="ostalo" ${
                 member.relationship === "ostalo" ? "selected" : ""
               }>Ostalo</option>

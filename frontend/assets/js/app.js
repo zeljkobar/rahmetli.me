@@ -222,6 +222,8 @@ class App {
         this.showPostPage(postId);
       } else if (path === "/mezaristani") {
         this.showCemeteriesPage();
+      } else if (path === "/cijene") {
+        this.showPricingPage();
       } else if (path === "/profil") {
         this.showDashboardPage();
       } else if (path === "/admin") {
@@ -869,6 +871,130 @@ class App {
       showToast("Greška pri učitavanju stranice", "error");
       this.navigate("/");
     }
+  }
+
+  async showPricingPage() {
+    const mainContent = document.getElementById("mainContent");
+
+    mainContent.innerHTML = `
+      <section class="section">
+        <div class="container" style="max-width: 900px;">
+          <div class="section-header" style="text-align: center; margin-bottom: 3rem;">
+            <h1 class="section-title">Cijene usluga</h1>
+            <p class="section-subtitle">Jednostavno i transparentno</p>
+          </div>
+
+          <div style="display: grid; gap: 2rem; margin-bottom: 2rem;">
+            <!-- Objava Dženaze -->
+            <div style="background: white; border: 2px solid #e5e7eb; border-radius: 12px; padding: 2rem;">
+              <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 1rem;">
+                <div>
+                  <h3 style="color: #006233; font-size: 1.5rem; margin-bottom: 0.5rem;">Objava Dženaze</h3>
+                  <p style="color: #6b7280; font-size: 0.95rem;">Obavještenje o dženazi sa svim detaljima</p>
+                </div>
+                <div style="text-align: right;">
+                  <div style="font-size: 2rem; font-weight: bold; color: #006233;">20€</div>
+                </div>
+              </div>
+              <ul style="list-style: none; padding: 0; margin: 1.5rem 0 0 0;">
+                <li style="padding: 0.5rem 0; color: #4b5563; display: flex; align-items: center;">
+                  <span style="color: #006233; margin-right: 0.5rem;">✓</span>
+                  Mogućnost komentarisanja (saučešća)
+                </li>
+                <li style="padding: 0.5rem 0; color: #4b5563; display: flex; align-items: center;">
+                  <span style="color: #006233; margin-right: 0.5rem;">✓</span>
+                  Lokacija mezaristana i vrijeme
+                </li>
+                <li style="padding: 0.5rem 0; color: #4b5563; display: flex; align-items: center;">
+                  <span style="color: #006233; margin-right: 0.5rem;">✓</span>
+                  Vidljivo svim posjetiteljima portala
+                </li>
+              </ul>
+            </div>
+
+            <!-- Izjava Hatara -->
+            <div style="background: white; border: 2px solid #e5e7eb; border-radius: 12px; padding: 2rem;">
+              <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 1rem;">
+                <div>
+                  <h3 style="color: #006233; font-size: 1.5rem; margin-bottom: 0.5rem;">Izjava Hatara</h3>
+                  <p style="color: #6b7280; font-size: 0.95rem;">Komentar/saučešće na objavu</p>
+                </div>
+                <div style="text-align: right;">
+                  <div style="font-size: 2rem; font-weight: bold; color: #006233;">10€</div>
+                </div>
+              </div>
+              <ul style="list-style: none; padding: 0; margin: 1.5rem 0 0 0;">
+                <li style="padding: 0.5rem 0; color: #4b5563; display: flex; align-items: center;">
+                  <span style="color: #006233; margin-right: 0.5rem;">✓</span>
+                  Objava jednog hatara/komentara
+                </li>
+                <li style="padding: 0.5rem 0; color: #4b5563; display: flex; align-items: center;">
+                  <span style="color: #006233; margin-right: 0.5rem;">✓</span>
+                  Ime i prezime uz komentar
+                </li>
+                <li style="padding: 0.5rem 0; color: #4b5563; display: flex; align-items: center;">
+                  <span style="color: #006233; margin-right: 0.5rem;">✓</span>
+                  Vidljivo uz objavu
+                </li>
+              </ul>
+            </div>
+
+            <!-- Godišnja Pretplata -->
+            <div style="background: linear-gradient(135deg, #006233 0%, #00a651 100%); border-radius: 12px; padding: 2rem; color: white; position: relative; overflow: hidden;">
+              <div style="position: absolute; top: 1rem; right: 1rem; background: #ffd700; color: #006233; padding: 0.25rem 0.75rem; border-radius: 20px; font-size: 0.875rem; font-weight: bold;">
+                Najbolja ponuda
+              </div>
+              <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 1rem;">
+                <div>
+                  <h3 style="font-size: 1.5rem; margin-bottom: 0.5rem;">Godišnja Pretplata</h3>
+                  <p style="opacity: 0.9; font-size: 0.95rem;">Neograničeno korištenje tokom godine</p>
+                </div>
+                <div style="text-align: right;">
+                  <div style="font-size: 2rem; font-weight: bold;">20€</div>
+                  <div style="font-size: 0.875rem; opacity: 0.9;">/godišnje</div>
+                </div>
+              </div>
+              <ul style="list-style: none; padding: 0; margin: 1.5rem 0 0 0;">
+                <li style="padding: 0.5rem 0; display: flex; align-items: center;">
+                  <span style="margin-right: 0.5rem;">✓</span>
+                  Neograničeno hatara/komentara
+                </li>
+                <li style="padding: 0.5rem 0; display: flex; align-items: center;">
+                  <span style="margin-right: 0.5rem;">✓</span>
+                  Email obavještenja o novim dženazama
+                </li>
+                <li style="padding: 0.5rem 0; display: flex; align-items: center;">
+                  <span style="margin-right: 0.5rem;">✓</span>
+                  Filtriranje obavještenja po mjestu
+                </li>
+                <li style="padding: 0.5rem 0; display: flex; align-items: center;">
+                  <span style="margin-right: 0.5rem;">✓</span>
+                  Podrška za korisnike
+                </li>
+                <li style="padding: 0.5rem 0; display: flex; align-items: center;">
+                  <span style="margin-right: 0.5rem;">✓</span>
+                  Bez skrivenih troškova
+                </li>
+              </ul>
+            </div>
+          </div>
+
+          <div style="background: #f0fff4; border-left: 4px solid #006233; padding: 1.5rem; border-radius: 8px; margin-top: 2rem;">
+            <h4 style="color: #006233; margin-bottom: 0.75rem; font-size: 1.1rem;">Način plaćanja</h4>
+            <p style="color: #4b5563; margin: 0; line-height: 1.6;">
+              Prihvatamo plaćanja putem PayPal-a i kreditnih kartica. Nakon uspješne uplate, vaša objava ili pretplata će biti odmah aktivirana.
+            </p>
+          </div>
+
+          <div style="text-align: center; margin-top: 3rem;">
+            <p style="color: #6b7280; font-size: 0.95rem; margin-bottom: 1rem;">
+              Imate pitanja? Kontaktirajte nas
+            </p>
+            <a href="/kontakt" class="btn btn-outline" style="display: inline-block;">Kontakt</a>
+          </div>
+        </div>
+      </section>
+    `;
   }
 
   async showCemeteriesPage() {

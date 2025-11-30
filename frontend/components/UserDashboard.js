@@ -148,7 +148,13 @@ export class UserDashboard {
           <div class="card-icon">📅</div>
           <div class="card-content">
             <h3>Član od</h3>
-            <p class="card-text">${new Date().toLocaleDateString("sr-RS")}</p>
+            <p class="card-text">${
+              this.currentUser.created_at
+                ? new Date(this.currentUser.created_at).toLocaleDateString(
+                    "sr-RS"
+                  )
+                : "N/A"
+            }</p>
             <p class="card-description">datum registracije</p>
           </div>
         </div>

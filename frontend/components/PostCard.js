@@ -68,6 +68,12 @@ export class PostCard {
               // Format: relationship name (e.g., "supruga Amra")
               const relationship = (m.relationship || "").toLowerCase();
               const name = m.name || "";
+
+              // If relationship is "ostalo", show only the name without relationship prefix
+              if (relationship === "ostalo") {
+                return name.trim();
+              }
+
               const capitalizedName =
                 name.charAt(0).toUpperCase() + name.slice(1).toLowerCase();
               return `${relationship} ${capitalizedName}`.trim();
