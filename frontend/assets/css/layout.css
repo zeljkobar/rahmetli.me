@@ -146,6 +146,11 @@ body {
   cursor: pointer;
 }
 
+/* Hide mobile auth buttons on desktop */
+.mobile-auth-buttons {
+  display: none;
+}
+
 .mobile-menu-btn span {
   width: 100%;
   height: 2px;

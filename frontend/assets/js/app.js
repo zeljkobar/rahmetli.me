@@ -137,6 +137,18 @@ class App {
     if (registerBtn) {
       registerBtn.addEventListener("click", () => this.showRegisterModal());
     }
+    
+    // Mobile auth buttons
+    const mobileLoginBtn = document.getElementById("mobileLoginBtn");
+    const mobileRegisterBtn = document.getElementById("mobileRegisterBtn");
+    
+    if (mobileLoginBtn) {
+      mobileLoginBtn.addEventListener("click", () => this.showLoginModal());
+    }
+    
+    if (mobileRegisterBtn) {
+      mobileRegisterBtn.addEventListener("click", () => this.showRegisterModal());
+    }
 
     if (logoutBtn) {
       logoutBtn.addEventListener("click", () => this.logout());
@@ -224,6 +236,8 @@ class App {
         this.showCemeteriesPage();
       } else if (path === "/cijene") {
         this.showPricingPage();
+      } else if (path === "/privatnost") {
+        this.showPrivacyPage();
       } else if (path === "/profil") {
         this.showDashboardPage();
       } else if (path === "/admin") {
@@ -871,6 +885,89 @@ class App {
       showToast("Greška pri učitavanju stranice", "error");
       this.navigate("/");
     }
+  }
+
+  async showPrivacyPage() {
+    const mainContent = document.getElementById("mainContent");
+
+    mainContent.innerHTML = `
+      <section class="section">
+        <div class="container" style="max-width: 900px;">
+          <div class="section-header" style="margin-bottom: 2rem;">
+            <h1 class="section-title">Politika Privatnosti</h1>
+            <p class="section-subtitle">Odredbe i smjernice privatnosti korisnika</p>
+          </div>
+
+          <div style="background: white; padding: 2rem; border-radius: 12px; line-height: 1.8; color: #374151;">
+            <p style="margin-bottom: 2rem;">
+              Ova politika privatnosti je sastavljena tako da bolje služi onima koji se bave pitanjima kako se njihove „lične informacije" koriste na mreži. Molimo pažljivo pročitajte našu politiku privatnosti kako biste jasno razumjeli kako sakupljamo, koristimo, štitimo, ili na neki drugi način rukujemo, Vašim ličnim podacima u skladu sa našim sajtom. Korišćenjem ovog sajta prihvatate i politiku privatnosti.
+            </p>
+
+            <h2 id="sakupljanje" style="color: #006233; font-size: 1.5rem; margin: 2rem 0 1rem 0;">1. SAKUPLJANJE LIČNIH PODATAKA</h2>
+            
+            <h3 style="color: #1f2937; font-size: 1.25rem; margin: 1.5rem 0 1rem 0;">1.1 Koje lične podatke prikupljamo?</h3>
+            <p>Ime, Email adresu, IP adresu korisnika. Ipak, sajt možete posjetiti i anonimno.</p>
+
+            <h3 style="color: #1f2937; font-size: 1.25rem; margin: 1.5rem 0 1rem 0;">1.2 Kada sakupljamo lične informacije?</h3>
+            <p>Mi prikupljamo podatke od Vas kada:</p>
+            <ul style="margin: 1rem 0; padding-left: 2rem;">
+              <li>Posjetite sajt (IP adresa, kolačići)</li>
+              <li>Pošaljete email preko kontakt forme (ime, email)</li>
+              <li>Registrujete se (IP adresa, kolačići, email, korisničko ime)</li>
+              <li>Kupite neku od usluga (IP adresa, kolačići, email, ime i prezime, adresa, grad, država, broj telefona)</li>
+            </ul>
+
+            <h3 style="color: #1f2937; font-size: 1.25rem; margin: 1.5rem 0 1rem 0;">1.3 Kako koristimo Vaše podatke?</h3>
+            <p>Možemo da koristimo informacije koje sakupljamo od Vas na sljedeće načine:</p>
+            <ul style="margin: 1rem 0; padding-left: 2rem;">
+              <li>Da personalizujemo Vaše iskustvo na sajtu</li>
+              <li>Da poboljšamo našu internet stranicu</li>
+              <li>Za zaštitu našeg sajta</li>
+              <li>Za slanje periodičnih email poruka o obavještenjima</li>
+              <li>Za sprovođenje promocija i drugih sličnih funkcija</li>
+            </ul>
+            <p style="margin-top: 1rem;"><strong>Napomena:</strong> Ako u bilo koje vrijeme želite da se odjavite od primanja budućih e-poruka, link za odjavu se nalazi na dnu svake email poruke.</p>
+
+            <h2 id="kolacici" style="color: #006233; font-size: 1.5rem; margin: 2rem 0 1rem 0;">2. KORIŠĆENJE „KOLAČIĆA"</h2>
+            <p>
+              Kolačići su mali fajlovi koje sajt, ili njegov provajder usluga, prenese na disk Vašeg računara preko veb browser-a (ako to dozvolite) koji omogućava sistemima da prepoznaju Vaš pretraživač i snimaju određene informacije.
+            </p>
+            <p style="margin-top: 1rem;">Koristimo kolačiće za:</p>
+            <ul style="margin: 1rem 0; padding-left: 2rem;">
+              <li>Razumijevanje i čuvanje korisničkih podešavanja za buduće posjete</li>
+              <li>Sastavljanje agregatnih podataka o prometu sajta</li>
+              <li>Poboljšanje korisničkog iskustva</li>
+            </ul>
+            <p style="margin-top: 1rem;">
+              Možete da izaberete da Vaš računar upozorava svaki put kada se preuzima kolačić ili možete da odaberete da isključite sve kolačiće kroz podešavanja pretraživača. Ako isključite kolačiće, neke funkcije možda neće funkcionisati ispravno.
+            </p>
+
+            <h2 id="zastita" style="color: #006233; font-size: 1.5rem; margin: 2rem 0 1rem 0;">3. ZAŠTITA LIČNIH PODATAKA</h2>
+            <p>
+              Obavezujemo se pružati zaštitu ličnim podacima korisnika, na način da prikupljamo samo nužne, osnovne podatke koji su neophodni za ispunjenje naših obaveza. Informišemo korisnike o načinu korišćenja prikupljenih podataka i redovno dajemo mogućnost izbora o upotrebi njihovih podataka.
+            </p>
+            <p style="margin-top: 1rem;">
+              Svi se podaci o korisnicima strogo čuvaju i dostupni su samo administraciji. Svi naši zaposleni i poslovni partneri odgovorni su za poštivanje načela zaštite privatnosti.
+            </p>
+            <p style="margin-top: 1rem;">
+              Pružalac usluga će sve dobijene podatke trajno čuvati u skladu sa Zakonom o zaštiti ličnih podataka.
+            </p>
+
+            <h2 id="vlasnistvo" style="color: #006233; font-size: 1.5rem; margin: 2rem 0 1rem 0;">4. INTELEKTUALNO VLASNIŠTVO</h2>
+            <p>
+              Sadržaj i dizajn portala su vlasništvo Rahmetli.me. Zabranjeno je kopiranje i komercijalna upotreba bilo kojeg dijela stranice, uključujući sve podatke koje daju korisnici, bez prethodnog pismenog dopuštenja.
+            </p>
+
+            <div style="background: #f0fff4; border-left: 4px solid #006233; padding: 1.5rem; border-radius: 8px; margin-top: 3rem;">
+              <h4 style="color: #006233; margin-bottom: 0.75rem; font-size: 1.1rem;">Kontakt</h4>
+              <p style="color: #4b5563; margin: 0;">
+                Ako imate pitanja o našoj politici privatnosti, možete nas kontaktirati putem kontakt forme na sajtu.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+    `;
   }
 
   async showPricingPage() {

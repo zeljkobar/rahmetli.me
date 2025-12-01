@@ -99,13 +99,33 @@
   .header-actions {
     gap: var(--spacing-sm);
   }
-
-  .auth-buttons {
-    display: none;
+  
+  /* Hide desktop auth buttons on mobile */
+  .auth-section .auth-buttons {
+    display: none !important;
   }
 
   .search-btn span {
     display: none;
+  }
+  
+  /* Mobile auth buttons - only show in hamburger menu */
+  .mobile-auth-buttons {
+    display: none;
+  }
+  
+  .nav.mobile-active .mobile-auth-buttons {
+    display: flex;
+    flex-direction: column;
+    padding: var(--spacing-md);
+    gap: var(--spacing-sm);
+    border-top: 1px solid var(--border-color);
+    margin-top: var(--spacing-sm);
+  }
+  
+  .nav.mobile-active .mobile-auth-buttons .btn {
+    width: 100%;
+    justify-content: center;
   }
 
   /* Logo adjustments */
