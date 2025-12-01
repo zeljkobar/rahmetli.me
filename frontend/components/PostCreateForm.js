@@ -18,8 +18,7 @@ export class PostCreateForm {
 
     this.state = {
       // Osnovni podaci
-      first_name: "",
-      last_name: "",
+      deceased_name: "",
       date_of_birth: "",
       date_of_death: "",
       gender: "male",
@@ -124,30 +123,16 @@ export class PostCreateForm {
               <div class="form-section">
                 <h3>Osnovni podaci</h3>
                 <div class="form-row">
-                  <div class="form-group">
-                    <label for="firstName">Ime *</label>
+                  <div class="form-group" style="flex: 1;">
+                    <label for="deceasedName">Ime i prezime *</label>
                     <input 
                       type="text" 
-                      id="firstName" 
-                      name="first_name" 
-                      value="${this.state.first_name}"
-                      placeholder="Unesite ime"
+                      id="deceasedName" 
+                      name="deceased_name" 
+                      value="${this.state.deceased_name || ""}"
                       required
                     >
-                    ${this.renderFieldError("first_name")}
-                  </div>
-                  
-                  <div class="form-group">
-                    <label for="lastName">Prezime *</label>
-                    <input 
-                      type="text" 
-                      id="lastName" 
-                      name="last_name" 
-                      value="${this.state.last_name}"
-                      placeholder="Unesite prezime"
-                      required
-                    >
-                    ${this.renderFieldError("last_name")}
+                    ${this.renderFieldError("deceased_name")}
                   </div>
                 </div>
                 
@@ -799,6 +784,9 @@ export class PostCreateForm {
               <option value="strina" ${
                 member.relationship === "strina" ? "selected" : ""
               }>Strina</option>
+              <option value="snaha" ${
+                member.relationship === "snaha" ? "selected" : ""
+              }>Snaha</option>
               <option value="ostalo" ${
                 member.relationship === "ostalo" ? "selected" : ""
               }>Ostalo</option>
@@ -1048,12 +1036,7 @@ export class PostCreateForm {
     let isValid = true;
 
     // Required fields validation
-    const requiredFields = [
-      "first_name",
-      "last_name",
-      "date_of_death",
-      "category_slug",
-    ];
+    const requiredFields = ["deceased_name", "date_of_death", "category_slug"];
 
     for (const field of requiredFields) {
       if (!this.validateField(field, this.state[field])) {
@@ -1093,8 +1076,7 @@ export class PostCreateForm {
 
     try {
       const postData = {
-        first_name: this.state.first_name.trim(),
-        last_name: this.state.last_name.trim(),
+        deceased_name: this.state.deceased_name.trim(),
         date_of_birth: this.state.date_of_birth || null,
         date_of_death: this.state.date_of_death,
         gender: this.state.gender,
@@ -1288,7 +1270,7 @@ export class PostCreateForm {
 
   // Generate preview HTML based on form data
   generatePreviewHTML() {
-    const fullName = `${this.state.first_name} ${this.state.last_name}`.trim();
+    const fullName = this.state.deceased_name.trim();
     const deathDate = this.formatDateForDisplay(this.state.date_of_death);
     const burialDate = this.formatDateForDisplay(
       this.state.burial_date || this.state.date_of_death
@@ -1422,8 +1404,7 @@ export class PostCreateForm {
     const validHatarSessions = this.state.hatar_sessions.filter(
       (s) => s.session_date && s.session_location && s.session_location.trim()
     );
-    const deceasedName =
-      `${this.state.first_name} ${this.state.last_name}`.trim();
+    const deceasedName = this.state.deceased_name.trim();
 
     // Generate content with minimum 20 characters
     const defaultContent = `Umrlica za ${deceasedName}. Dženaza se prima dana ${

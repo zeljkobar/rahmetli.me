@@ -20,6 +20,7 @@ router.get("/", validateSearch, optionalAuth, async (req, res) => {
       q,
       type,
       location,
+      dateFrom,
       page = 1,
       limit = 12, // BACKEND DEFAULT: Broj postova po stranici ako frontend ne pošalje
       sort = "created_at",
@@ -43,14 +44,14 @@ router.get("/", validateSearch, optionalAuth, async (req, res) => {
 
     // Build WHERE conditions based on search parameters
     let whereConditions = [
-      "status = ?",
-      "(expires_at IS NULL OR expires_at > NOW())",
+      "p.status = ?",
+      "(p.expires_at IS NULL OR p.expires_at > NOW())",
     ];
     let queryParams = ["approved"];
 
     // Text search in deceased name
     if (q && q.trim()) {
-      whereConditions.push("deceased_name LIKE ?");
+      whereConditions.push("p.deceased_name LIKE ?");
       queryParams.push(`%${q.trim()}%`);
     }
 
@@ -63,12 +64,21 @@ router.get("/", validateSearch, optionalAuth, async (req, res) => {
     // Location search in burial cemetery and dzenaza location
     if (location && location.trim()) {
       whereConditions.push(
-        "(burial_cemetery LIKE ? OR dzenaza_location LIKE ?)"
+        "(p.burial_cemetery LIKE ? OR p.dzenaza_location LIKE ?)"
       );
       queryParams.push(`%${location.trim()}%`, `%${location.trim()}%`);
     }
 
+    // Date filter - posts created after specified date
+    if (dateFrom && dateFrom.trim()) {
+      console.log("Date filter received:", dateFrom);
+      whereConditions.push("p.created_at >= ?");
+      queryParams.push(dateFrom.trim());
+    }
+
     const whereClause = whereConditions.join(" AND ");
+    console.log("WHERE clause:", whereClause);
+    console.log("Query params:", queryParams);
 
     // Set higher GROUP_CONCAT limit for hatar sessions
     await executeQuery("SET SESSION group_concat_max_len = 10000");
@@ -146,7 +156,7 @@ router.get("/", validateSearch, optionalAuth, async (req, res) => {
     // Get total count with same filters
     const totalResult = await executeQuerySingle(
       `SELECT COUNT(*) as total 
-       FROM posts 
+       FROM posts p 
        WHERE ${whereClause}`,
       queryParams
     );

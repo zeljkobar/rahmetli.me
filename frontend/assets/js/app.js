@@ -137,17 +137,19 @@ class App {
     if (registerBtn) {
       registerBtn.addEventListener("click", () => this.showRegisterModal());
     }
-    
+
     // Mobile auth buttons
     const mobileLoginBtn = document.getElementById("mobileLoginBtn");
     const mobileRegisterBtn = document.getElementById("mobileRegisterBtn");
-    
+
     if (mobileLoginBtn) {
       mobileLoginBtn.addEventListener("click", () => this.showLoginModal());
     }
-    
+
     if (mobileRegisterBtn) {
-      mobileRegisterBtn.addEventListener("click", () => this.showRegisterModal());
+      mobileRegisterBtn.addEventListener("click", () =>
+        this.showRegisterModal()
+      );
     }
 
     if (logoutBtn) {
@@ -229,6 +231,8 @@ class App {
         this.showHomePage();
       } else if (path === "/dzenaze") {
         this.showPostsPage("dzenaza");
+      } else if (path === "/prethodna-24h") {
+        this.showLast24HoursPage();
       } else if (path.startsWith("/objava/")) {
         const postId = path.split("/")[2];
         this.showPostPage(postId);
@@ -864,6 +868,41 @@ class App {
       showToast("Greška pri učitavanju korisničkog profila", "error");
       this.show404();
     }
+  }
+
+  async showLast24HoursPage() {
+    const mainContent = document.getElementById("mainContent");
+
+    mainContent.innerHTML = `
+      <div class="page-header">
+        <div class="container">
+          <h1 class="page-title">Prethodna 24 sata</h1>
+          <p class="page-subtitle">Objave u zadnjih 24 sata</p>
+        </div>
+      </div>
+
+      <section class="section">
+        <div class="container">
+          <div id="postsContent">
+            <div class="loading">
+              <div class="loading-spinner"></div>
+              <p>Učitavanje objava...</p>
+            </div>
+          </div>
+          
+          <div id="paginationContainer"></div>
+        </div>
+      </section>
+    `;
+
+    // Izračunaj datum i vrijeme prije 24 sata
+    const now = new Date();
+    const yesterday = new Date(now.getTime() - 24 * 60 * 60 * 1000);
+    const dateFrom = yesterday.toISOString().slice(0, 19).replace('T', ' '); // Format: 2025-12-01 15:30:00
+
+    // Učitaj objave kreirane u zadnjih 24 sata
+    this.currentFilters = { dateFrom };
+    await this.loadPosts(1, this.currentFilters);
   }
 
   async showSubscriptionPaymentPage() {
