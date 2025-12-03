@@ -242,6 +242,8 @@ class App {
         this.showPricingPage();
       } else if (path === "/privatnost") {
         this.showPrivacyPage();
+      } else if (path === "/uslovi") {
+        this.showTermsPage();
       } else if (path === "/profil") {
         this.showDashboardPage();
       } else if (path === "/admin") {
@@ -293,7 +295,7 @@ class App {
                 <div class="container">
                     <h1 class="hero-title">Rahmetli.me</h1>
                     <p class="hero-subtitle">
-                        Prvi islamski portal za obavještenja o prelasku na ahiret
+                        Prvi islamski portal posvećen obavještenjima o prelasku na Ahiret
                     </p>
                     <div class="hero-actions">
                         <button class="btn btn-primary btn-lg" id="heroSearchBtn">
@@ -898,7 +900,7 @@ class App {
     // Izračunaj datum i vrijeme prije 24 sata
     const now = new Date();
     const yesterday = new Date(now.getTime() - 24 * 60 * 60 * 1000);
-    const dateFrom = yesterday.toISOString().slice(0, 19).replace('T', ' '); // Format: 2025-12-01 15:30:00
+    const dateFrom = yesterday.toISOString().slice(0, 19).replace("T", " "); // Format: 2025-12-01 15:30:00
 
     // Učitaj objave kreirane u zadnjih 24 sata
     this.currentFilters = { dateFrom };
@@ -1001,6 +1003,218 @@ class App {
               <h4 style="color: #006233; margin-bottom: 0.75rem; font-size: 1.1rem;">Kontakt</h4>
               <p style="color: #4b5563; margin: 0;">
                 Ako imate pitanja o našoj politici privatnosti, možete nas kontaktirati putem kontakt forme na sajtu.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+    `;
+  }
+
+  async showTermsPage() {
+    const mainContent = document.getElementById("mainContent");
+
+    mainContent.innerHTML = `
+      <section class="section">
+        <div class="container" style="max-width: 900px;">
+          <div class="section-header" style="margin-bottom: 2rem;">
+            <h1 class="section-title">Uslovi Korišćenja</h1>
+            <p class="section-subtitle">Odredbe i smjernice korišćenja usluga</p>
+          </div>
+
+          <div style="background: white; padding: 2rem; border-radius: 12px; line-height: 1.8; color: #374151;">
+            <p style="margin-bottom: 2rem;">
+              Korištenjem internetske stranice <strong>rahmetli.me</strong> smatra se da ste u potpunosti upoznati i saglasni s ovdje navedenim Uslovima korišćenja.
+            </p>
+
+            <h2 id="uslovi" style="color: #006233; font-size: 1.5rem; margin: 2rem 0 1rem 0;">1. OSNOVNE ODREDBE</h2>
+            <p>
+              • <strong>rahmetli.me</strong> je internet stranica u vlasništvu preduzeća. Korištenjem internet stranice rahmetli.me smatra se da ste u potpunosti upoznati i saglasni s ovdje navedenim Uslovima korišćenja.
+            </p>
+            <p style="margin-top: 1rem;">
+              • Usluge internet stranice <strong>rahmetli.me</strong> su objave obavještenja o smrti, dženazama, saučešćima, kao i informisanje populacije o islamskim običajima i procedurama.
+            </p>
+            <p style="margin-top: 1rem;">
+              • Opšti uslovi poslovanja predstavljaju valjan i obavezujući sporazum između davaoca usluga i korisnika portala rahmetli.me.
+            </p>
+            <p style="margin-top: 1rem;">
+              • Korisnik je dužan da se upozna prije objave sa opštim uslovima poslovanja, a samom objavom potvrđuje da se sa njima slaže.
+            </p>
+
+            <h2 style="color: #006233; font-size: 1.5rem; margin: 2rem 0 1rem 0;">2. OPŠTI USLOVI POSLOVANJA</h2>
+            
+            <h3 style="color: #1f2937; font-size: 1.25rem; margin: 1.5rem 0 1rem 0;">2.1 Usluge</h3>
+            <p>
+              • <strong>rahmetli.me</strong> nudi usluge objave obavještenja o smrti, dženazama, saučešćima i pomenima.
+            </p>
+            <p style="margin-top: 1rem;">
+              • Zabranjeno je naručivanje i objavljivanje sadržaja koji su štetni, nezakoniti, prijeteći, koji zlostavljaju, kleveću ili uznemiravaju.
+            </p>
+            <p style="margin-top: 1rem;">
+              • Korisnik se obavezuje da neće objavljivati sadržaje koji nijesu u skladu sa zakonom, ostalim propisima i Ustavom Crne Gore.
+            </p>
+            <p style="margin-top: 1rem;">
+              • Davalac usluga zadržava pravo da ne objavi neprimjeren sadržaj.
+            </p>
+
+            <h3 style="color: #1f2937; font-size: 1.25rem; margin: 1.5rem 0 1rem 0;">2.2 Dostupnost usluga</h3>
+            <p>
+              • Iako Vam rahmetli.me nastoji dati najbolju moguću ponudu usluga, rahmetli.me ne može garantovati da će usluge uvijek odgovarati Vašim potrebama.
+            </p>
+            <p style="margin-top: 1rem;">
+              • Ukoliko dođe do greške, molimo Vas da je prijavite našem kontakt centru na e-mail <strong>info@rahmetli.me</strong> kako bismo je otklonili na najbrži mogući način.
+            </p>
+            <p style="margin-top: 1rem;">
+              • Objava će biti vidljiva trajno na portalu, ili dok jedna od strana ne zatraži uklanjanje iz opravdanog razloga.
+            </p>
+
+            <h3 style="color: #1f2937; font-size: 1.25rem; margin: 1.5rem 0 1rem 0;">2.3 Prava korišćenja sadržaja</h3>
+            <p>
+              • Korisnici svojim zahtjevom za objavu saučešća, zahvalnice, posljednjeg pozdrava ili pomeni neopozivo ovlašćuju davaoca usluga da taj sadržaj koristi, kopira, objavljuje i distribuira.
+            </p>
+            <p style="margin-top: 1rem;">
+              • rahmetli.me neće objaviti korisnikove lične podatke, nego samo sadržaj objave i link na stranicu rahmetli.me.
+            </p>
+
+            <h3 style="color: #1f2937; font-size: 1.25rem; margin: 1.5rem 0 1rem 0;">2.4 Izmjene usluga</h3>
+            <p>
+              • Korisnik je suglasan s time da pristup internet stranici rahmetli.me ponekad može biti u prekidu, privremeno nedostupan ili isključen.
+            </p>
+            <p style="margin-top: 1rem;">
+              • rahmetli.me ne može biti odgovoran za bilo kakav gubitak podataka ili kakav drugi događaj do kojeg može doći za vrijeme pružanja usluga.
+            </p>
+            <p style="margin-top: 1rem;">
+              • rahmetli.me zadržava pravo u bilo kom trenutku da izmijeni ili ukine bilo koji segment poslovanja, uključujući vrijeme dostupnosti, sadržaj, kao i opremu potrebnu za pristup.
+            </p>
+            <p style="margin-top: 1rem;">
+              • rahmetli.me zadržava pravo da u svakom trenutku, i bez prethodne obavijesti, ukoliko to smatra potrebnim, ukine ili izmijeni bilo koji od ovdje navedenih Uslova korišćenja.
+            </p>
+
+            <h2 style="color: #006233; font-size: 1.5rem; margin: 2rem 0 1rem 0;">3. ODGOVORNOSTI</h2>
+            
+            <h3 style="color: #1f2937; font-size: 1.25rem; margin: 1.5rem 0 1rem 0;">3.1 Odgovornost za sadržaj</h3>
+            <p>
+              • Svi oglasi, fotografije, objave, poruke, tekstovi i drugi materijali koji su objavljeni na stranicama rahmetli.me, isključiva su odgovornost lica od koje je takav sadržaj potekao.
+            </p>
+            <p style="margin-top: 1rem;">
+              • Davalac usluga ne daje nikakve garancije tačnosti i istinitosti takvih sadržaja.
+            </p>
+            <p style="margin-top: 1rem;">
+              • Davalac usluga ne odgovara za bilo kakvu štetu koja bi mogla nastati radi prekida dostupnosti ili grešaka u djelovanju.
+            </p>
+
+            <h3 style="color: #1f2937; font-size: 1.25rem; margin: 1.5rem 0 1rem 0;">3.2 Zaštita podataka i korisnika</h3>
+            <p>
+              • Davalac usluga zadržava pravo isključenja stranice onog korisnika koji zloupotrebljava podatke objavljene na ovim stranicama, ili na bilo koji način neovlašćeno koristi stranice portala rahmetli.me.
+            </p>
+            <p style="margin-top: 1rem;">
+              • Kopiranje sadržaja objavljenih na ovim stranicama i njihovo objavljivanje u/na nekom drugom mediju oglašavanja je pravno kažnjivo.
+            </p>
+
+            <h3 style="color: #1f2937; font-size: 1.25rem; margin: 1.5rem 0 1rem 0;">3.3 Ograničenje odgovornosti</h3>
+            <p>
+              • rahmetli.me isključuje svaku odgovornost za bilo kakva oštećenja opreme i drugih stvari krajnjeg korisnika koja eventualno mogu nastati kao posljedica korišćenja internet stranice.
+            </p>
+            <p style="margin-top: 1rem;">
+              • rahmetli.me se izričito ograđuje u svakom smislu od sadržaja materijala na internet stranicama trećih strana, a na koje se može ili se moglo pristupiti sa internet stranice rahmetli.me.
+            </p>
+            <p style="margin-top: 1rem;">
+              • Korisnik pristupanjem internet stranicama trećih strana, isti to čini isključivo i samo na vlastitu odgovornost.
+            </p>
+
+            <h2 style="color: #006233; font-size: 1.5rem; margin: 2rem 0 1rem 0;">4. INTELEKTUALNO VLASNIŠTVO</h2>
+            <p>
+              • Sadržaj i dizajn portala rahmetli.me su vlasništvo rahmetli.me.
+            </p>
+            <p style="margin-top: 1rem;">
+              • Zabranjeno je kopiranje i komercijalna upotreba bilo kojeg dijela stranice rahmetli.me, uključujući sve podatke koje daju korisnici, bez prethodnog pismenog dopuštenja davaoca usluga.
+            </p>
+
+            <h2 style="color: #006233; font-size: 1.5rem; margin: 2rem 0 1rem 0;">5. ZAŠTITA LIČNIH PODATAKA</h2>
+            <p>
+              • Davanje korisnikovih ličnih podataka je nužno kako bi se mogle ispuniti obaveze korisnika prema davaocu usluga.
+            </p>
+            <p style="margin-top: 1rem;">
+              • Davalac usluga će sve dobijene podatke trajno čuvati u skladu sa Zakonom o zaštiti ličnih podataka.
+            </p>
+            <p style="margin-top: 1rem;">
+              • Korisnicima portala strogo je zabranjeno:
+            </p>
+            <ul style="margin: 1rem 0; padding-left: 2rem;">
+              <li>Objavljivanje, slanje i razmjena sadržaja koji krše postojeće crnogorske ili međunarodne zakone</li>
+              <li>Sadržaj koji je uvredljiv, vulgaran, prijeteći, rasistički ili šovinistički ili štetan na bilo koji drugi način</li>
+              <li>Objavljivanje, slanje i razmjena informacija za koje korisnik zna ili pretpostavlja da su lažne</li>
+              <li>Lažno predstavljanje, odnosno predstavljanje u ime drugog pravnog ili fizičkog lica</li>
+              <li>Manipulisanje identifikatorima kako bi se prikrilo porijeklo sadržaja</li>
+              <li>Objavljivanje, slanje i razmjena sadržaja koji su zaštićeni autorskim pravom</li>
+              <li>Svjesno objavljivanje, slanje i razmjena sadržaja koji sadrži viruse ili slične programe</li>
+              <li>Prikupljanje, čuvanje i objavljivanje ličnih podataka drugih posjetitelja portala</li>
+            </ul>
+
+            <h2 style="color: #006233; font-size: 1.5rem; margin: 2rem 0 1rem 0;">6. PLAĆANJE</h2>
+            
+            <h3 style="color: #1f2937; font-size: 1.25rem; margin: 1.5rem 0 1rem 0;">6.1 Načini plaćanja</h3>
+            <p>
+              • Plaćanje usluga na našoj internet stranici je moguće izvršiti platnim karticama – VISA, Maestro ili MasterCard koje podržavaju plaćanje preko interneta.
+            </p>
+            <p style="margin-top: 1rem;">
+              • Plaćanje karticama je realizovano u saradnji sa platnim provajderima i obavlja se na bezbedan i sertifikovan način.
+            </p>
+            <p style="margin-top: 1rem;">
+              • Nakon što se unesu podaci o kartici i potvrdi plaćanje, banka autorizuje transakciju i time je porudžbina odobrena.
+            </p>
+
+            <h3 style="color: #1f2937; font-size: 1.25rem; margin: 1.5rem 0 1rem 0;">6.2 Sigurnost plaćanja</h3>
+            <p>
+              • Prilikom unošenja podataka o platnoj kartici, povjerljive informacije se prenose putem javne mreže u zaštićenoj (kriptovanoj) formi upotrebom SSL protokola.
+            </p>
+            <p style="margin-top: 1rem;">
+              • Brojevi platnih kartica kupaca se ne čuvaju na sistemu.
+            </p>
+            <p style="margin-top: 1rem;">
+              • Svi trgovci koji koriste platne servise su automatski uključeni u 3D-Secure zaštitu, čime se kupcima garantuje bezbjednost kupovine.
+            </p>
+
+            <h3 style="color: #1f2937; font-size: 1.25rem; margin: 1.5rem 0 1rem 0;">6.3 Povraćaj sredstava</h3>
+            <p>
+              • U slučaju povraćaja sredstava kupcu koji je prethodno platio nekom od platnih kartica, djelimično ili u cjelosti, a bez obzira na razlog vraćanja, taj povraćaj se vrši isključivo preko iste platne kartice koja je korištena za plaćanje.
+            </p>
+
+            <h2 style="color: #006233; font-size: 1.5rem; margin: 2rem 0 1rem 0;">7. ISPORUKA</h2>
+            <p>
+              • Kod plaćanja karticom, isporuka odnosno aktivacija objave predstavlja proces, na taj način da nakon uspješno izvršenog plaćanja korisnika, uplaćena objava bude objavljena nakon pregleda i provjere od strane rahmetli.me administracije i nakon toga postaje dostupna na portalu.
+            </p>
+
+            <h2 style="color: #006233; font-size: 1.5rem; margin: 2rem 0 1rem 0;">8. REKLAMACIJA</h2>
+            <p>
+              • rahmetli.me se obavezuje isporučiti uslugu koja je tehnički ispravna te odgovara opisu navedenom na stranici.
+            </p>
+            <p style="margin-top: 1rem;">
+              • U slučaju tehničke neispravnosti, kupac je dužan reklamirati uslugu u roku od 4 (četiri) radna dana.
+            </p>
+            <p style="margin-top: 1rem;">
+              • Nakon što reklamira tehničku neispravnost, rahmetli.me će u roku od 3 (tri) radna dana poslati kupcu odgovor o nastalom tehničkom problemu i obezbijediti ispravku, bez ikakve naknade.
+            </p>
+            <p style="margin-top: 1rem;">
+              • Prodavac nije odgovoran za eventualna oštećenja i ostale obaveze koje se nalaze u domenu internet provajdera ili ostalih trećih lica.
+            </p>
+
+            <h2 style="color: #006233; font-size: 1.5rem; margin: 2rem 0 1rem 0;">9. NADLEŽNOST SUDA</h2>
+            <p>
+              Za sve pravne sporove koji mogu nastati vezano za korištenje internetske stranice <strong>rahmetli.me</strong> nadležan je sud u Crnoj Gori.
+            </p>
+
+            <div style="background: #f0fff4; border-left: 4px solid #006233; padding: 1.5rem; border-radius: 8px; margin-top: 3rem;">
+              <h4 style="color: #006233; margin-bottom: 0.75rem; font-size: 1.1rem;">Važna napomena</h4>
+              <p style="color: #4b5563; margin: 0;">
+                Korištenjem internetske stranice rahmetli.me smatra se da je korisnik ove Uslove korišćenja u cijelosti pročitao i prihvatio.
+              </p>
+            </div>
+
+            <div style="background: #f9fafb; padding: 1.5rem; border-radius: 8px; margin-top: 2rem; text-align: center;">
+              <p style="color: #6b7280; margin-bottom: 1rem;">Ažurirano: Decembar 2025</p>
+              <p style="color: #4b5563; margin: 0;">
+                Za dodatna pitanja, kontaktirajte nas na: <a href="mailto:info@rahmetli.me" style="color: #006233; text-decoration: none; font-weight: 500;">info@rahmetli.me</a>
               </p>
             </div>
           </div>

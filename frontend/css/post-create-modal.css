@@ -331,12 +331,12 @@
 }
 
 .btn-secondary {
-  background: #6b7280;
-  color: white;
+  background: greenyellow;
+  color: #1f2937;
 }
 
 .btn-secondary:hover {
-  background: #4b5563;
+  background: #adff2f;
 }
 
 .btn-outline {

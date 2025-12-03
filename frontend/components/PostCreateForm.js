@@ -1328,6 +1328,8 @@ export class PostCreateForm {
                   : ""
               }
 
+              ${this.renderHatarSessionsPreview()}
+
               <div class="family-section">
                 <div class="obituary-separator"></div>
                 ${this.renderFamilyMembersPreview()}
@@ -1350,6 +1352,39 @@ export class PostCreateForm {
       month: "2-digit",
       year: "numeric",
     });
+  }
+
+  renderHatarSessionsPreview() {
+    const validSessions = this.state.hatar_sessions.filter(
+      (s) => s.session_date && s.session_time_start
+    );
+    if (validSessions.length === 0) return "";
+
+    return `
+      <div class="hatar-section">
+        <div class="obituary-separator"></div>
+        <p><strong>Hatar se prima:</strong></p>
+        ${validSessions
+          .map((session) => {
+            const date = this.formatDateForDisplay(session.session_date);
+            const timeStart = session.session_time_start;
+            const timeEnd = session.session_time_end;
+            const location = session.location || "od IKC Bar";
+            
+            let timeText = timeStart;
+            if (timeEnd) {
+              timeText = `${timeStart} do ${timeEnd}`;
+            }
+            
+            return `
+              <div class="funeral-detail">
+                ${date} od ${timeText} sati ${location}
+              </div>
+            `;
+          })
+          .join("")}
+      </div>
+    `;
   }
 
   renderFamilyMembersPreview() {
@@ -1511,8 +1546,16 @@ export class PostCreateForm {
 
       if (response.success || response.post) {
         this.setLoading(false);
-        this.onSuccess?.(response);
-        this.close();
+        
+        // Show success message
+        this.showSuccessMessage();
+        
+        // Close modal after delay
+        setTimeout(() => {
+          this.close();
+          this.onSuccess?.(response);
+        }, 3000);
+        
         return; // Exit early to avoid setLoading(false) in finally
       } else {
         throw new Error(response.error || "Greška pri kreiranju objave");
@@ -1522,6 +1565,28 @@ export class PostCreateForm {
       this.state.errors.general = error.message;
       this.rerenderModal();
       this.setLoading(false);
+    }
+  }
+
+  showSuccessMessage() {
+    const modalContent = this.element.querySelector(".modal-container");
+    if (modalContent) {
+      modalContent.innerHTML = `
+        <div class="modal-header">
+          <h2>Objava poslata</h2>
+        </div>
+        <div class="success-message" style="padding: 3rem; text-align: center;">
+          <div style="font-size: 4rem; margin-bottom: 1.5rem;">✅</div>
+          <h3 style="color: #006233; font-size: 1.5rem; margin-bottom: 1rem;">Objava je uspješno poslata!</h3>
+          <p style="color: #6b7280; font-size: 1.1rem; line-height: 1.6;">
+            Vaša objava je predata i čeka se odobrenje administratora.<br>
+            Bićete obaviješteni kada objava bude objavljena.
+          </p>
+          <div style="margin-top: 2rem;">
+            <div class="loading-spinner" style="width: 40px; height: 40px; margin: 0 auto;"></div>
+          </div>
+        </div>
+      `;
     }
   }
 
