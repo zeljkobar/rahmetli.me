@@ -227,16 +227,16 @@
   .obituary-card {
     margin: 15px 10px;
     max-width: none;
-    padding: 8px; /* Tanki zeleni okvir */
+    padding: 4px; /* Polovni padding */
   }
 
   .obituary-frame {
-    padding: 6px; /* Još tanji bijeli sloj */
+    padding: 3px; /* Polovni padding */
   }
 
   .obituary-content {
     border: 3px solid #2d5016; /* Tanki unutrašnji okvir */
-    padding: 12px; /* Minimalni padding */
+    padding: 6px; /* Polovni padding */
   }
 
   .obituary-card::before {
@@ -247,16 +247,16 @@
   }
 
   .obituary-header {
-    padding: 30px 8px 8px; /* Minimalni padding */
+    padding: 30px 4px 4px; /* Polovni padding */
   }
 
   .obituary-body {
-    padding: 8px 10px; /* Minimalni padding */
+    padding: 4px 5px; /* Polovni padding */
   }
 
   .deceased-name {
     font-size: 22px;
-    margin: 10px 0; /* Smanjeni margin */
+    margin: 5px 0; /* Polovni margin */
   }
 
   .arabic-text {
@@ -265,7 +265,7 @@
 
   .death-announcement {
     font-size: 14px;
-    margin-bottom: 8px; /* Smanjeni margin */
+    margin-bottom: 4px; /* Polovni margin */
     line-height: 1.4; /* Tighter line height */
   }
 
@@ -273,29 +273,31 @@
   .funeral-detail,
   .burial-detail {
     font-size: 14px;
-    margin: 6px 0; /* Smanjeni margin */
+    margin: 3px 0; /* Polovni margin */
     line-height: 1.4;
   }
 
   .hatar-info,
   .funeral-info {
-    margin: 10px 0; /* Smanjeni margin */
+    margin: 5px 0; /* Polovni margin */
   }
 
   .rahmet-text {
-    font-size: 14px;
-    padding: 8px; /* Smanjeni padding */
-    margin: 10px 0; /* Smanjeni margin */
+    font-size: 11px; /* Manji font da stane u 1 red */
+    padding: 4px; /* Polovni padding */
+    margin: 5px 0; /* Polovni margin */
+    letter-spacing: 0.3px; /* Malo manje razmaka između slova */
+    white-space: nowrap; /* Forsiraj 1 red */
   }
 
   .family-members {
     font-size: 13px;
-    margin-top: 10px; /* Smanjeni margin */
+    margin-top: 5px; /* Polovni margin */
     line-height: 1.4;
   }
 
   .family-members strong {
-    margin-bottom: 6px; /* Smanjeni margin */
+    margin-bottom: 3px; /* Polovni margin */
   }
 }
 

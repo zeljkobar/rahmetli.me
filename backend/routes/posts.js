@@ -12,6 +12,13 @@ import {
   validateSearch,
   validateId,
 } from "../middleware/validation.js";
+import { upload } from "../config/upload.js";
+import { processImage, createThumbnail } from "../utils/imageProcessor.js";
+import path from "path";
+import { fileURLToPath } from "url";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 // Get all posts with filtering and pagination
 router.get("/", validateSearch, optionalAuth, async (req, res) => {
@@ -259,10 +266,17 @@ router.get("/:id", validateId, optionalAuth, async (req, res) => {
       [postId]
     );
 
+    // Format image URLs
+    const formattedImages = images.map(img => ({
+      ...img,
+      url: `/uploads/posts/${img.filename}`,
+      thumbnail_url: `/uploads/posts/thumb-${img.filename}`
+    }));
+
     res.json({
       post: {
         ...post,
-        images,
+        images: formattedImages,
         family_members: familyMembers,
         hatar_sessions: hatarSessions,
         comments,
@@ -388,6 +402,72 @@ router.post("/", authenticateToken, async (req, res) => {
               i + 1,
             ]
           );
+        }
+      }
+    }
+
+    // Process and save images if provided
+    const images = req.body.images;
+    if (images && Array.isArray(images) && images.length > 0) {
+      for (let i = 0; i < images.length; i++) {
+        const image = images[i];
+        
+        // Skip if no data URL
+        if (!image.url || !image.url.startsWith('data:image')) {
+          continue;
+        }
+
+        try {
+          // Extract base64 data
+          const matches = image.url.match(/^data:image\/([a-z]+);base64,(.+)$/);
+          if (!matches) continue;
+
+          const imageType = matches[1];
+          const base64Data = matches[2];
+          const buffer = Buffer.from(base64Data, 'base64');
+
+          // Generate filename
+          const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
+          const filename = `post-${postId}-${uniqueSuffix}.jpg`;
+          const uploadsDir = path.join(__dirname, '../../uploads/posts');
+          const tempPath = path.join(uploadsDir, `temp-${filename}`);
+          const finalPath = path.join(uploadsDir, filename);
+
+          // Save temp file
+          const fs = await import('fs/promises');
+          await fs.writeFile(tempPath, buffer);
+
+          // Process image with sharp (resize, optimize)
+          await processImage(tempPath, finalPath, {
+            width: 800,
+            height: 800,
+            quality: 85,
+            format: 'jpeg',
+            fit: 'inside'
+          });
+
+          // Delete temp file
+          await fs.unlink(tempPath);
+
+          // Get file size
+          const stats = await fs.stat(finalPath);
+
+          // Insert into post_images table
+          await executeQuery(
+            "INSERT INTO post_images (post_id, filename, original_name, file_size, mime_type, is_primary, display_order) VALUES (?, ?, ?, ?, ?, ?, ?)",
+            [
+              postId,
+              filename,
+              image.name || 'image.jpg',
+              stats.size,
+              'image/jpeg',
+              i === 0, // First image is primary
+              i + 1
+            ]
+          );
+        } catch (imgError) {
+          console.error('Error processing image:', imgError);
+          // Continue with other images if one fails
         }
       }
     }
