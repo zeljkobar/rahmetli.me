@@ -196,7 +196,13 @@ export class PostCard {
               </div>
               
               ${
-                familyList
+                !isDetailView && familyList
+                  ? `
+                <div class="family-members">
+                  <strong>Ožalošćeni:</strong> »
+                </div>
+              `
+                  : isDetailView && familyList
                   ? `
                 <div class="family-members">
                   <strong>Ožalošćeni:</strong> ${familyList}
