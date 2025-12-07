@@ -1370,12 +1370,12 @@ export class PostCreateForm {
             const timeStart = session.session_time_start;
             const timeEnd = session.session_time_end;
             const location = session.location || "od IKC Bar";
-            
+
             let timeText = timeStart;
             if (timeEnd) {
               timeText = `${timeStart} do ${timeEnd}`;
             }
-            
+
             return `
               <div class="funeral-detail">
                 ${date} od ${timeText} sati ${location}
@@ -1546,16 +1546,16 @@ export class PostCreateForm {
 
       if (response.success || response.post) {
         this.setLoading(false);
-        
+
         // Show success message
         this.showSuccessMessage();
-        
+
         // Close modal after delay
         setTimeout(() => {
           this.close();
           this.onSuccess?.(response);
         }, 3000);
-        
+
         return; // Exit early to avoid setLoading(false) in finally
       } else {
         throw new Error(response.error || "Greška pri kreiranju objave");

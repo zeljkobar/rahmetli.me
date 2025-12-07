@@ -225,42 +225,64 @@
 /* Mobile responsiveness */
 @media (max-width: 768px) {
   .obituary-card {
-    margin: 10px;
+    margin: 15px 10px;
     max-width: none;
-    padding: 40px; /* Thick padding on mobile too */
+    padding: 8px; /* Tanki zeleni okvir */
   }
 
   .obituary-frame {
-    padding: 15px; /* Less white space on mobile */
+    padding: 8px; /* Tanki bijeli sloj */
   }
 
   .obituary-content {
-    border: 15px solid #2d5016; /* Inner border same thickness as white space on mobile */
-    padding: 15px; /* Less inner padding on mobile */
+    border: 3px solid #2d5016; /* Tanki unutrašnji okvir */
+    padding: 20px; /* Više prostora za sadržaj */
   }
 
   .obituary-card::before {
-    top: 8px;
-    font-size: 30px; /* Proportional to mobile frame */
-    height: 30px; /* Limit height on mobile */
+    top: -5px;
+    font-size: 28px;
+    height: 28px;
     padding: 0;
   }
 
   .obituary-header {
-    padding: 25px 15px 15px;
+    padding: 35px 15px 15px;
   }
 
   .obituary-body {
-    padding: 20px;
+    padding: 15px 20px;
   }
 
   .deceased-name {
-    font-size: 24px;
-    margin: 15px 0;
+    font-size: 22px;
+    margin: 12px 0;
   }
 
   .arabic-text {
-    font-size: 16px;
+    font-size: 18px;
+  }
+
+  .death-announcement {
+    font-size: 15px;
+    margin-bottom: 12px;
+  }
+
+  .hatar-detail,
+  .funeral-detail,
+  .burial-detail {
+    font-size: 14px;
+    margin: 8px 0;
+  }
+
+  .rahmet-text {
+    font-size: 15px;
+    padding: 10px;
+    margin: 12px 0;
+  }
+
+  .family-members {
+    font-size: 13px;
   }
 }
 
