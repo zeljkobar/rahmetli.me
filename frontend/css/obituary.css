@@ -231,8 +231,8 @@
 /* Mobile responsiveness */
 @media (max-width: 768px) {
   .obituary-card {
-    margin: 15px 10px;
-    max-width: none;
+    margin: 15px auto;
+    max-width: calc(100% - 20px);
     padding: 4px; /* Polovni padding */
   }
 
