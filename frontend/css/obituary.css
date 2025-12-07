@@ -21,6 +21,12 @@
   overflow: visible; /* Allow crescent to extend outside */
   padding: 60px; /* Very thick green border like Facebook */
   position: relative;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.obituary-card.clickable-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
 }
 
 .obituary-frame {

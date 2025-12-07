@@ -41,6 +41,7 @@ export class PostCard {
       username,
       views_count,
       comments_count,
+      isDetailView = false,
     } = this.post;
 
     // Calculate age if not provided
@@ -152,7 +153,7 @@ export class PostCard {
     }
 
     return `
-      <article class="obituary-card" data-post-id="${id}">
+      <article class="obituary-card ${!isDetailView ? 'clickable-card' : ''}" data-post-id="${id}" ${!isDetailView ? `style="cursor: pointer;"` : ''}>
         <div class="obituary-frame">
           <div class="obituary-content">
             <div class="obituary-header">
@@ -209,11 +210,6 @@ export class PostCard {
               <div class="obituary-stats">
               ${views_count ? `<span>👁 ${views_count}</span>` : ""}
               ${comments_count > 0 ? `<span>💬 ${comments_count}</span>` : ""}
-            </div>
-            <div class="obituary-actions">
-              <a href="/objava/${id}" class="btn btn-sm btn-outline">
-                Pročitaj više
-              </a>
             </div>
           </footer>
           </div>
@@ -320,11 +316,6 @@ export class PostCard {
                             ? `<span>💬 ${comments_count}</span>`
                             : ""
                         }
-                    </div>
-                    <div class="post-actions">
-                        <a href="/objava/${id}" class="btn btn-sm btn-outline">
-                            Pročitaj više
-                        </a>
                     </div>
                 </footer>
             </article>

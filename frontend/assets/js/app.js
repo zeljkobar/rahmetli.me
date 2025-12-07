@@ -367,6 +367,9 @@ class App {
 
       if (postsContainer) {
         postsContainer.innerHTML = PostCard.renderGrid(response.posts);
+        
+        // Add click listeners to clickable obituary cards
+        this.attachObituaryCardListeners(postsContainer);
       }
 
       // Add pagination if there are multiple pages
@@ -462,6 +465,9 @@ class App {
 
       if (postsContainer) {
         postsContainer.innerHTML = PostCard.renderGrid(response.posts);
+        
+        // Add click listeners to clickable obituary cards
+        this.attachObituaryCardListeners(postsContainer);
       }
 
       if (paginationContainer && response.pagination.totalPages > 1) {
@@ -485,6 +491,25 @@ class App {
                 `;
       }
     }
+  }
+
+  attachObituaryCardListeners(container) {
+    const clickableCards = container.querySelectorAll('.obituary-card.clickable-card');
+    
+    clickableCards.forEach(card => {
+      const postId = card.getAttribute('data-post-id');
+      
+      card.addEventListener('click', (e) => {
+        // Prevent navigation if clicking on a link or button inside the card
+        if (e.target.tagName === 'A' || e.target.tagName === 'BUTTON' || e.target.closest('a, button')) {
+          return;
+        }
+        
+        if (postId) {
+          this.navigate(`/objava/${postId}`);
+        }
+      });
+    });
   }
 
   applyFilters(baseType = null) {
@@ -573,6 +598,7 @@ class App {
       }
 
       // Use PostCard component to render obituary
+      post.isDetailView = true; // Mark as detail view to hide clickable behavior
       const postCard = new PostCard(post);
       const obituaryHtml = postCard.renderObituary();
 
