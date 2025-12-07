@@ -231,12 +231,12 @@
   }
 
   .obituary-frame {
-    padding: 8px; /* Tanki bijeli sloj */
+    padding: 6px; /* Još tanji bijeli sloj */
   }
 
   .obituary-content {
     border: 3px solid #2d5016; /* Tanki unutrašnji okvir */
-    padding: 20px; /* Više prostora za sadržaj */
+    padding: 12px; /* Minimalni padding */
   }
 
   .obituary-card::before {
@@ -247,16 +247,16 @@
   }
 
   .obituary-header {
-    padding: 35px 15px 15px;
+    padding: 30px 8px 8px; /* Minimalni padding */
   }
 
   .obituary-body {
-    padding: 15px 20px;
+    padding: 8px 10px; /* Minimalni padding */
   }
 
   .deceased-name {
     font-size: 22px;
-    margin: 12px 0;
+    margin: 10px 0; /* Smanjeni margin */
   }
 
   .arabic-text {
@@ -264,25 +264,38 @@
   }
 
   .death-announcement {
-    font-size: 15px;
-    margin-bottom: 12px;
+    font-size: 14px;
+    margin-bottom: 8px; /* Smanjeni margin */
+    line-height: 1.4; /* Tighter line height */
   }
 
   .hatar-detail,
   .funeral-detail,
   .burial-detail {
     font-size: 14px;
-    margin: 8px 0;
+    margin: 6px 0; /* Smanjeni margin */
+    line-height: 1.4;
+  }
+
+  .hatar-info,
+  .funeral-info {
+    margin: 10px 0; /* Smanjeni margin */
   }
 
   .rahmet-text {
-    font-size: 15px;
-    padding: 10px;
-    margin: 12px 0;
+    font-size: 14px;
+    padding: 8px; /* Smanjeni padding */
+    margin: 10px 0; /* Smanjeni margin */
   }
 
   .family-members {
     font-size: 13px;
+    margin-top: 10px; /* Smanjeni margin */
+    line-height: 1.4;
+  }
+
+  .family-members strong {
+    margin-bottom: 6px; /* Smanjeni margin */
   }
 }
 
