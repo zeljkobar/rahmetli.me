@@ -233,7 +233,7 @@
   .obituary-card {
     margin: 15px auto;
     max-width: calc(100% - 20px);
-    padding: 6px; /* Debljina spoljnog okvira */
+    padding: 10px; /* Debljina spoljnog okvira */
   }
 
   .obituary-frame {
