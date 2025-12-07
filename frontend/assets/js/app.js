@@ -240,6 +240,8 @@ class App {
         this.showCemeteriesPage();
       } else if (path === "/cijene") {
         this.showPricingPage();
+      } else if (path === "/kako-objaviti") {
+        this.showHowToPostPage();
       } else if (path === "/privatnost") {
         this.showPrivacyPage();
       } else if (path === "/uslovi") {
@@ -1373,6 +1375,217 @@ class App {
               Imate pitanja? Kontaktirajte nas
             </p>
             <a href="/kontakt" class="btn btn-outline" style="display: inline-block;">Kontakt</a>
+          </div>
+        </div>
+      </section>
+    `;
+  }
+
+  async showHowToPostPage() {
+    const mainContent = document.getElementById("mainContent");
+
+    mainContent.innerHTML = `
+      <section class="section">
+        <div class="container" style="max-width: 1000px;">
+          <div class="section-header" style="text-align: center; margin-bottom: 3rem;">
+            <h1 class="section-title">Kako objaviti umrlicu</h1>
+            <p class="section-subtitle">Jednostavno i brzo u 3 koraka</p>
+          </div>
+
+          <!-- Process Steps -->
+          <div style="display: grid; gap: 2rem; margin-bottom: 3rem;">
+            
+            <!-- Step 1 -->
+            <div style="background: white; border: 2px solid #e5e7eb; border-radius: 12px; padding: 2rem; position: relative;">
+              <div style="position: absolute; top: -1rem; left: 2rem; background: #006233; color: white; width: 3rem; height: 3rem; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; font-weight: bold;">1</div>
+              <div style="margin-top: 1.5rem;">
+                <h3 style="color: #006233; font-size: 1.5rem; margin-bottom: 1rem;">Prijavite se na nalog</h3>
+                <p style="color: #4b5563; line-height: 1.6; margin-bottom: 1rem;">
+                  Ako već imate nalog, kliknite na <strong>"Prijavi se"</strong> u gornjem desnom uglu i unesite svoje korisničke podatke.
+                </p>
+                <p style="color: #4b5563; line-height: 1.6;">
+                  Ako nemate nalog, potrebno je da se <strong>registrujete</strong>. Registracija je brza i jednostavna - potrebno je samo ime, prezime, email i lozinka.
+                </p>
+                <div style="margin-top: 1.5rem; padding: 1rem; background: #f9fafb; border-radius: 8px;">
+                  <strong style="color: #006233;">💡 Savjet:</strong>
+                  <span style="color: #6b7280; margin-left: 0.5rem;">Koristite email koji redovno provjeravate kako biste primali obavještenja o statusu objave.</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Step 2 -->
+            <div style="background: white; border: 2px solid #e5e7eb; border-radius: 12px; padding: 2rem; position: relative;">
+              <div style="position: absolute; top: -1rem; left: 2rem; background: #006233; color: white; width: 3rem; height: 3rem; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; font-weight: bold;">2</div>
+              <div style="margin-top: 1.5rem;">
+                <h3 style="color: #006233; font-size: 1.5rem; margin-bottom: 1rem;">Popunite formu</h3>
+                <p style="color: #4b5563; line-height: 1.6; margin-bottom: 1rem;">
+                  Nakon što se prijavite, kliknite na dugme <strong>"Nova objava"</strong> ili <strong>"+"</strong> u navigaciji. Otvoriće se forma sa svim potrebnim poljima:
+                </p>
+                <ul style="color: #4b5563; line-height: 1.8; margin-left: 1.5rem;">
+                  <li><strong>Osnovni podaci:</strong> Ime i prezime, datum rođenja i smrti, pol</li>
+                  <li><strong>Biografija:</strong> Kratki opis života preminule osobe (opciono)</li>
+                  <li><strong>Informacije o dženazi:</strong> Datum, vrijeme i lokacija dženaze</li>
+                  <li><strong>Informacije o pogrebu:</strong> Groblje, datum i vrijeme pogreba</li>
+                  <li><strong>Ožalošćeni:</strong> Lista članova porodice koji žale</li>
+                  <li><strong>Slike:</strong> Dodajte fotografije (podržani formati: JPG, PNG, WebP, max 5MB)</li>
+                  <li><strong>Dodatne informacije:</strong> Ayeti, dove ili posebne poruke</li>
+                </ul>
+                <div style="margin-top: 1.5rem; padding: 1rem; background: #fff7ed; border-radius: 8px; border-left: 4px solid #f59e0b;">
+                  <strong style="color: #92400e;">⚠️ Obavezna polja:</strong>
+                  <span style="color: #78350f; margin-left: 0.5rem;">Ime i prezime, datum smrti, pol i kategorija su obavezni za objavljivanje.</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Step 3 -->
+            <div style="background: white; border: 2px solid #e5e7eb; border-radius: 12px; padding: 2rem; position: relative;">
+              <div style="position: absolute; top: -1rem; left: 2rem; background: #006233; color: white; width: 3rem; height: 3rem; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; font-weight: bold;">3</div>
+              <div style="margin-top: 1.5rem;">
+                <h3 style="color: #006233; font-size: 1.5rem; margin-bottom: 1rem;">Pregledajte i objavite</h3>
+                <p style="color: #4b5563; line-height: 1.6; margin-bottom: 1rem;">
+                  Nakon popunjavanja forme, sistem će generisati <strong>preview</strong> kako će umrlica izgledati na sajtu. Imate tri opcije:
+                </p>
+                <div style="display: grid; gap: 1rem; margin-bottom: 1.5rem;">
+                  <div style="padding: 1rem; background: #f9fafb; border-radius: 8px; border-left: 3px solid #006233;">
+                    <strong style="color: #006233;">✓ Objavi ovako</strong><br>
+                    <span style="color: #6b7280; font-size: 0.95rem;">Ako ste zadovoljni izgledom, odmah objavite</span>
+                  </div>
+                  <div style="padding: 1rem; background: #f9fafb; border-radius: 8px; border-left: 3px solid #006233;">
+                    <strong style="color: #006233;">✏️ Edituj HTML</strong><br>
+                    <span style="color: #6b7280; font-size: 0.95rem;">Prilagodite izgled koristeći vizuelni editor (napredne opcije)</span>
+                  </div>
+                  <div style="padding: 1rem; background: #f9fafb; border-radius: 8px; border-left: 3px solid #006233;">
+                    <strong style="color: #006233;">← Nazad</strong><br>
+                    <span style="color: #6b7280; font-size: 0.95rem;">Vratite se na formu za izmjene podataka</span>
+                  </div>
+                </div>
+                <div style="padding: 1rem; background: #f0fff4; border-radius: 8px; border-left: 4px solid #006233;">
+                  <strong style="color: #006233;">✅ Status objave:</strong>
+                  <span style="color: #4b5563; margin-left: 0.5rem;">Nakon objave, vaša umrlica će biti pregledana od strane administratora i objavljena u najkraćem roku. Dobićete email obavještenje kada objava bude odobrena.</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Visual Editor Info -->
+          <div style="background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%); border-radius: 12px; padding: 2rem; margin-bottom: 3rem;">
+            <h3 style="color: #006233; font-size: 1.3rem; margin-bottom: 1rem; display: flex; align-items: center;">
+              <span style="font-size: 1.5rem; margin-right: 0.5rem;">✨</span>
+              Napredne mogućnosti uređivanja
+            </h3>
+            <p style="color: #4b5563; line-height: 1.6; margin-bottom: 1rem;">
+              Vizuelni editor omogućava dodatno prilagođavanje objave:
+            </p>
+            <div style="display: grid; gap: 0.5rem;">
+              <div style="display: flex; align-items: center; color: #4b5563;">
+                <span style="color: #006233; margin-right: 0.5rem;">•</span>
+                Formatiranje teksta (bold, italic, underline)
+              </div>
+              <div style="display: flex; align-items: center; color: #4b5563;">
+                <span style="color: #006233; margin-right: 0.5rem;">•</span>
+                Naslovi različitih veličina
+              </div>
+              <div style="display: flex; align-items: center; color: #4b5563;">
+                <span style="color: #006233; margin-right: 0.5rem;">•</span>
+                Liste (numerisane i bullet)
+              </div>
+              <div style="display: flex; align-items: center; color: #4b5563;">
+                <span style="color: #006233; margin-right: 0.5rem;">•</span>
+                Boje teksta i pozadine
+              </div>
+              <div style="display: flex; align-items: center; color: #4b5563;">
+                <span style="color: #006233; margin-right: 0.5rem;">•</span>
+                Gotovi šabloni (informacije o sahrani, porodica, dove)
+              </div>
+            </div>
+          </div>
+
+          <!-- Tips Section -->
+          <div style="background: white; border: 2px solid #e5e7eb; border-radius: 12px; padding: 2rem; margin-bottom: 3rem;">
+            <h3 style="color: #006233; font-size: 1.3rem; margin-bottom: 1.5rem;">💡 Savjeti za kvalitetnu objavu</h3>
+            <div style="display: grid; gap: 1rem;">
+              <div style="display: flex; gap: 1rem;">
+                <div style="color: #006233; font-size: 1.5rem;">📸</div>
+                <div>
+                  <strong style="color: #1f2937;">Koristite kvalitetne slike</strong><br>
+                  <span style="color: #6b7280; font-size: 0.95rem;">Jasne fotografije čine objavu ličnijom i dostupnijom rodbini i prijateljima</span>
+                </div>
+              </div>
+              <div style="display: flex; gap: 1rem;">
+                <div style="color: #006233; font-size: 1.5rem;">📝</div>
+                <div>
+                  <strong style="color: #1f2937;">Budite precizan sa datumima</strong><br>
+                  <span style="color: #6b7280; font-size: 0.95rem;">Tačni datumi i vremena dženaze i pogreba su ključni za posjete</span>
+                </div>
+              </div>
+              <div style="display: flex; gap: 1rem;">
+                <div style="color: #006233; font-size: 1.5rem;">👥</div>
+                <div>
+                  <strong style="color: #1f2937;">Navedite ožalošćene</strong><br>
+                  <span style="color: #6b7280; font-size: 0.95rem;">Lista članova porodice pomaže ljudima da prepoznaju preminulu osobu</span>
+                </div>
+              </div>
+              <div style="display: flex; gap: 1rem;">
+                <div style="color: #006233; font-size: 1.5rem;">🤲</div>
+                <div>
+                  <strong style="color: #1f2937;">Dodajte dove i ayete</strong><br>
+                  <span style="color: #6b7280; font-size: 0.95rem;">Islamski sadržaj čini objavu duhovnijom i smislenijom</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- FAQ Section -->
+          <div style="background: white; border: 2px solid #e5e7eb; border-radius: 12px; padding: 2rem; margin-bottom: 3rem;">
+            <h3 style="color: #006233; font-size: 1.3rem; margin-bottom: 1.5rem;">❓ Često postavljana pitanja</h3>
+            <div style="display: grid; gap: 1.5rem;">
+              <div>
+                <strong style="color: #1f2937; display: block; margin-bottom: 0.5rem;">Koliko dugo traje odobrenje objave?</strong>
+                <span style="color: #6b7280; line-height: 1.6;">Objave se pregledaju i odobravaju u najkraćem mogućem roku, obično u roku od nekoliko sati. U hitnim slučajevima, možete kontaktirati administratora.</span>
+              </div>
+              <div>
+                <strong style="color: #1f2937; display: block; margin-bottom: 0.5rem;">Da li mogu mijenjati objavu nakon što je objavljena?</strong>
+                <span style="color: #6b7280; line-height: 1.6;">Da, možete zatražiti izmjene kontaktiranjem administratora ili putem svog profila.</span>
+              </div>
+              <div>
+                <strong style="color: #1f2937; display: block; margin-bottom: 0.5rem;">Koja je maksimalna veličina slika?</strong>
+                <span style="color: #6b7280; line-height: 1.6;">Svaka slika može biti maksimalno 5MB. Sistem će automatski optimizovati slike za web (800x800px, 85% kvalitet).</span>
+              </div>
+              <div>
+                <strong style="color: #1f2937; display: block; margin-bottom: 0.5rem;">Da li moram platiti prije objave?</strong>
+                <span style="color: #6b7280; line-height: 1.6;">Da, nakon što popunite formu i potvrdite preview, bićete preusmjereni na stranicu za plaćanje. Objava će biti aktivirana odmah nakon uspješne transakcije.</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- CTA Section -->
+          <div style="text-align: center; padding: 3rem 2rem; background: linear-gradient(135deg, #006233 0%, #00a651 100%); border-radius: 12px; color: white;">
+            <h3 style="font-size: 1.5rem; margin-bottom: 1rem;">Spremni ste za objavljivanje?</h3>
+            <p style="opacity: 0.9; margin-bottom: 2rem; font-size: 1.1rem;">Prijavite se i objavite umrlicu u samo nekoliko minuta</p>
+            <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
+              <a href="/prijava" class="btn" style="background: white; color: #006233; border: none; padding: 0.75rem 2rem; font-weight: bold;">Prijavi se</a>
+              <a href="/registracija" class="btn btn-outline" style="border-color: white; color: white; padding: 0.75rem 2rem;">Registruj se</a>
+            </div>
+          </div>
+
+          <!-- Support -->
+          <div style="text-align: center; margin-top: 3rem; padding: 2rem; background: #f9fafb; border-radius: 8px;">
+            <p style="color: #6b7280; margin-bottom: 1rem;">
+              Trebate pomoć ili imate pitanja?
+            </p>
+            <p style="color: #4b5563; margin-bottom: 1.5rem;">
+              <strong>Email:</strong> podrska@rahmetli.me<br>
+              <strong>Telefon:</strong> +382 68 236 730
+            </p>
+            <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
+              <a href="https://wa.me/38268236730?text=Zdravo,%20imam%20pitanje%20o%20objavljivanju%20umrlice" target="_blank" rel="noopener noreferrer" style="display: inline-flex; align-items: center; gap: 0.5rem; background: #25D366; color: white; padding: 0.75rem 1.5rem; border-radius: 8px; text-decoration: none; font-weight: 500; transition: background 0.2s;">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+                  <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/>
+                </svg>
+                Kontaktiraj nas na WhatsApp
+              </a>
+              <a href="/cijene" class="btn btn-outline" style="display: inline-block;">Pogledajte cijene</a>
+            </div>
           </div>
         </div>
       </section>
