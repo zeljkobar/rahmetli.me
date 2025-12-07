@@ -262,8 +262,12 @@ class App {
   }
 
   navigate(path) {
-    // Scroll to top instantly before navigation
-    window.scrollTo(0, 0);
+    // Immediately clear content and scroll to top
+    const mainContent = document.getElementById("mainContent");
+    mainContent.innerHTML = '';
+    document.documentElement.scrollTop = 0;
+    document.body.scrollTop = 0;
+    
     window.history.pushState({}, "", path);
     this.handleRoute();
   }
@@ -1318,11 +1322,11 @@ class App {
             </div>
 
             <!-- Godišnja Pretplata -->
-            <div style="background: linear-gradient(135deg, #006233 0%, #00a651 100%); border-radius: 12px; padding: 2rem; color: white; position: relative; overflow: hidden;">
-              <div style="position: absolute; top: 1rem; right: 1rem; background: #ffd700; color: #006233; padding: 0.25rem 0.75rem; border-radius: 20px; font-size: 0.875rem; font-weight: bold;">
+            <div style="background: linear-gradient(135deg, #006233 0%, #00a651 100%); border-radius: 12px; padding: 2rem; color: white; position: relative; overflow: visible;">
+              <div style="position: absolute; top: 0.5rem; right: 1rem; background: #ffd700; color: #006233; padding: 0.4rem 1rem; border-radius: 20px; font-size: 0.875rem; font-weight: bold; box-shadow: 0 2px 8px rgba(0,0,0,0.2);">
                 Najbolja ponuda
               </div>
-              <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 1rem;">
+              <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 1rem; padding-top: 2.5rem;">
                 <div>
                   <h3 style="font-size: 1.5rem; margin-bottom: 0.5rem;">Godišnja Pretplata</h3>
                   <p style="opacity: 0.9; font-size: 0.95rem;">Neograničeno korištenje tokom godine</p>
