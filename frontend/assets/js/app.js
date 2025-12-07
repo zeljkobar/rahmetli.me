@@ -262,6 +262,8 @@ class App {
   }
 
   navigate(path) {
+    // Scroll to top instantly before navigation
+    window.scrollTo(0, 0);
     window.history.pushState({}, "", path);
     this.handleRoute();
   }
