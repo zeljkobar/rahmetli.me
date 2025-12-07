@@ -503,6 +503,20 @@ export class PostCreateForm {
     if (addHatarBtn) {
       addHatarBtn.addEventListener("click", () => this.addHatarSession());
     }
+
+    // Image upload
+    const imageUpload = this.element.querySelector("#imageUpload");
+    const imageUploadTrigger = this.element.querySelector(".image-upload-trigger");
+
+    if (imageUploadTrigger && imageUpload) {
+      imageUploadTrigger.addEventListener("click", () => {
+        imageUpload.click();
+      });
+    }
+
+    if (imageUpload) {
+      imageUpload.addEventListener("change", this.handleImageUpload);
+    }
   }
 
   attachPreviewEventListeners() {
