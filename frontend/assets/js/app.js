@@ -310,7 +310,7 @@ class App {
                             🔍 Pretražite objave
                         </button>
                         <button class="btn btn-secondary btn-lg" id="heroCreateBtn">
-                            ➕ Nova objava
+                          Nova objava
                         </button>
                     </div>
                 </div>
@@ -1419,7 +1419,7 @@ class App {
               <div style="margin-top: 1.5rem;">
                 <h3 style="color: #006233; font-size: 1.5rem; margin-bottom: 1rem;">Popunite formu</h3>
                 <p style="color: #4b5563; line-height: 1.6; margin-bottom: 1rem;">
-                  Nakon što se prijavite, kliknite na dugme <strong>"Nova objava"</strong> ili <strong>"+"</strong> u navigaciji. Otvoriće se forma sa svim potrebnim poljima:
+                  Nakon što se prijavite, kliknite na dugme <strong>"Nova objava"</strong> u navigaciji. Otvoriće se forma sa svim potrebnim poljima:
                 </p>
                 <ul style="color: #4b5563; line-height: 1.8; margin-left: 1.5rem;">
                   <li><strong>Osnovni podaci:</strong> Ime i prezime, datum rođenja i smrti, pol</li>

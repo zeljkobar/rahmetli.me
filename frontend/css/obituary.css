@@ -49,7 +49,7 @@
   left: 50%;
   transform: translateX(-50%);
   background: transparent; /* No circular background */
-  color: white; /* White crescent and star */
+  color: #adff2f; /* Match bright green Nova objava button */
   font-size: 60px; /* Smaller to fit in frame height */
   width: auto; /* Auto width */
   height: 60px; /* Limit height to fit in frame */
