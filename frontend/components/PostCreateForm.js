@@ -506,7 +506,9 @@ export class PostCreateForm {
 
     // Image upload
     const imageUpload = this.element.querySelector("#imageUpload");
-    const imageUploadTrigger = this.element.querySelector(".image-upload-trigger");
+    const imageUploadTrigger = this.element.querySelector(
+      ".image-upload-trigger"
+    );
 
     if (imageUploadTrigger && imageUpload) {
       imageUploadTrigger.addEventListener("click", () => {
@@ -1100,7 +1102,7 @@ export class PostCreateForm {
         burial_time: this.state.burial_time || null,
         category_slug: this.state.category_slug,
         custom_html: this.state.custom_html.trim() || null,
-        images: this.uploadedImages,
+        images: this.serializeImages(),
       };
 
       const response = await api.createPost(postData);
@@ -1295,6 +1297,8 @@ export class PostCreateForm {
       this.state.date_of_death
     );
 
+    const primaryImage = this.uploadedImages?.[0]?.url || null;
+
     const selectedCemetery = this.cemeteries.find(
       (c) => c.id == this.state.cemetery_id
     );
@@ -1312,6 +1316,13 @@ export class PostCreateForm {
             </div>
             
             <div class="obituary-body">
+              ${
+                primaryImage
+                  ? `<div class="obituary-photo">
+                      <img class="obituary-photo-img" src="${primaryImage}" alt="Fotografija ${fullName}">
+                    </div>`
+                  : ""
+              }
               <div class="death-announcement">
                 Dana <strong>${deathDate}</strong> god.${
       age ? ` u <strong>${age}</strong> godini života` : ""
@@ -1443,6 +1454,13 @@ export class PostCreateForm {
     this.rerenderModal();
   }
 
+  serializeImages() {
+    return this.uploadedImages.map((img, index) => ({
+      url: img.url,
+      name: img.name || `image-${index + 1}.jpg`,
+    }));
+  }
+
   collectFormData() {
     // Filter valid family members
     const validFamilyMembers = this.state.family_members.filter((m) =>
@@ -1494,6 +1512,9 @@ export class PostCreateForm {
       hatar_sessions: validHatarSessions, // Send as array
       is_featured: this.state.is_featured || false,
       status: "pending", // Will be reviewed by admin
+
+      // Images
+      images: this.serializeImages(),
 
       // HTML content - will be added in saveAndPublish
       generated_html: null,

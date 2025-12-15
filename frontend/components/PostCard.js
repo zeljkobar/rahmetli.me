@@ -10,6 +10,20 @@ import {
 export class PostCard {
   constructor(post) {
     this.post = post;
+    this.mediaBase = this.getMediaBase();
+  }
+
+  getMediaBase() {
+    if (typeof window === "undefined") return "";
+    return window.location.hostname === "localhost"
+      ? "http://localhost:3002"
+      : ""; // production služi istu domenu
+  }
+
+  buildImageUrl(url) {
+    if (!url) return null;
+    if (/^https?:\/\//i.test(url)) return url;
+    return `${this.mediaBase}${url.startsWith("/") ? url : `/${url}`}`;
   }
 
   render() {
@@ -30,6 +44,8 @@ export class PostCard {
       deceased_death_date,
       deceased_age,
       deceased_gender,
+      deceased_photo_url,
+      primary_image_url,
       dzenaza_date,
       dzenaza_time,
       dzenaza_location,
@@ -41,6 +57,7 @@ export class PostCard {
       username,
       views_count,
       comments_count,
+      images,
       isDetailView = false,
     } = this.post;
 
@@ -53,6 +70,14 @@ export class PostCard {
     const deathDate = this.formatDateForObituary(deceased_death_date);
     const funeralDate = this.formatDateForObituary(dzenaza_date);
     const funeralTime = dzenaza_time ? dzenaza_time.slice(0, 5) : ""; // HH:MM format
+
+    const primaryImage = this.buildImageUrl(
+      deceased_photo_url ||
+        primary_image_url ||
+        (Array.isArray(images) && images.length > 0
+          ? images[0].url || images[0].thumbnail_url
+          : null)
+    );
 
     // Parse family members (if stored as JSON string)
     let familyList = "";
@@ -153,12 +178,23 @@ export class PostCard {
     }
 
     return `
-      <article class="obituary-card ${!isDetailView ? 'clickable-card' : ''}" data-post-id="${id}" ${!isDetailView ? `style="cursor: pointer;"` : ''}>
+      <article class="obituary-card ${
+        !isDetailView ? "clickable-card" : ""
+      }" data-post-id="${id}">
         <div class="obituary-frame">
           <div class="obituary-content">
-            <div class="obituary-header">
-              <div class="crescent-moon">☪</div>
-              <img src="/images/arabic-calligraphy.png" alt="الرَّحْمَنُ الرَّحِيمُ" class="arabic-calligraphy-image">
+            <div class="obituary-header ${primaryImage ? "has-photo" : ""}">
+              ${
+                primaryImage
+                  ? `<div class="obituary-photo obituary-photo-inline">
+                      <img class="obituary-photo-img" src="${primaryImage}" alt="Fotografija ${deceased_name}">
+                    </div>`
+                  : ""
+              }
+              <div class="obituary-header-main">
+                <div class="crescent-moon">☪</div>
+                <img src="/images/arabic-calligraphy.png" alt="الرَّحْمَنُ الرَّحِيمُ" class="arabic-calligraphy-image">
+              </div>
             </div>
             
             <div class="obituary-body">

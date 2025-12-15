@@ -41,6 +41,12 @@ self.addEventListener("activate", (event) => {
 
 // Fetch Strategy - Network First, Fall Back to Cache
 self.addEventListener("fetch", (event) => {
+  // Preskoči chrome-extension i druge nesuptportovane šeme
+  const url = new URL(event.request.url);
+  if (url.protocol !== "http:" && url.protocol !== "https:") {
+    return;
+  }
+
   event.respondWith(
     fetch(event.request)
       .then((response) => {

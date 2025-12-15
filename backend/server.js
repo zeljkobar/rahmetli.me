@@ -12,7 +12,29 @@ const app = express();
 const PORT = process.env.PORT || 3002;
 
 // Security middleware
-app.use(helmet());
+app.use(
+  helmet({
+    // Treba da pustimo slike sa backend hosta kada frontend radi na 5173/5174
+    crossOriginResourcePolicy: { policy: "cross-origin" },
+    contentSecurityPolicy: {
+      directives: {
+        defaultSrc: ["'self'"],
+        imgSrc: [
+          "'self'",
+          "data:",
+          "blob:",
+          "http://localhost:3002",
+          "http://localhost:5173",
+          "http://localhost:5174",
+          "https://rahmetli.me",
+          "https://www.rahmetli.me",
+        ],
+        objectSrc: ["'none'"],
+        upgradeInsecureRequests: [],
+      },
+    },
+  })
+);
 app.use(compression());
 
 // Rate limiting
@@ -57,7 +79,7 @@ const __dirname = path.dirname(__filename);
 app.use(express.static(path.join(__dirname, "../frontend")));
 
 // Serve uploaded images
-app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
+app.use("/uploads", express.static(path.join(__dirname, "../uploads")));
 
 // API Routes
 import authRoutes from "./routes/auth.js";

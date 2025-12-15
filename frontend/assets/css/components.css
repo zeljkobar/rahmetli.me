@@ -512,9 +512,61 @@
   padding: var(--spacing-lg);
 }
 
+.obituary-card.clickable-card {
+  cursor: pointer;
+}
+
 .obituary-header {
-  text-align: center;
+  position: relative;
+  display: grid;
+  grid-template-columns: 1fr;
+  align-items: flex-start;
+  justify-items: center;
   margin-bottom: var(--spacing-md);
+}
+
+.obituary-header.has-photo {
+  grid-template-columns: 100px 1fr 100px; /* left photo, centered main, right spacer for balance */
+  margin-bottom: -18px; /* stronger pull to lift body text */
+}
+
+.obituary-body {
+  position: relative;
+  z-index: 1; /* render above header overlap */
+  margin-top: 0;
+  padding-top: 0;
+}
+
+.obituary-header-main {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  flex: 1;
+}
+
+.obituary-photo {
+  text-align: center;
+  margin: 1rem 0;
+}
+
+.obituary-photo-inline {
+  margin: 0;
+  text-align: left;
+  justify-self: start;
+  align-self: flex-start;
+}
+
+.obituary-header.has-photo .obituary-header-main {
+  grid-column: 2;
+}
+
+.obituary-photo img {
+  width: 100px;
+  max-width: 100px;
+  height: auto;
+  border-radius: 8px;
+  object-fit: cover;
 }
 
 .crescent-moon {

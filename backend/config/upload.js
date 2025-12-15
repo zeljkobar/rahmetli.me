@@ -34,10 +34,7 @@ const fileFilter = (req, file, cb) => {
   if (allowedTypes.includes(file.mimetype)) {
     cb(null, true);
   } else {
-    cb(
-      new Error("Nepodržan tip fajla. Dozvoljeni su: JPEG, PNG, WebP"),
-      false
-    );
+    cb(new Error("Nepodržan tip fajla. Dozvoljeni su: JPEG, PNG, WebP"), false);
   }
 };
 

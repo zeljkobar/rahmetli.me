@@ -233,6 +233,34 @@
     padding: var(--spacing-xl) 0;
   }
 
+  /* Obituary card adjustments on mobile */
+  .obituary-header {
+    grid-template-columns: 1fr;
+    justify-items: center;
+    margin-bottom: var(--spacing-sm);
+  }
+
+  .obituary-header.has-photo {
+    grid-template-columns: 1fr;
+    margin-bottom: var(--spacing-sm);
+  }
+
+  .obituary-header.has-photo .obituary-header-main {
+    grid-column: 1;
+  }
+
+  .obituary-photo-inline {
+    justify-self: center;
+    align-self: center;
+    margin-bottom: var(--spacing-sm);
+  }
+
+  .obituary-body {
+    padding-top: 0;
+    margin-top: 0;
+    z-index: 1;
+  }
+
   .social-links {
     justify-content: center;
   }

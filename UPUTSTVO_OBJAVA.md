@@ -3,6 +3,7 @@
 ## Kako objaviti umrlicu - Korak po korak
 
 ### 1️⃣ Prijavljivanje na sistem
+
 - Idite na stranicu **Rahmetli.me**
 - Kliknite na dugme **"Prijavi se"** u gornjem desnom uglu
 - Unesite svoje korisničko ime i lozinku
@@ -11,6 +12,7 @@
 ---
 
 ### 2️⃣ Otvaranje forme za objavu
+
 - Nakon što ste prijavljeni, kliknite na dugme **"Nova objava"** ili **"+"**
 - Otvoriće se modal sa formom u **3 koraka**
 
@@ -21,16 +23,19 @@
 ### Osnovni podaci o preminuloj osobi
 
 **Obavezna polja:**
+
 - **Ime i prezime** - Unesite puno ime preminule osobe
 - **Datum smrti** - Izaberite datum
 - **Pol** - Izaberite: Muški ili Ženski
 
 **Opcionalna polja:**
+
 - **Datum rođenja** - Za prikaz godina života
 
 ---
 
 ### Biografija (opciono)
+
 - Kratki opis života preminule osobe
 - Informacije o karijeri, porodici, zaslugama
 - Minimum 10, maksimum 2000 karaktera
@@ -38,7 +43,9 @@
 ---
 
 ### Hatar sesije (opciono)
+
 Informacije o čitanju hatara/Kur'ana:
+
 - **Datum sesije** - Kada će se čitati
 - **Vrijeme početka** - Od kada
 - **Vrijeme završetka** - Do kada
@@ -50,11 +57,13 @@ Informacije o čitanju hatara/Kur'ana:
 ### Informacije o dženazi i pogrebu
 
 **Dženaza:**
+
 - **Datum dženaze**
 - **Vrijeme dženaze** (npr. 13:00)
 - **Lokacija dženaze** (džamija ili druga lokacija)
 
 **Pogreb:**
+
 - **Groblje** - Izaberite iz liste groblja
 - **Datum pogreba**
 - **Vrijeme pogreba**
@@ -62,9 +71,11 @@ Informacije o čitanju hatara/Kur'ana:
 ---
 
 ### Ožalošćeni (Porodica)
+
 Lista članova porodice koji žale:
 
 **Predefinisane relacije:**
+
 - Supruga/Suprug
 - Sin/Kćerka
 - Otac/Majka
@@ -72,6 +83,7 @@ Lista članova porodice koji žale:
 - Ostalo
 
 **Kako dodati:**
+
 1. Izaberite tip relacije (npr. "Sin")
 2. Unesite ime (npr. "Emir")
 3. Kliknite **"+ Dodaj člana porodice"** za još članova
@@ -80,7 +92,9 @@ Lista članova porodice koji žale:
 ---
 
 ### Kategorija objave
+
 Izaberite tip objave:
+
 - **Dženaza** - Najava dženaze i pogreba
 - **In Memoriam** - Sećanje na preminulu osobu
 - **Godišnjica** - Godišnjica smrti
@@ -89,6 +103,7 @@ Izaberite tip objave:
 ---
 
 ### Dodavanje slika
+
 1. Kliknite na dugme **"+ Dodaj slike"**
 2. Izaberite jednu ili više slika sa računara
 3. Podržani formati: **JPEG, PNG, WebP**
@@ -99,7 +114,9 @@ Izaberite tip objave:
 ---
 
 ### Dodatne informacije (opciono)
+
 Prostor za unos dodatnog sadržaja:
+
 - Ayeti iz Kur'ana
 - Dove
 - Posebne poruke
@@ -108,6 +125,7 @@ Prostor za unos dodatnog sadržaja:
 ---
 
 ### Akcije na formi
+
 - **Otkaži** - Zatvara formu bez čuvanja
 - **Generiši preview** - Prelazi na korak 2 (pregled)
 
@@ -118,6 +136,7 @@ Prostor za unos dodatnog sadržaja:
 Na ovom koraku vidite **kako će umrlica izgledati** na sajtu.
 
 ### Elementi pregleda:
+
 ```
 ┌─────────────────────────────────────┐
 │  ☪ [Simbol polumjeseca i zvijezde]  │
@@ -150,6 +169,7 @@ Na ovom koraku vidite **kako će umrlica izgledati** na sajtu.
 ```
 
 ### Akcije na pregledu:
+
 - **Nazad na formu** - Vrati se na korak 1 za izmjene
 - **Edituj HTML** - Prelazi na korak 3 za napredne izmjene
 - **Objavi ovako** - Direktno objavljuje umrlicu
@@ -161,6 +181,7 @@ Na ovom koraku vidite **kako će umrlica izgledati** na sajtu.
 Ovaj korak omogućava **direktno uređivanje sadržaja** pomoću vizuelnog editora (Quill.js).
 
 ### Quill Editor mogućnosti:
+
 - **Formatiranje teksta**: Bold, Italic, Underline, Strikethrough
 - **Naslovi**: H1, H2, H3, H4, H5, H6
 - **Liste**: Numerisane, Bullet liste
@@ -172,9 +193,11 @@ Ovaj korak omogućava **direktno uređivanje sadržaja** pomoću vizuelnog edito
 - **Blokovi**: Quote, Code block
 
 ### Predefinisani šabloni:
+
 Kliknite na dugme da ubacite gotov šablon:
 
 **📅 Informacije o sahrani**
+
 ```
 <h3>Informacije o sahrani</h3>
 <p><strong>Dženaza:</strong> [Datum i vrijeme]</p>
@@ -182,6 +205,7 @@ Kliknite na dugme da ubacite gotov šablon:
 ```
 
 **👨‍👩‍👧‍👦 Porodica**
+
 ```
 <h3>Ožalošćeni</h3>
 <ul>
@@ -192,6 +216,7 @@ Kliknite na dugme da ubacite gotov šablon:
 ```
 
 **🤲 Dova**
+
 ```
 <div style="text-align: center; font-style: italic; padding: 20px; background: #f9fafb; border-left: 4px solid #006233;">
   <p>"Allahume-gfir lehu verhamhu ve 'afihi ve'fu anhu"</p>
@@ -200,10 +225,12 @@ Kliknite na dugme da ubacite gotov šablon:
 ```
 
 ### Live preview
+
 - Desna strana pokazuje **uživo pregled** kako će izgledati
 - Svaka izmjena se odmah vidi
 
 ### Akcije u edit modu:
+
 - **Nazad na preview** - Vrati se na korak 2
 - **Sačuvaj i objavi** - Potvrdi izmjene i objavi
 
@@ -220,6 +247,7 @@ Kada kliknete **"Objavi ovako"** ili **"Sačuvaj i objavi"**:
 5. **Notifikacija** - Prikazuje se poruka o uspjehu
 
 ### Poruka nakon objave:
+
 ```
 ✅ Objava je uspješno poslata!
 
@@ -232,18 +260,21 @@ Bićete obaviješteni kada objava bude objavljena.
 ## ⚠️ Važne napomene
 
 ### Obavezna polja:
+
 - ✅ Ime i prezime
 - ✅ Datum smrti
 - ✅ Pol
 - ✅ Kategorija
 
 ### Preporuke:
+
 - 📸 **Dodajte sliku** - Objave sa slikama privlače više pažnje
 - 📝 **Biografija** - Kratki opis čini objavu ličnijom
 - 👥 **Ožalošćeni** - Lista porodice pokazuje ko žali
 - 📅 **Informacije o dženazi** - Pomažu ljudima da prisustvuju
 
 ### Ograničenja:
+
 - **Slike**: Max 5MB, formati JPG/PNG/WebP
 - **Biografija**: 10-2000 karaktera
 - **Ime**: Samo slova, razmaci i bosanski karakteri (ć, č, š, đ, ž)
@@ -272,6 +303,7 @@ Prijava → Nova objava → Forma (Korak 1)
 ## 📞 Podrška
 
 Ako imate problema:
+
 - Kontaktirajte **administratora** putem email-a
 - Provjerite da li ste **prijavljeni**
 - Provjerite da li su **obavezna polja** popunjena

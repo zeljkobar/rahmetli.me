@@ -9,11 +9,7 @@ import fs from "fs/promises";
  * @param {object} options - Processing options
  * @returns {Promise<object>} - Image metadata
  */
-export async function processImage(
-  inputPath,
-  outputPath,
-  options = {}
-) {
+export async function processImage(inputPath, outputPath, options = {}) {
   const {
     width = 800,
     height = 800,

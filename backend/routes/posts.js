@@ -98,6 +98,13 @@ router.get("/", validateSearch, optionalAuth, async (req, res) => {
          p.burial_cemetery, p.burial_location, p.generated_html as content,
          p.custom_html, p.is_custom_edited, p.status, p.is_premium, p.is_featured, 
          p.expires_at, p.views_count, p.shares_count, p.slug, p.meta_description,
+         (
+           SELECT CONCAT('/uploads/posts/', pi.filename)
+           FROM post_images pi
+           WHERE pi.post_id = p.id
+           ORDER BY pi.is_primary DESC, pi.display_order ASC, pi.id ASC
+           LIMIT 1
+         ) AS primary_image_url,
          p.created_at, p.updated_at,
          'dova' as type,
          p.deceased_name as title,
@@ -267,10 +274,10 @@ router.get("/:id", validateId, optionalAuth, async (req, res) => {
     );
 
     // Format image URLs
-    const formattedImages = images.map(img => ({
+    const formattedImages = images.map((img) => ({
       ...img,
       url: `/uploads/posts/${img.filename}`,
-      thumbnail_url: `/uploads/posts/thumb-${img.filename}`
+      thumbnail_url: `/uploads/posts/thumb-${img.filename}`,
     }));
 
     res.json({
@@ -411,9 +418,9 @@ router.post("/", authenticateToken, async (req, res) => {
     if (images && Array.isArray(images) && images.length > 0) {
       for (let i = 0; i < images.length; i++) {
         const image = images[i];
-        
+
         // Skip if no data URL
-        if (!image.url || !image.url.startsWith('data:image')) {
+        if (!image.url || !image.url.startsWith("data:image")) {
           continue;
         }
 
@@ -424,17 +431,18 @@ router.post("/", authenticateToken, async (req, res) => {
 
           const imageType = matches[1];
           const base64Data = matches[2];
-          const buffer = Buffer.from(base64Data, 'base64');
+          const buffer = Buffer.from(base64Data, "base64");
 
           // Generate filename
-          const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
+          const uniqueSuffix =
+            Date.now() + "-" + Math.round(Math.random() * 1e9);
           const filename = `post-${postId}-${uniqueSuffix}.jpg`;
-          const uploadsDir = path.join(__dirname, '../../uploads/posts');
+          const uploadsDir = path.join(__dirname, "../../uploads/posts");
           const tempPath = path.join(uploadsDir, `temp-${filename}`);
           const finalPath = path.join(uploadsDir, filename);
 
           // Save temp file
-          const fs = await import('fs/promises');
+          const fs = await import("fs/promises");
           await fs.writeFile(tempPath, buffer);
 
           // Process image with sharp (resize, optimize)
@@ -442,8 +450,8 @@ router.post("/", authenticateToken, async (req, res) => {
             width: 800,
             height: 800,
             quality: 85,
-            format: 'jpeg',
-            fit: 'inside'
+            format: "jpeg",
+            fit: "inside",
           });
 
           // Delete temp file
@@ -458,15 +466,15 @@ router.post("/", authenticateToken, async (req, res) => {
             [
               postId,
               filename,
-              image.name || 'image.jpg',
+              image.name || "image.jpg",
               stats.size,
-              'image/jpeg',
+              "image/jpeg",
               i === 0, // First image is primary
-              i + 1
+              i + 1,
             ]
           );
         } catch (imgError) {
-          console.error('Error processing image:', imgError);
+          console.error("Error processing image:", imgError);
           // Continue with other images if one fails
         }
       }

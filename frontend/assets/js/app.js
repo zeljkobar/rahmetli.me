@@ -266,10 +266,10 @@ class App {
   navigate(path) {
     // Immediately clear content and scroll to top
     const mainContent = document.getElementById("mainContent");
-    mainContent.innerHTML = '';
+    mainContent.innerHTML = "";
     document.documentElement.scrollTop = 0;
     document.body.scrollTop = 0;
-    
+
     window.history.pushState({}, "", path);
     this.handleRoute();
   }
@@ -375,7 +375,7 @@ class App {
 
       if (postsContainer) {
         postsContainer.innerHTML = PostCard.renderGrid(response.posts);
-        
+
         // Add click listeners to clickable obituary cards
         this.attachObituaryCardListeners(postsContainer);
       }
@@ -473,7 +473,7 @@ class App {
 
       if (postsContainer) {
         postsContainer.innerHTML = PostCard.renderGrid(response.posts);
-        
+
         // Add click listeners to clickable obituary cards
         this.attachObituaryCardListeners(postsContainer);
       }
@@ -502,17 +502,23 @@ class App {
   }
 
   attachObituaryCardListeners(container) {
-    const clickableCards = container.querySelectorAll('.obituary-card.clickable-card');
-    
-    clickableCards.forEach(card => {
-      const postId = card.getAttribute('data-post-id');
-      
-      card.addEventListener('click', (e) => {
+    const clickableCards = container.querySelectorAll(
+      ".obituary-card.clickable-card"
+    );
+
+    clickableCards.forEach((card) => {
+      const postId = card.getAttribute("data-post-id");
+
+      card.addEventListener("click", (e) => {
         // Prevent navigation if clicking on a link or button inside the card
-        if (e.target.tagName === 'A' || e.target.tagName === 'BUTTON' || e.target.closest('a, button')) {
+        if (
+          e.target.tagName === "A" ||
+          e.target.tagName === "BUTTON" ||
+          e.target.closest("a, button")
+        ) {
           return;
         }
-        
+
         if (postId) {
           this.navigate(`/objava/${postId}`);
         }
@@ -603,6 +609,11 @@ class App {
       if (!post) {
         this.show404();
         return;
+      }
+
+      // Osiguraj da se rendere kao umrlica
+      if (!post.type) {
+        post.type = "dzenaza";
       }
 
       // Use PostCard component to render obituary
