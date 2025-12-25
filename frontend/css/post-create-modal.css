@@ -349,6 +349,29 @@
   background: #f0f9ff;
 }
 
+/* New cemetery fields */
+#new-cemetery-fields {
+  padding: 15px;
+  background: #f8faf8;
+  border-radius: 8px;
+  border: 1px solid #d1d5db;
+}
+
+#new-cemetery-fields .form-group {
+  margin-bottom: 10px;
+}
+
+#new-cemetery-fields label {
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+
+#cancel-new-cemetery {
+  margin-top: 5px;
+  font-size: 0.9rem;
+  padding: 8px 16px;
+}
+
 .btn:disabled {
   opacity: 0.6;
   cursor: not-allowed;

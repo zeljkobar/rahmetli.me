@@ -113,8 +113,9 @@ router.get("/", validateSearch, optionalAuth, async (req, res) => {
          'Nepoznat' as author_name,
          'anonymous' as username,
          0 as comments_count,
-         NULL as cemetery_name,
-         NULL as cemetery_city,
+         cem.name as cemetery_name,
+         cem.city as cemetery_city,
+         CONCAT(cem.name, ' - ', cem.city) as burial_cemetery_full,
          GROUP_CONCAT(
            CASE WHEN fm.name IS NOT NULL 
            THEN CONCAT(fm.relationship, ' ', fm.name) 
@@ -137,13 +138,14 @@ router.get("/", validateSearch, optionalAuth, async (req, res) => {
        FROM posts p
        LEFT JOIN family_members fm ON p.id = fm.post_id
        LEFT JOIN hatar_sessions hs ON p.id = hs.post_id
+       LEFT JOIN cemeteries cem ON p.cemetery_id = cem.id
        WHERE ${whereClause}
        GROUP BY p.id, p.user_id, p.deceased_name, p.deceased_birth_date, p.deceased_death_date, 
                 p.deceased_age, p.deceased_gender, p.deceased_photo_url, p.dzenaza_date, p.dzenaza_time, 
                 p.dzenaza_location, p.burial_cemetery, p.burial_location, p.generated_html,
                 p.custom_html, p.is_custom_edited, p.status, p.is_premium, p.is_featured,
                 p.expires_at, p.views_count, p.shares_count, p.slug, p.meta_description,
-                p.created_at, p.updated_at
+                p.created_at, p.updated_at, cem.name, cem.city
        ORDER BY p.is_featured DESC, p.created_at DESC
        LIMIT ${limitNum} OFFSET ${offset}`,
       queryParams

@@ -598,7 +598,7 @@ router.put(
 
       await executeQuery(
         `UPDATE cemeteries 
-         SET name = ?, city = ?, address = ?, latitude = ?, longitude = ?, description = ?
+         SET name = ?, city = ?, address = ?, latitude = ?, longitude = ?, description = ?, needs_review = 0
          WHERE id = ?`,
         [
           name,

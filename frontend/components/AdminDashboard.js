@@ -156,7 +156,11 @@ class AdminDashboard {
   }
 
   async loadInitialData() {
-    await Promise.all([this.loadPendingComments(), this.loadStats()]);
+    await Promise.all([
+      this.loadPendingComments(),
+      this.loadStats(),
+      this.loadNewCemeteriesCount()
+    ]);
   }
 
   render() {
@@ -184,6 +188,7 @@ class AdminDashboard {
           </button>
           <button class="nav-btn" data-tab="cemeteries">
             <i class="fas fa-mosque"></i> Mezaristani
+            <span class="badge" id="new-cemeteries-badge" style="display: none;">0</span>
           </button>
           <button class="nav-btn" data-tab="stats">
             <i class="fas fa-chart-bar"></i> Statistike
@@ -198,6 +203,10 @@ class AdminDashboard {
           <div class="stat-card">
             <div class="stat-number" id="pending-posts-count">0</div>
             <div class="stat-label">Objave na čekanju</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-number" id="new-cemeteries-count">0</div>
+            <div class="stat-label">Nova groblja za pregled</div>
           </div>
           <div class="stat-card">
             <div class="stat-number" id="total-users-count">0</div>
@@ -989,6 +998,32 @@ class AdminDashboard {
   }
 
   // Cemeteries Management
+  async loadNewCemeteriesCount() {
+    try {
+      const response = await this.api.get("/cemeteries/needs-review/count");
+      const count = response.count || 0;
+      
+      // Update badge
+      const badge = document.getElementById("new-cemeteries-badge");
+      const statCount = document.getElementById("new-cemeteries-count");
+      
+      if (badge) {
+        badge.textContent = count;
+        badge.style.display = count > 0 ? "inline-block" : "none";
+      }
+      
+      if (statCount) {
+        statCount.textContent = count;
+        if (count > 0) {
+          statCount.parentElement.style.background = "#fff3cd";
+          statCount.style.color = "#856404";
+        }
+      }
+    } catch (error) {
+      console.error("Failed to load new cemeteries count:", error);
+    }
+  }
+
   async loadCemeteries() {
     try {
       console.log("Loading cemeteries...");
@@ -1035,14 +1070,17 @@ class AdminDashboard {
             ${cemeteries
               .map(
                 (cemetery) => `
-              <tr>
-                <td><strong>${cemetery.name}</strong></td>
+              <tr class="${cemetery.needs_review ? 'needs-review-row' : ''}">
+                <td>
+                  <strong>${cemetery.name}</strong>
+                  ${cemetery.needs_review ? '<span class="badge badge-warning">Novo</span>' : ''}
+                </td>
                 <td>${cemetery.city || "-"}</td>
-                <td>${cemetery.address || "-"}</td>
+                <td>${cemetery.address || '<span class="text-muted">Nedostaje</span>'}</td>
                 <td>${
                   cemetery.latitude && cemetery.longitude
                     ? `${cemetery.latitude}, ${cemetery.longitude}`
-                    : "-"
+                    : '<span class="text-muted">Nedostaje</span>'
                 }</td>
                 <td class="actions">
                   <button class="btn btn-sm btn-secondary cemetery-edit-btn" data-id="${

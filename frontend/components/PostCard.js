@@ -51,6 +51,8 @@ export class PostCard {
       dzenaza_location,
       burial_cemetery,
       burial_location,
+      cemetery_name,
+      cemetery_city,
       family_members,
       hatar_sessions,
       author_name,
@@ -215,7 +217,13 @@ export class PostCard {
                   <strong>Dženaza se klanja:</strong> ${funeralDate} god. u ${funeralTime} sati u ${dzenaza_location}
                 </div>
                 ${
-                  burial_cemetery
+                  cemetery_name
+                    ? `
+                  <div class="burial-detail">
+                    <strong>Ukop će se obaviti na groblju:</strong> ${cemetery_name}${cemetery_city ? ` - ${cemetery_city}` : ""}${burial_location ? `, ${burial_location}` : ""}
+                  </div>
+                `
+                    : burial_cemetery
                     ? `
                   <div class="burial-detail">
                     <strong>Ukop će se obaviti na groblju:</strong> ${burial_cemetery}${

@@ -26,6 +26,9 @@ export class PostCreateForm {
 
       // Lokacija i pogreb
       cemetery_id: "",
+      is_new_cemetery: false,
+      new_cemetery_name: "",
+      new_cemetery_city: "",
       burial_date: "",
       burial_time: "",
 
@@ -209,8 +212,33 @@ export class PostCreateForm {
                   <select id="cemetery" name="cemetery_id">
                     <option value="">Odaberite mezaristan</option>
                     ${this.renderCemeteryOptions()}
+                    <option value="new">+ Dodaj novi mezaristan</option>
                   </select>
                   ${this.renderFieldError("cemetery_id")}
+                  
+                  <div id="new-cemetery-fields" style="display: none; margin-top: 10px;">
+                    <div class="form-group">
+                      <label for="new_cemetery_name">Naziv mezaristana *</label>
+                      <input 
+                        type="text" 
+                        id="new_cemetery_name" 
+                        name="new_cemetery_name"
+                        placeholder="Npr: Mezaristan Alifakovac"
+                      />
+                    </div>
+                    <div class="form-group">
+                      <label for="new_cemetery_city">Grad *</label>
+                      <input 
+                        type="text" 
+                        id="new_cemetery_city" 
+                        name="new_cemetery_city"
+                        placeholder="Npr: Sarajevo"
+                      />
+                    </div>
+                    <button type="button" class="btn-secondary" id="cancel-new-cemetery">
+                      Otkaži
+                    </button>
+                  </div>
                 </div>
                 
                 <div class="form-row">
@@ -518,6 +546,53 @@ export class PostCreateForm {
 
     if (imageUpload) {
       imageUpload.addEventListener("change", this.handleImageUpload);
+    }
+    
+    // Cemetery dropdown change - show/hide new cemetery fields
+    const cemeterySelect = form.querySelector("#cemetery");
+    const newCemeteryFields = form.querySelector("#new-cemetery-fields");
+    const cancelNewCemetery = form.querySelector("#cancel-new-cemetery");
+    
+    if (cemeterySelect && newCemeteryFields) {
+      cemeterySelect.addEventListener("change", (e) => {
+        console.log("Cemetery select changed:", e.target.value);
+        if (e.target.value === "new") {
+          newCemeteryFields.style.display = "block";
+          this.state.cemetery_id = "";
+          this.state.is_new_cemetery = true;
+        } else {
+          newCemeteryFields.style.display = "none";
+          this.state.cemetery_id = e.target.value;
+          this.state.is_new_cemetery = false;
+        }
+      });
+    }
+    
+    // Listen to new cemetery input changes
+    const newCemeteryName = form.querySelector("#new_cemetery_name");
+    const newCemeteryCity = form.querySelector("#new_cemetery_city");
+    
+    if (newCemeteryName) {
+      newCemeteryName.addEventListener("input", (e) => {
+        this.state.new_cemetery_name = e.target.value;
+      });
+    }
+    
+    if (newCemeteryCity) {
+      newCemeteryCity.addEventListener("input", (e) => {
+        this.state.new_cemetery_city = e.target.value;
+      });
+    }
+    
+    if (cancelNewCemetery && cemeterySelect && newCemeteryFields) {
+      cancelNewCemetery.addEventListener("click", () => {
+        newCemeteryFields.style.display = "none";
+        cemeterySelect.value = "";
+        const nameInput = form.querySelector("#new_cemetery_name");
+        const cityInput = form.querySelector("#new_cemetery_city");
+        if (nameInput) nameInput.value = "";
+        if (cityInput) cityInput.value = "";
+      });
     }
   }
 
@@ -856,68 +931,6 @@ export class PostCreateForm {
       .join("");
   }
 
-  attachEventListeners() {
-    const form = this.element.querySelector("#postCreateForm");
-    const closeBtn = this.element.querySelector(".modal-close-btn");
-    const cancelBtn = this.element.querySelector("#cancelBtn");
-    const imageUpload = this.element.querySelector("#imageUpload");
-    const imageUploadTrigger = this.element.querySelector(
-      ".image-upload-trigger"
-    );
-    const overlay = this.element.querySelector(".modal-overlay");
-
-    // Form submission
-    form.addEventListener("submit", this.handleSubmit);
-
-    // Input changes
-    const inputs = form.querySelectorAll("input, select, textarea");
-    inputs.forEach((input) => {
-      input.addEventListener("input", this.handleInputChange);
-      input.addEventListener("blur", this.handleInputChange);
-    });
-
-    // Image upload trigger button
-    if (imageUploadTrigger && imageUpload) {
-      imageUploadTrigger.addEventListener("click", () => {
-        imageUpload.click();
-      });
-    }
-
-    // Image upload
-    if (imageUpload) {
-      imageUpload.addEventListener("change", this.handleImageUpload);
-    }
-
-    // Close modal
-    if (closeBtn) {
-      closeBtn.addEventListener("click", () => this.close());
-    }
-
-    if (cancelBtn) {
-      cancelBtn.addEventListener("click", () => this.close());
-    }
-
-    // Close on overlay click
-    if (overlay) {
-      overlay.addEventListener("click", (e) => {
-        if (e.target === overlay) {
-          this.close();
-        }
-      });
-    }
-
-    // Close on Escape
-    this.handleKeyDown = (e) => {
-      if (e.key === "Escape") {
-        this.close();
-      }
-    };
-    document.addEventListener("keydown", this.handleKeyDown);
-
-    // Prevent body scroll
-    document.body.style.overflow = "hidden";
-  }
-
   handleInputChange(e) {
     const { name, value } = e.target;
     this.state[name] = value;
@@ -1091,13 +1104,46 @@ export class PostCreateForm {
     this.setLoading(true);
 
     try {
+      // Check if user wants to add new cemetery
+      const cemeterySelect = this.element.querySelector("#cemetery");
+      let cemeteryId = this.state.cemetery_id;
+      
+      if (cemeterySelect && cemeterySelect.value === "new") {
+        const newCemeteryName = this.element.querySelector("#new_cemetery_name")?.value?.trim();
+        const newCemeteryCity = this.element.querySelector("#new_cemetery_city")?.value?.trim();
+        
+        if (!newCemeteryName || !newCemeteryCity) {
+          this.state.errors.general = "Unesite naziv i grad za novi mezaristan";
+          this.updateErrorDisplay("general");
+          this.setLoading(false);
+          return;
+        }
+        
+        // Create new cemetery
+        const cemeteryResponse = await api.createCemetery({
+          name: newCemeteryName,
+          city: newCemeteryCity
+        });
+        
+        if (cemeteryResponse.cemetery && cemeteryResponse.cemetery.id) {
+          cemeteryId = cemeteryResponse.cemetery.id;
+          // Add to list for future use
+          this.cemeteries.push(cemeteryResponse.cemetery);
+        } else {
+          this.state.errors.general = "Greška pri dodavanju mezaristana";
+          this.updateErrorDisplay("general");
+          this.setLoading(false);
+          return;
+        }
+      }
+      
       const postData = {
         deceased_name: this.state.deceased_name.trim(),
         date_of_birth: this.state.date_of_birth || null,
         date_of_death: this.state.date_of_death,
         gender: this.state.gender,
         biography: this.state.biography.trim() || null,
-        cemetery_id: this.state.cemetery_id || null,
+        cemetery_id: cemeteryId || null,
         burial_date: this.state.burial_date || null,
         burial_time: this.state.burial_time || null,
         category_slug: this.state.category_slug,
@@ -1565,6 +1611,43 @@ export class PostCreateForm {
   async saveAndPublish() {
     try {
       this.setLoading(true);
+
+      // Check if user wants to add new cemetery
+      let cemeteryId = this.state.cemetery_id;
+      
+      if (this.state.is_new_cemetery) {
+        const newCemeteryName = this.state.new_cemetery_name?.trim();
+        const newCemeteryCity = this.state.new_cemetery_city?.trim();
+        
+        if (!newCemeteryName || !newCemeteryCity) {
+          this.state.errors.general = "Unesite naziv i grad za novi mezaristan";
+          this.rerenderModal();
+          this.setLoading(false);
+          return;
+        }
+        
+        // Create new cemetery
+        console.log("Creating new cemetery:", { name: newCemeteryName, city: newCemeteryCity });
+        const cemeteryResponse = await api.createCemetery({
+          name: newCemeteryName,
+          city: newCemeteryCity
+        });
+        
+        console.log("Cemetery creation response:", cemeteryResponse);
+        
+        if (cemeteryResponse.cemetery && cemeteryResponse.cemetery.id) {
+          cemeteryId = cemeteryResponse.cemetery.id;
+          this.state.cemetery_id = cemeteryId;
+          // Add to list for future use
+          this.cemeteries.push(cemeteryResponse.cemetery);
+          console.log("New cemetery created with ID:", cemeteryId);
+        } else {
+          this.state.errors.general = "Greška pri dodavanju mezaristana";
+          this.rerenderModal();
+          this.setLoading(false);
+          return;
+        }
+      }
 
       // Use edited HTML if available, otherwise use generated preview
       const finalHtml = this.editedHtml || this.generatedPreview;

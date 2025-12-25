@@ -101,4 +101,83 @@ router.get("/cities/list", async (req, res) => {
   }
 });
 
+// Get count of cemeteries that need review
+router.get("/needs-review/count", async (req, res) => {
+  try {
+    const result = await executeQuery(
+      "SELECT COUNT(*) as count FROM cemeteries WHERE needs_review = 1 AND is_active = 1"
+    );
+
+    res.json({
+      count: result[0]?.count || 0,
+    });
+  } catch (error) {
+    console.error("Get needs review count error:", error);
+    res.status(500).json({
+      error: "Greška pri brojanju mezaristana",
+    });
+  }
+});
+
+// Create new cemetery (basic info - public endpoint)
+router.post("/", async (req, res) => {
+  try {
+    const { name, city } = req.body;
+
+    // Validation
+    if (!name || !name.trim()) {
+      return res.status(400).json({
+        error: "Naziv mezaristana je obavezan",
+      });
+    }
+
+    if (!city || !city.trim()) {
+      return res.status(400).json({
+        error: "Grad je obavezan",
+      });
+    }
+
+    // Check if cemetery already exists
+    const existing = await executeQuerySingle(
+      "SELECT id FROM cemeteries WHERE name = ? AND city = ? AND is_active = 1",
+      [name.trim(), city.trim()]
+    );
+
+    if (existing) {
+      return res.json({
+        cemetery: existing,
+        message: "Mezaristan već postoji",
+      });
+    }
+
+    // Insert new cemetery with basic info
+    const result = await executeQuery(
+      `INSERT INTO cemeteries (name, city, is_active, needs_review) 
+       VALUES (?, ?, 1, 1)`,
+      [name.trim(), city.trim()]
+    );
+
+    const newCemetery = {
+      id: result.insertId,
+      name: name.trim(),
+      city: city.trim(),
+      address: null,
+      latitude: null,
+      longitude: null,
+      description: null,
+      is_active: 1,
+    };
+
+    res.status(201).json({
+      cemetery: newCemetery,
+      message: "Mezaristan uspješno dodat",
+    });
+  } catch (error) {
+    console.error("Create cemetery error:", error);
+    res.status(500).json({
+      error: "Greška pri dodavanju mezaristana",
+    });
+  }
+});
+
 export default router;

@@ -167,6 +167,14 @@ class API {
   async getCities() {
     return this.get("/cemeteries/cities/list");
   }
+  
+  async createCemetery(data) {
+    return this.post("/cemeteries", data);
+  }
+  
+  async getNewCemeteriesCount() {
+    return this.get("/cemeteries/needs-review/count");
+  }
 
   // Users methods
   async getUser(id) {
