@@ -43,21 +43,8 @@
 
 /* Crescent moon and star positioned inside the frame at top */
 .obituary-card::before {
-  content: "☪";
-  position: absolute;
-  top: 0px; /* Move down a bit */
-  left: 50%;
-  transform: translateX(-50%);
-  background: transparent; /* No circular background */
-  color: #adff2f; /* Match bright green Nova objava button */
-  font-size: 60px; /* Smaller to fit in frame height */
-  width: auto; /* Auto width */
-  height: 60px; /* Limit height to fit in frame */
-  border-radius: 0; /* No circle */
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 10;
+  content: "";
+  display: none;
   padding: 0; /* Remove padding to save space */
   line-height: 1; /* Tight line spacing */
 }
@@ -90,7 +77,7 @@
 .arabic-calligraphy-image {
   height: 40px;
   width: auto;
-  margin: 0 auto 5px auto;
+  margin: 0 auto 15px auto;
   display: block;
   filter: hue-rotate(100deg) saturate(1.5); /* Make it green like the border color */
 }

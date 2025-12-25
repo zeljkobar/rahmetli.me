@@ -192,12 +192,12 @@ export class PostCard {
                   : ""
               }
               <div class="obituary-header-main">
-                <div class="crescent-moon">☪</div>
-                <img src="/images/arabic-calligraphy.png" alt="الرَّحْمَنُ الرَّحِيمُ" class="arabic-calligraphy-image">
+                <div class="crescent-moon-bottom">☪</div>
               </div>
             </div>
             
             <div class="obituary-body">
+              <img src="/images/arabic-calligraphy.png" alt="الرَّحْمَنُ الرَّحِيمُ" class="arabic-calligraphy-image">
               <div class="death-announcement">
                 Dana <strong>${deathDate}</strong> god. u <strong>${age}</strong> godini života preseli${
       deceased_gender === "female" ? "la" : "o"
