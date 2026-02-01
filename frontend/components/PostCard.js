@@ -151,7 +151,13 @@ export class PostCard {
 
       const hatarItems = uniqueSessions
         .map((session) => {
-          const sessionDate = new Date(session.date).toLocaleDateString(
+          // Validate date
+          if (!session.date) return null;
+          
+          const dateObj = new Date(session.date);
+          if (isNaN(dateObj.getTime())) return null; // Check if date is valid
+          
+          const sessionDate = dateObj.toLocaleDateString(
             "sr-RS",
             {
               day: "2-digit",
@@ -165,9 +171,13 @@ export class PostCard {
           const displayTimeEnd = session.time_end
             ? ` do ${session.time_end.slice(0, 5)}`
             : "";
+          
+          // Validate location
+          const location = session.location || "IKC Bar";
 
-          return `<strong>Hatar se prima ${sessionDate} od ${displayTimeStart}${displayTimeEnd} u ${session.location}</strong>`;
+          return `<strong>Hatar se prima ${sessionDate} od ${displayTimeStart}${displayTimeEnd} u ${location}</strong>`;
         })
+        .filter(item => item !== null) // Remove null items
         .join("<br>");
 
       hatarSectionsHtml = `
