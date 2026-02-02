@@ -176,6 +176,12 @@
   margin-bottom: 8px;
 }
 
+.family-text {
+  margin: 8px 0;
+  color: #000;
+  line-height: 1.6;
+}
+
 /* Footer */
 .obituary-footer {
   display: flex;

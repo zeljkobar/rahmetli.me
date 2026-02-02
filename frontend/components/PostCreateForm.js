@@ -62,12 +62,8 @@ export class PostCreateForm {
       // Custom HTML za dodatne informacije
       custom_html: "",
 
-      // Family members (ožalošćeni)
-      family_members: [
-        { relationship: "supruga", name: "" },
-        { relationship: "sin", name: "" },
-        { relationship: "kćerka", name: "" },
-      ],
+      // Family members text (ožalošćeni)
+      family_members_text: "",
 
       // Hatar sessions (čitanje hatma)
       hatar_sessions: [
@@ -105,12 +101,11 @@ export class PostCreateForm {
         burial_time: existingPost.dzenaza_time || "13:00",
         category_slug: existingPost.category_slug || "dzenaza",
         custom_html: "", // Keep empty when editing - user can add new custom HTML if needed
-        // Parse family members and hatar sessions if they exist
-        family_members: existingPost.family_members 
-          ? (typeof existingPost.family_members === 'string' 
-              ? JSON.parse(existingPost.family_members) 
-              : existingPost.family_members)
-          : defaultState.family_members,
+        // Use family_members_text if available, otherwise fallback to old family_members array for backward compatibility
+        family_members_text: existingPost.family_members_text || 
+          (existingPost.family_members && existingPost.family_members.length > 0
+            ? existingPost.family_members.map(m => `${m.relationship}: ${m.name}`).join(', ')
+            : ""),
         hatar_sessions: existingPost.hatar_sessions && existingPost.hatar_sessions.length > 0
           ? existingPost.hatar_sessions.map(session => ({
               session_date: formatDateForInput(session.session_date),
@@ -318,11 +313,17 @@ export class PostCreateForm {
               <!-- Ožalošćeni -->
               <div class="form-section">
                 <h3>Ožalošćeni</h3>
-                <p class="section-hint">Unesite imena članova porodice koji žale preminulu osobu</p>
-                ${this.renderFamilyMembers()}
-                <button type="button" class="btn btn-outline btn-sm" id="addFamilyMember">
-                  + Dodaj člana porodice
-                </button>
+                <div class="form-group">
+                  <label for="familyMembersText">Ožalošćeni članovi porodice</label>
+                  <textarea 
+                    id="familyMembersText" 
+                    name="family_members_text" 
+                    rows="3"
+                    placeholder="npr. supruga Fatima, sinovi Haris, Almir i Semir, kćerke Amina i Lamija"
+                  >${this.state.family_members_text || ""}</textarea>
+                  <small class="form-hint">Unesite imena i srodstvo članova porodice koji žale preminulu osobu</small>
+                  ${this.renderFieldError("family_members_text")}
+                </div>
               </div>
 
               <!-- Kategorija -->
@@ -425,9 +426,6 @@ export class PostCreateForm {
               <button type="button" class="btn btn-secondary" id="backToFormBtn">
                 Nazad na formu
               </button>
-              <button type="button" class="btn btn-outline" id="editHtmlBtn">
-                Edituj HTML
-              </button>
               <button type="button" class="btn btn-primary" id="publishBtn">
                 Objavi ovako
               </button>
@@ -510,7 +508,6 @@ export class PostCreateForm {
     const form = this.element.querySelector("#postCreateForm");
     const cancelBtn = this.element.querySelector("#cancelBtn");
     const previewBtn = this.element.querySelector("#previewBtn");
-    const addFamilyBtn = this.element.querySelector("#addFamilyMember");
     const addHatarBtn = this.element.querySelector("#addHatarSession");
 
     if (form) {
@@ -524,19 +521,6 @@ export class PostCreateForm {
       inputs.forEach((input) => {
         input.addEventListener("input", this.handleInputChange);
         input.addEventListener("change", this.handleInputChange);
-      });
-
-      // Family member input listeners
-      form.addEventListener("input", (e) => {
-        if (e.target.name && e.target.name.startsWith("family_")) {
-          this.handleFamilyMemberChange(e);
-        }
-      });
-
-      form.addEventListener("change", (e) => {
-        if (e.target.name && e.target.name.startsWith("family_")) {
-          this.handleFamilyMemberChange(e);
-        }
       });
 
       // Hatar session input listeners
@@ -554,10 +538,6 @@ export class PostCreateForm {
 
       // Remove listeners
       form.addEventListener("click", (e) => {
-        if (e.target.classList.contains("remove-family-member")) {
-          const index = parseInt(e.target.dataset.index);
-          this.removeFamilyMember(index);
-        }
         if (e.target.classList.contains("remove-hatar-session")) {
           const index = parseInt(e.target.dataset.index);
           this.removeHatarSession(index);
@@ -571,10 +551,6 @@ export class PostCreateForm {
 
     if (previewBtn) {
       previewBtn.addEventListener("click", () => this.showPreview());
-    }
-
-    if (addFamilyBtn) {
-      addFamilyBtn.addEventListener("click", () => this.addFamilyMember());
     }
 
     if (addHatarBtn) {
@@ -1508,21 +1484,13 @@ export class PostCreateForm {
   }
 
   renderFamilyMembersPreview() {
-    const validMembers = this.state.family_members.filter((m) => m.name.trim());
-    if (validMembers.length === 0) return "";
+    const familyText = this.state.family_members_text?.trim();
+    if (!familyText) return "";
 
     return `
       <div class="family-members">
         <p><strong>Ožalošćeni:</strong></p>
-        <div class="family-list">
-          ${validMembers
-            .map(
-              (member) => `
-            <span class="family-member">${member.relationship}: ${member.name}</span>
-          `
-            )
-            .join("")}
-        </div>
+        <p class="family-text">${familyText}</p>
       </div>
     `;
   }
@@ -1557,11 +1525,6 @@ export class PostCreateForm {
   }
 
   collectFormData() {
-    // Filter valid family members
-    const validFamilyMembers = this.state.family_members.filter((m) =>
-      m.name.trim()
-    );
-
     // Filter valid hatar sessions (must have date and location)
     const validHatarSessions = this.state.hatar_sessions.filter(
       (s) => s.session_date && s.session_location && s.session_location.trim()
@@ -1603,7 +1566,7 @@ export class PostCreateForm {
       // Categories and metadata
       category_id: this.getCategoryId(this.state.category_slug) || 1,
       cemetery_id: this.state.cemetery_id ? parseInt(this.state.cemetery_id) : null,
-      family_members: validFamilyMembers, // Send as array
+      family_members_text: this.state.family_members_text?.trim() || null,
       hatar_sessions: validHatarSessions, // Send as array
       is_featured: this.state.is_featured || false,
       status: "pending", // Will be reviewed by admin

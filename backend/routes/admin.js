@@ -144,6 +144,39 @@ router.get(
   }
 );
 
+// Get all posts (admin only)
+router.get(
+  "/posts/all",
+  authenticateToken,
+  requireAdmin,
+  async (req, res) => {
+    try {
+      const allPosts = await executeQuery(`
+      SELECT 
+        p.id,
+        p.deceased_name,
+        p.dzenaza_location as city,
+        p.created_at,
+        p.status,
+        p.is_premium,
+        p.is_featured,
+        u.username,
+        u.full_name
+      FROM posts p
+      JOIN users u ON p.user_id = u.id
+      ORDER BY p.created_at DESC
+    `);
+
+      res.json(allPosts);
+    } catch (error) {
+      console.error("Error fetching all posts:", error);
+      res.status(500).json({
+        error: "Greška pri dohvatanju svih objava",
+      });
+    }
+  }
+);
+
 // Update post status (moderator or admin)
 router.put(
   "/posts/:id/status",
@@ -293,6 +326,62 @@ router.put(
       console.error("Error updating user status:", error);
       res.status(500).json({
         error: "Greška pri ažuriranju korisnika",
+      });
+    }
+  }
+);
+
+// Toggle featured status for a post
+router.put(
+  "/posts/:id/featured",
+  authenticateToken,
+  requireAdmin,
+  async (req, res) => {
+    try {
+      const { id } = req.params;
+      const { is_featured } = req.body;
+
+      await executeQuery(
+        "UPDATE posts SET is_featured = ? WHERE id = ?",
+        [is_featured ? 1 : 0, id]
+      );
+
+      res.json({
+        success: true,
+        message: is_featured ? "Objava je istaknuta" : "Objava više nije istaknuta",
+      });
+    } catch (error) {
+      console.error("Toggle featured error:", error);
+      res.status(500).json({
+        error: "Greška pri promeni statusa istaknute objave",
+      });
+    }
+  }
+);
+
+// Toggle premium status for a post
+router.put(
+  "/posts/:id/premium",
+  authenticateToken,
+  requireAdmin,
+  async (req, res) => {
+    try {
+      const { id } = req.params;
+      const { is_premium } = req.body;
+
+      await executeQuery(
+        "UPDATE posts SET is_premium = ? WHERE id = ?",
+        [is_premium ? 1 : 0, id]
+      );
+
+      res.json({
+        success: true,
+        message: is_premium ? "Objava je postavljena kao premium" : "Objava je uklonjena iz premium",
+      });
+    } catch (error) {
+      console.error("Toggle premium error:", error);
+      res.status(500).json({
+        error: "Greška pri promeni premium statusa",
       });
     }
   }

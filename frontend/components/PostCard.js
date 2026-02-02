@@ -54,6 +54,7 @@ export class PostCard {
       cemetery_name,
       cemetery_city,
       family_members,
+      family_members_text,
       hatar_sessions,
       author_name,
       username,
@@ -81,9 +82,14 @@ export class PostCard {
           : null)
     );
 
-    // Parse family members (if stored as JSON string)
+    // Parse family members - use new text field if available, otherwise fall back to old array
     let familyList = "";
-    if (family_members) {
+    
+    if (family_members_text) {
+      // Use new text field directly
+      familyList = family_members_text.trim();
+    } else if (family_members) {
+      // Fallback to old array format for backward compatibility
       try {
         const members =
           typeof family_members === "string"

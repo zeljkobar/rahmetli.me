@@ -947,3 +947,116 @@
 .cemeteries-table .btn-delete:hover {
   background: #dc2626;
 }
+/* All Posts Table Styles */
+#all-posts-table {
+  margin-top: 30px;
+}
+
+.all-posts-filters {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1fr 1fr;
+  gap: 12px;
+  margin-bottom: 20px;
+  padding: 15px;
+  background: #f9fafb;
+  border-radius: 8px;
+}
+
+.all-posts-filters input,
+.all-posts-filters select {
+  padding: 10px 14px;
+  border: 1px solid #d1d5db;
+  border-radius: 6px;
+  font-size: 0.95rem;
+  background: white;
+  transition: border-color 0.2s ease;
+}
+
+.all-posts-filters input:focus,
+.all-posts-filters select:focus {
+  outline: none;
+  border-color: #667eea;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+.all-posts-filters input::placeholder {
+  color: #9ca3af;
+}
+
+#all-posts-table .admin-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: white;
+  border-radius: 8px;
+  overflow: hidden;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+#all-posts-table .admin-table thead {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+}
+
+#all-posts-table .admin-table th {
+  padding: 15px;
+  text-align: left;
+  font-weight: 600;
+  font-size: 0.95rem;
+  border: none;
+}
+
+#all-posts-table .admin-table td {
+  padding: 12px 15px;
+  color: #1f2937;
+  border-bottom: 1px solid #e5e7eb;
+  font-size: 0.9rem;
+}
+
+#all-posts-table .admin-table tbody tr:hover {
+  background: #f9fafb;
+}
+
+#all-posts-table .status-badge {
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 12px;
+  font-size: 0.85rem;
+  font-weight: 500;
+}
+
+#all-posts-table .status-pending {
+  background: #fef3c7;
+  color: #92400e;
+}
+
+#all-posts-table .status-approved {
+  background: #d1fae5;
+  color: #065f46;
+}
+
+#all-posts-table .status-rejected {
+  background: #fee2e2;
+  color: #991b1b;
+}
+
+#all-posts-table .status-draft {
+  background: #e0e7ff;
+  color: #3730a3;
+}
+
+#all-posts-table .action-buttons {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+#all-posts-table .btn-outline {
+  background: #f3f4f6;
+  color: #6b7280;
+  border: 1px solid #d1d5db;
+}
+
+#all-posts-table .btn-outline:hover {
+  background: #e5e7eb;
+  color: #374151;
+}

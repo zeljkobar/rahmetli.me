@@ -51,8 +51,7 @@ router.get("/", validateSearch, optionalAuth, async (req, res) => {
 
     // Build WHERE conditions based on search parameters
     let whereConditions = [
-      "p.status = ?",
-      "(p.expires_at IS NULL OR p.expires_at > NOW())",
+      "p.status = ?"
     ];
     let queryParams = ["approved"];
 
@@ -248,7 +247,7 @@ router.get("/:id", validateId, optionalAuth, async (req, res) => {
       [postId]
     );
 
-    // Get family members
+    // Get family members (keep for backward compatibility with old posts)
     const familyMembers = await executeQuery(
       "SELECT * FROM family_members WHERE post_id = ? ORDER BY sort_order, id",
       [postId]
@@ -286,7 +285,7 @@ router.get("/:id", validateId, optionalAuth, async (req, res) => {
       post: {
         ...post,
         images: formattedImages,
-        family_members: familyMembers,
+        family_members: familyMembers.length > 0 ? familyMembers : null, // Return null if empty for new posts
         hatar_sessions: hatarSessions,
         comments,
       },
@@ -320,7 +319,7 @@ router.post("/", authenticateToken, async (req, res) => {
       generated_html,
       is_custom_edited = false,
       is_premium = false,
-      family_members = [],
+      family_members_text = null,
       hatar_sessions = [],
     } = req.body;
 
@@ -352,8 +351,9 @@ router.post("/", authenticateToken, async (req, res) => {
                 dzenaza_date, dzenaza_time, dzenaza_location,
                 burial_cemetery, burial_location,
                 generated_html, custom_html, is_custom_edited,
-                is_premium, expires_at, slug, status
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                family_members_text,
+                is_premium, is_featured, expires_at, slug, status
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         `,
       [
         userId,
@@ -372,7 +372,9 @@ router.post("/", authenticateToken, async (req, res) => {
         generated_html || null,
         custom_html || null,
         is_custom_edited,
+        family_members_text || null,
         is_premium,
+        1, // is_featured = 1 by default
         expiresAt,
         slug,
         "pending",
@@ -380,19 +382,6 @@ router.post("/", authenticateToken, async (req, res) => {
     );
 
     const postId = result.insertId;
-
-    // Insert family members if provided
-    if (family_members && family_members.length > 0) {
-      for (let i = 0; i < family_members.length; i++) {
-        const member = family_members[i];
-        if (member.name && member.name.trim()) {
-          await executeQuery(
-            "INSERT INTO family_members (post_id, name, relationship, sort_order) VALUES (?, ?, ?, ?)",
-            [postId, member.name.trim(), member.relationship || "", i + 1]
-          );
-        }
-      }
-    }
 
     // Insert hatar sessions if provided
     if (hatar_sessions && hatar_sessions.length > 0) {
@@ -572,7 +561,7 @@ router.put(
         category_id,
         custom_html,
         is_custom_edited,
-        family_members = [],
+        family_members_text = null,
         hatar_sessions = [],
       } = req.body;
 
@@ -593,7 +582,8 @@ router.put(
                 burial_cemetery = ?, 
                 burial_location = ?, 
                 custom_html = ?, 
-                is_custom_edited = ?, 
+                is_custom_edited = ?,
+                family_members_text = ?,
                 status = ?,
                 updated_at = NOW()
             WHERE id = ?
@@ -613,25 +603,14 @@ router.put(
           burial_location || null,
           custom_html || null,
           is_custom_edited || false,
+          family_members_text || null,
           status,
           postId,
         ]
       );
 
-      // Delete existing family members and hatar sessions
-      await executeQuery("DELETE FROM family_members WHERE post_id = ?", [postId]);
+      // Delete existing hatar sessions
       await executeQuery("DELETE FROM hatar_sessions WHERE post_id = ?", [postId]);
-
-      // Insert updated family members
-      if (family_members && family_members.length > 0) {
-        for (let i = 0; i < family_members.length; i++) {
-          const member = family_members[i];
-          await executeQuery(
-            "INSERT INTO family_members (post_id, relationship, name, sort_order) VALUES (?, ?, ?, ?)",
-            [postId, member.relationship, member.name, i + 1]
-          );
-        }
-      }
 
       // Insert updated hatar sessions
       if (hatar_sessions && hatar_sessions.length > 0) {
