@@ -79,8 +79,8 @@ const validatePost = [
 
   body("dzenaza_time")
     .optional()
-    .matches(/^([01]?[0-9]|2[0-3]):[0-5][0-9]$/)
-    .withMessage("Neispravno vrijeme dženaze (HH:MM)"),
+    .matches(/^([01]?[0-9]|2[0-3]):[0-5][0-9](:[0-5][0-9])?$/)
+    .withMessage("Neispravno vrijeme dženaze (HH:MM ili HH:MM:SS)"),
 
   body("dzenaza_location")
     .optional()

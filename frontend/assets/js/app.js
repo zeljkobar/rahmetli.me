@@ -252,6 +252,9 @@ class App {
         this.showAdminPage();
       } else if (path === "/subscription-payment") {
         this.showSubscriptionPaymentPage();
+      } else if (path.startsWith("/edit-post/")) {
+        const postId = path.split("/")[2];
+        this.showEditPostPage(postId);
       } else if (path.startsWith("/korisnik/")) {
         const userId = path.split("/")[2];
         this.showUserProfilePage(userId);
@@ -819,6 +822,93 @@ class App {
         console.error("Failed to render post form:", error);
         showToast("Greška pri učitavanju forme", "error");
       });
+  }
+
+  async showEditPostPage(postId) {
+    const mainContent = document.getElementById("mainContent");
+
+    // Check if user is authenticated
+    if (!AuthManager.isAuthenticated()) {
+      showToast("Morate se prijaviti da biste izmenili objavu", "warning");
+      this.navigate("/");
+      return;
+    }
+
+    try {
+      showLoading();
+
+      // Fetch post details
+      const response = await api.get(`/posts/${postId}`);
+      const post = response.post;
+
+      if (!post) {
+        this.show404();
+        return;
+      }
+
+      // Check if user owns the post
+      const currentUser = AuthManager.getCurrentUser();
+      if (post.user_id !== currentUser.id && currentUser.role !== "admin") {
+        showToast("Nemate dozvolu za izmenu ove objave", "error");
+        this.navigate("/profil");
+        return;
+      }
+
+      hideLoading();
+
+      // Render edit page
+      mainContent.innerHTML = `
+        <div class="edit-post-page">
+          <div class="container">
+            <div class="edit-post-header">
+              <button class="btn btn-secondary" id="backToProfileBtn">
+                <i class="fas fa-arrow-left"></i> Nazad na profil
+              </button>
+              <h2>Izmena objave</h2>
+            </div>
+            <div id="editPostFormContainer"></div>
+          </div>
+        </div>
+      `;
+
+      // Back button
+      document.getElementById("backToProfileBtn").addEventListener("click", () => {
+        this.navigate("/profil");
+      });
+
+      // Create and show edit form
+      const postForm = new PostCreateForm(
+        (postData) => {
+          // Success callback - post updated
+          showToast("Objava je uspešno izmenjena!", "success");
+          this.navigate("/profil");
+        },
+        () => {
+          // Cancel callback
+          this.navigate("/profil");
+        },
+        post // Pass existing post data for editing
+      );
+
+      // Render form in container
+      const modalElement = await postForm.render();
+      const formContainer = document.getElementById("editPostFormContainer");
+      
+      // Remove modal overlay classes since we're not using modal
+      modalElement.classList.remove('post-create-modal');
+      const modalOverlay = modalElement.querySelector('.modal-overlay');
+      if (modalOverlay) {
+        modalOverlay.style.position = 'relative';
+        modalOverlay.style.background = 'none';
+      }
+      
+      formContainer.appendChild(modalElement);
+    } catch (error) {
+      console.error("Error loading post for edit:", error);
+      hideLoading();
+      showToast("Greška pri učitavanju objave", "error");
+      this.navigate("/profil");
+    }
   }
 
   async showAdminPage() {
@@ -1720,5 +1810,5 @@ class App {
 
 // Initialize app when DOM is loaded
 document.addEventListener("DOMContentLoaded", () => {
-  new App();
+  window.app = new App();
 });

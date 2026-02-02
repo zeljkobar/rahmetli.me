@@ -17,7 +17,7 @@ class AdminDashboard {
   }
 
   async init() {
-    if (!this.currentUser || this.currentUser.role !== "admin") {
+    if (!this.currentUser || !['admin', 'moderator'].includes(this.currentUser.role)) {
       this.container.innerHTML =
         '<div class="alert alert-danger">Nemate dozvolu za pristup admin panelu</div>';
       return;
@@ -164,10 +164,12 @@ class AdminDashboard {
   }
 
   render() {
+    const isAdmin = this.currentUser.role === 'admin';
+    
     this.container.innerHTML = `
       <div class="admin-dashboard">
         <div class="admin-header">
-          <h2><i class="fas fa-shield-alt"></i> Admin Panel</h2>
+          <h2><i class="fas fa-shield-alt"></i> ${isAdmin ? 'Admin' : 'Moderator'} Panel</h2>
           <p>Dobrodošli, ${
             this.currentUser.full_name || this.currentUser.username
           }</p>
@@ -180,12 +182,14 @@ class AdminDashboard {
           <button class="nav-btn" data-tab="posts">
             <i class="fas fa-newspaper"></i> Objave
           </button>
+          ${isAdmin ? `
           <button class="nav-btn" data-tab="users">
             <i class="fas fa-users"></i> Korisnici
           </button>
           <button class="nav-btn" data-tab="subscriptions">
             <i class="fas fa-credit-card"></i> Pretplate
           </button>
+          ` : ''}
           <button class="nav-btn" data-tab="cemeteries">
             <i class="fas fa-mosque"></i> Mezaristani
             <span class="badge" id="new-cemeteries-badge" style="display: none;">0</span>
@@ -234,6 +238,7 @@ class AdminDashboard {
           </div>
         </div>
 
+        ${isAdmin ? `
         <!-- Users Tab -->
         <div class="admin-section tab-content" id="users-tab" style="display: none;">
           <h3><i class="fas fa-users"></i> Registrovani korisnici</h3>
@@ -250,6 +255,7 @@ class AdminDashboard {
             <div class="loading">Učitavanje...</div>
           </div>
         </div>
+        ` : ''}
 
         <!-- Stats Tab -->
         <div class="admin-section tab-content" id="stats-tab" style="display: none;">
@@ -259,6 +265,7 @@ class AdminDashboard {
           </div>
         </div>
 
+        ${isAdmin ? `
         <!-- Subscriptions Tab -->
         <div class="admin-section tab-content" id="subscriptions-tab" style="display: none;">
           <h3><i class="fas fa-credit-card"></i> Upravljanje pretplatama</h3>
@@ -281,6 +288,7 @@ class AdminDashboard {
             <div class="loading">Učitavanje...</div>
           </div>
         </div>
+        ` : ''}
 
         <!-- Cemeteries Tab -->
         <div class="admin-section tab-content" id="cemeteries-tab" style="display: none;">
@@ -606,13 +614,20 @@ class AdminDashboard {
                   </span>
                 </td>
                 <td>
-                  <button class="btn btn-sm ${
-                    user.is_active ? "btn-warning" : "btn-success"
-                  } user-toggle-btn" 
-                          data-id="${user.id}" data-active="${user.is_active}">
-                    <i class="fas fa-${user.is_active ? "ban" : "check"}"></i>
-                    ${user.is_active ? "Deaktiviraj" : "Aktiviraj"}
-                  </button>
+                  <div class="user-actions-group">
+                    <select class="user-role-select" data-id="${user.id}" data-current-role="${user.role}">
+                      <option value="user" ${user.role === 'user' ? 'selected' : ''}>Korisnik</option>
+                      <option value="moderator" ${user.role === 'moderator' ? 'selected' : ''}>Moderator</option>
+                      <option value="admin" ${user.role === 'admin' ? 'selected' : ''}>Admin</option>
+                    </select>
+                    <button class="btn btn-sm ${
+                      user.is_active ? "btn-warning" : "btn-success"
+                    } user-toggle-btn" 
+                            data-id="${user.id}" data-active="${user.is_active}">
+                      <i class="fas fa-${user.is_active ? "ban" : "check"}"></i>
+                      ${user.is_active ? "Deaktiviraj" : "Aktiviraj"}
+                    </button>
+                  </div>
                 </td>
               </tr>
             `
@@ -629,6 +644,19 @@ class AdminDashboard {
         const userId = parseInt(e.currentTarget.dataset.id);
         const isActive = e.currentTarget.dataset.active === "true";
         this.toggleUserStatus(userId, !isActive);
+      });
+    });
+
+    // Add event listeners for role select dropdowns
+    container.querySelectorAll(".user-role-select").forEach((select) => {
+      select.addEventListener("change", (e) => {
+        const userId = parseInt(e.currentTarget.dataset.id);
+        const currentRole = e.currentTarget.dataset.currentRole;
+        const newRole = e.currentTarget.value;
+        
+        if (newRole !== currentRole) {
+          this.changeUserRole(userId, newRole, currentRole, e.currentTarget);
+        }
       });
     });
   }
@@ -648,6 +676,41 @@ class AdminDashboard {
     } catch (error) {
       console.error("Error updating user:", error);
       this.showNotification("Greška pri ažuriranju korisnika", "error");
+    }
+  }
+
+  async changeUserRole(userId, newRole, currentRole, selectElement) {
+    const roleLabels = {
+      user: 'Korisnik',
+      moderator: 'Moderator',
+      admin: 'Administrator'
+    };
+
+    if (!confirm(`Da li ste sigurni da želite promeniti ulogu u ${roleLabels[newRole]}?`)) {
+      // Reset select to current role if user cancels
+      selectElement.value = currentRole;
+      return;
+    }
+
+    try {
+      await this.api.request(`/admin/users/${userId}/role`, {
+        method: "PUT",
+        body: JSON.stringify({ role: newRole }),
+      });
+
+      this.showNotification(
+        `Uloga korisnika je promenjena u ${roleLabels[newRole]}`,
+        "success"
+      );
+      this.loadUsers();
+    } catch (error) {
+      console.error("Error updating user role:", error);
+      this.showNotification(
+        error.error || "Greška pri promeni uloge korisnika",
+        "error"
+      );
+      // Reset select to current role on error
+      selectElement.value = currentRole;
     }
   }
 

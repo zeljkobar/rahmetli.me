@@ -368,8 +368,12 @@ router.get("/me/posts", authenticateToken, async (req, res) => {
     }
 
     const posts = await executeQuery(
-      "SELECT p.id, p.deceased_name, p.status, p.created_at, p.updated_at, cat.name as category_name FROM posts p LEFT JOIN categories cat ON p.category_id = cat.id WHERE p.user_id = ? ORDER BY p.created_at DESC",
-      [userId]
+      `SELECT p.id, p.deceased_name, p.status, p.created_at, p.updated_at, cat.name as category_name 
+       FROM posts p 
+       LEFT JOIN categories cat ON p.category_id = cat.id 
+       ${whereClause}
+       ORDER BY p.created_at DESC`,
+      params
     );
 
     // Get total count

@@ -7,16 +7,39 @@ import {
 } from "../utils/validation.js";
 
 export class PostCreateForm {
-  constructor(onSuccess, onCancel) {
+  constructor(onSuccess, onCancel, existingPost = null) {
     this.onSuccess = onSuccess;
     this.onCancel = onCancel;
+    this.existingPost = existingPost; // For editing existing posts
+    this.isEditMode = !!existingPost;
     this.element = null;
     this.isLoading = false;
     this.uploadedImages = [];
     this.categories = [];
     this.cemeteries = [];
 
-    this.state = {
+    this.state = this.initializeState(existingPost);
+
+    // Workflow states
+    this.currentStep = "form"; // "form" | "preview" | "edit"
+    this.generatedPreview = "";
+    this.editedHtml = "";
+
+    // Bind additional methods
+    this.showPreview = this.showPreview.bind(this);
+    this.showEditMode = this.showEditMode.bind(this);
+    this.backToForm = this.backToForm.bind(this);
+    this.saveAndPublish = this.saveAndPublish.bind(this);
+
+    this.handleSubmit = this.handleSubmit.bind(this);
+    this.handleInputChange = this.handleInputChange.bind(this);
+    this.handleImageUpload = this.handleImageUpload.bind(this);
+    this.removeImage = this.removeImage.bind(this);
+  }
+
+  initializeState(existingPost) {
+    // Default state for new post
+    const defaultState = {
       // Osnovni podaci
       deceased_name: "",
       date_of_birth: "",
@@ -60,21 +83,47 @@ export class PostCreateForm {
       errors: {},
     };
 
-    // Workflow states
-    this.currentStep = "form"; // "form" | "preview" | "edit"
-    this.generatedPreview = "";
-    this.editedHtml = "";
+    // If editing existing post, populate with existing data
+    if (existingPost) {
+      // Helper function to convert ISO date to yyyy-MM-dd
+      const formatDateForInput = (dateString) => {
+        if (!dateString) return "";
+        const date = new Date(dateString);
+        if (isNaN(date.getTime())) return "";
+        return date.toISOString().split('T')[0];
+      };
 
-    // Bind additional methods
-    this.showPreview = this.showPreview.bind(this);
-    this.showEditMode = this.showEditMode.bind(this);
-    this.backToForm = this.backToForm.bind(this);
-    this.saveAndPublish = this.saveAndPublish.bind(this);
+      return {
+        ...defaultState,
+        deceased_name: existingPost.deceased_name || "",
+        date_of_birth: formatDateForInput(existingPost.deceased_birth_date),
+        date_of_death: formatDateForInput(existingPost.deceased_death_date),
+        gender: existingPost.deceased_gender || "male",
+        biography: existingPost.biography || "",
+        cemetery_id: existingPost.cemetery_id || "",
+        burial_date: formatDateForInput(existingPost.dzenaza_date || existingPost.deceased_death_date),
+        burial_time: existingPost.dzenaza_time || "13:00",
+        category_slug: existingPost.category_slug || "dzenaza",
+        custom_html: "", // Keep empty when editing - user can add new custom HTML if needed
+        // Parse family members and hatar sessions if they exist
+        family_members: existingPost.family_members 
+          ? (typeof existingPost.family_members === 'string' 
+              ? JSON.parse(existingPost.family_members) 
+              : existingPost.family_members)
+          : defaultState.family_members,
+        hatar_sessions: existingPost.hatar_sessions && existingPost.hatar_sessions.length > 0
+          ? existingPost.hatar_sessions.map(session => ({
+              session_date: formatDateForInput(session.session_date),
+              session_time_start: session.session_time_start || "",
+              session_time_end: session.session_time_end || "",
+              session_location: session.session_location || "",
+              session_note: session.session_note || ""
+            }))
+          : defaultState.hatar_sessions,
+      };
+    }
 
-    this.handleSubmit = this.handleSubmit.bind(this);
-    this.handleInputChange = this.handleInputChange.bind(this);
-    this.handleImageUpload = this.handleImageUpload.bind(this);
-    this.removeImage = this.removeImage.bind(this);
+    return defaultState;
   }
 
   async render() {
@@ -109,8 +158,8 @@ export class PostCreateForm {
   renderFormStep() {
     return `
           <div class="modal-header">
-            <h2>Nova objava - Korak 1</h2>
-            <p>Dodajte informacije o preminuloj osobi</p>
+            <h2>${this.isEditMode ? 'Izmena objave - Korak 1' : 'Nova objava - Korak 1'}</h2>
+            <p>${this.isEditMode ? 'Ažurirajte informacije o preminuloj osobi' : 'Dodajte informacije o preminuloj osobi'}</p>
             <button class="modal-close-btn" type="button" aria-label="Zatvori">
               <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <line x1="18" y1="6" x2="6" y2="18"/>
@@ -1552,8 +1601,8 @@ export class PostCreateForm {
       burial_location: null,
 
       // Categories and metadata
-      category_id: this.getCategoryId(this.state.category_slug),
-      cemetery_id: this.state.cemetery_id,
+      category_id: this.getCategoryId(this.state.category_slug) || 1,
+      cemetery_id: this.state.cemetery_id ? parseInt(this.state.cemetery_id) : null,
       family_members: validFamilyMembers, // Send as array
       hatar_sessions: validHatarSessions, // Send as array
       is_featured: this.state.is_featured || false,
@@ -1658,15 +1707,21 @@ export class PostCreateForm {
 
       console.log("Sending post data:", postData);
 
-      const response = await api.createPost(postData);
+      // Use update API for edit mode, create API for new posts
+      let response;
+      if (this.isEditMode && this.existingPost) {
+        response = await api.updatePost(this.existingPost.id, postData);
+      } else {
+        response = await api.createPost(postData);
+      }
 
       console.log("API response:", response);
 
-      if (response.success || response.post) {
+      if (response.success || response.post || response.message) {
         this.setLoading(false);
 
         // Show success message
-        this.showSuccessMessage();
+        this.showSuccessMessage(this.isEditMode);
 
         // Close modal after delay
         setTimeout(() => {
@@ -1676,7 +1731,7 @@ export class PostCreateForm {
 
         return; // Exit early to avoid setLoading(false) in finally
       } else {
-        throw new Error(response.error || "Greška pri kreiranju objave");
+        throw new Error(response.error || `Greška pri ${this.isEditMode ? 'izmeni' : 'kreiranju'} objave`);
       }
     } catch (error) {
       console.error("Save and publish error:", error);
@@ -1686,19 +1741,22 @@ export class PostCreateForm {
     }
   }
 
-  showSuccessMessage() {
+  showSuccessMessage(isEdit = false) {
     const modalContent = this.element.querySelector(".modal-container");
     if (modalContent) {
       modalContent.innerHTML = `
         <div class="modal-header">
-          <h2>Objava poslata</h2>
+          <h2>${isEdit ? 'Objava izmenjena' : 'Objava poslata'}</h2>
         </div>
         <div class="success-message" style="padding: 3rem; text-align: center;">
           <div style="font-size: 4rem; margin-bottom: 1.5rem;">✅</div>
-          <h3 style="color: #006233; font-size: 1.5rem; margin-bottom: 1rem;">Objava je uspješno poslata!</h3>
+          <h3 style="color: #006233; font-size: 1.5rem; margin-bottom: 1rem;">
+            ${isEdit ? 'Objava je uspješno izmenjena!' : 'Objava je uspješno poslata!'}
+          </h3>
           <p style="color: #6b7280; font-size: 1.1rem; line-height: 1.6;">
-            Vaša objava je predata i čeka se odobrenje administratora.<br>
-            Bićete obaviješteni kada objava bude objavljena.
+            ${isEdit 
+              ? 'Vaša objava je ažurirana i ponovo čeka odobrenje administratora.<br>Bićete obaviješteni kada izmene budu odobrene.' 
+              : 'Vaša objava je predata i čeka se odobrenje administratora.<br>Bićete obaviješteni kada objava bude objavljena.'}
           </p>
           <div style="margin-top: 2rem;">
             <div class="loading-spinner" style="width: 40px; height: 40px; margin: 0 auto;"></div>

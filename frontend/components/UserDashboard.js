@@ -253,8 +253,18 @@ export class UserDashboard {
       // Status filter
       const statusFilter = this.element.querySelector("#status-filter");
       if (statusFilter) {
-        statusFilter.addEventListener("change", () => this.loadUserPosts());
+        statusFilter.addEventListener("change", () => {
+          this.loadUserPosts();
+        });
       }
+
+      // Edit buttons
+      this.element.addEventListener("click", (e) => {
+        if (e.target.hasAttribute("data-edit-id")) {
+          const postId = e.target.getAttribute("data-edit-id");
+          window.app.navigate(`/edit-post/${postId}`);
+        }
+      });
     } catch (error) {
       console.error("Error attaching event listeners:", error);
     }
@@ -348,6 +358,11 @@ export class UserDashboard {
           <a href="#/post/${
             post.id
           }" class="btn btn-sm btn-outline">Pogledaj</a>
+          ${
+            post.status !== "rejected"
+              ? `<button class="btn btn-sm btn-primary" data-edit-id="${post.id}">Izmeni</button>`
+              : ""
+          }
         </div>
       </div>
     `
@@ -408,7 +423,7 @@ export class UserDashboard {
 
       // Add event listener for reload button
       setTimeout(() => {
-        const reloadBtn = container.querySelector(".reload-btn");
+        const reloadBtn = postsList.querySelector(".reload-btn");
         if (reloadBtn) {
           reloadBtn.addEventListener("click", () => location.reload());
         }

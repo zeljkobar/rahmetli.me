@@ -1,0 +1,53 @@
+/* Edit Post Page Styles */
+.edit-post-page {
+  min-height: calc(100vh - 200px);
+  padding: 2rem 0;
+}
+
+.edit-post-header {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+  padding-bottom: 1rem;
+  border-bottom: 2px solid #e5e7eb;
+}
+
+.edit-post-header h2 {
+  margin: 0;
+  color: #1f2937;
+  font-size: 1.75rem;
+}
+
+#editPostFormContainer {
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  overflow: hidden;
+}
+
+/* Override modal styles when embedded in page */
+#editPostFormContainer .modal-overlay {
+  position: static;
+  background: transparent;
+}
+
+#editPostFormContainer .modal-container {
+  max-width: 100%;
+  margin: 0;
+  box-shadow: none;
+  max-height: none;
+  overflow: visible;
+}
+
+@media (max-width: 768px) {
+  .edit-post-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
+  
+  .edit-post-header h2 {
+    font-size: 1.5rem;
+  }
+}

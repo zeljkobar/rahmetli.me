@@ -525,6 +525,10 @@ router.put(
   "/:id",
   authenticateToken,
   validateId,
+  (req, res, next) => {
+    console.log("PUT /posts/:id - Request body:", JSON.stringify(req.body, null, 2));
+    next();
+  },
   validatePost,
   async (req, res) => {
     try {
@@ -554,25 +558,44 @@ router.put(
       const status = userRole === "admin" ? existingPost.status : "pending";
 
       const {
-        content, // will be mapped to custom_html
         deceased_name,
         deceased_birth_date,
         deceased_death_date,
-        location, // will be mapped to dzenaza_location/burial_cemetery
-        dzamija, // fallback for dzenaza_location
+        deceased_age,
+        deceased_gender,
+        dzenaza_date,
         dzenaza_time,
+        dzenaza_location,
+        burial_cemetery,
+        burial_location,
         cemetery_id,
         category_id,
+        custom_html,
+        is_custom_edited,
+        family_members = [],
+        hatar_sessions = [],
       } = req.body;
 
+      // Update main post data
       await executeQuery(
         `
             UPDATE posts SET 
-                category_id = ?, cemetery_id = ?, 
-                deceased_name = ?, deceased_birth_date = ?, deceased_death_date = ?,
-                dzenaza_date = ?, dzenaza_time = ?, dzenaza_location = ?,
-                burial_cemetery = ?, burial_location = ?, 
-                custom_html = ?, is_custom_edited = ?, status = ?
+                category_id = ?, 
+                cemetery_id = ?, 
+                deceased_name = ?, 
+                deceased_birth_date = ?, 
+                deceased_death_date = ?,
+                deceased_age = ?,
+                deceased_gender = ?,
+                dzenaza_date = ?, 
+                dzenaza_time = ?, 
+                dzenaza_location = ?,
+                burial_cemetery = ?, 
+                burial_location = ?, 
+                custom_html = ?, 
+                is_custom_edited = ?, 
+                status = ?,
+                updated_at = NOW()
             WHERE id = ?
         `,
         [
@@ -581,17 +604,53 @@ router.put(
           deceased_name,
           deceased_birth_date || null,
           deceased_death_date,
-          deceased_death_date, // fallback za dzenaza_date
+          deceased_age || null,
+          deceased_gender || 'male',
+          dzenaza_date || deceased_death_date,
           dzenaza_time || "13:00",
-          location || dzamija || "IKC Bar", // map to dzenaza_location
-          location || "Centralno groblje", // map to burial_cemetery
-          null, // burial_location
-          content || null, // map content to custom_html
-          content ? true : false, // is_custom_edited if content provided
+          dzenaza_location || "IKC Bar",
+          burial_cemetery || null,
+          burial_location || null,
+          custom_html || null,
+          is_custom_edited || false,
           status,
           postId,
         ]
       );
+
+      // Delete existing family members and hatar sessions
+      await executeQuery("DELETE FROM family_members WHERE post_id = ?", [postId]);
+      await executeQuery("DELETE FROM hatar_sessions WHERE post_id = ?", [postId]);
+
+      // Insert updated family members
+      if (family_members && family_members.length > 0) {
+        for (let i = 0; i < family_members.length; i++) {
+          const member = family_members[i];
+          await executeQuery(
+            "INSERT INTO family_members (post_id, relationship, name, sort_order) VALUES (?, ?, ?, ?)",
+            [postId, member.relationship, member.name, i + 1]
+          );
+        }
+      }
+
+      // Insert updated hatar sessions
+      if (hatar_sessions && hatar_sessions.length > 0) {
+        for (let i = 0; i < hatar_sessions.length; i++) {
+          const session = hatar_sessions[i];
+          await executeQuery(
+            "INSERT INTO hatar_sessions (post_id, session_date, session_time_start, session_time_end, session_location, session_note, sort_order) VALUES (?, ?, ?, ?, ?, ?, ?)",
+            [
+              postId,
+              session.session_date || null,
+              session.session_time_start || null,
+              session.session_time_end || null,
+              session.session_location || null,
+              session.session_note || null,
+              i + 1,
+            ]
+          );
+        }
+      }
 
       res.json({
         message: "Objava je uspješno ažurirana",

@@ -1,14 +1,14 @@
 import express from "express";
 const router = express.Router();
 import { executeQuery, executeQuerySingle } from "../config/database.js";
-import { authenticateToken, requireAdmin } from "../middleware/auth.js";
+import { authenticateToken, requireAdmin, requireModerator } from "../middleware/auth.js";
 import { sendNewPostNotification } from "../utils/email.js";
 
-// Get pending comments (admin only)
+// Get pending comments (moderator or admin)
 router.get(
   "/comments/pending",
   authenticateToken,
-  requireAdmin,
+  requireModerator,
   async (req, res) => {
     try {
       const pendingComments = await executeQuery(`
@@ -36,11 +36,11 @@ router.get(
   }
 );
 
-// Update comment status (admin only)
+// Update comment status (moderator or admin)
 router.put(
   "/comments/:id/status",
   authenticateToken,
-  requireAdmin,
+  requireModerator,
   async (req, res) => {
     try {
       const { id } = req.params;
@@ -78,8 +78,8 @@ router.put(
   }
 );
 
-// Get admin statistics
-router.get("/stats", authenticateToken, requireAdmin, async (req, res) => {
+// Get admin statistics (moderator or admin)
+router.get("/stats", authenticateToken, requireModerator, async (req, res) => {
   try {
     const stats = {};
 
@@ -110,11 +110,11 @@ router.get("/stats", authenticateToken, requireAdmin, async (req, res) => {
   }
 });
 
-// Get pending posts (admin only)
+// Get pending posts (moderator or admin)
 router.get(
   "/posts/pending",
   authenticateToken,
-  requireAdmin,
+  requireModerator,
   async (req, res) => {
     try {
       const pendingPosts = await executeQuery(`
@@ -144,11 +144,11 @@ router.get(
   }
 );
 
-// Update post status (admin only)
+// Update post status (moderator or admin)
 router.put(
   "/posts/:id/status",
   authenticateToken,
-  requireAdmin,
+  requireModerator,
   async (req, res) => {
     try {
       const { id } = req.params;
@@ -239,9 +239,11 @@ router.get("/users", authenticateToken, requireAdmin, async (req, res) => {
         u.role,
         u.is_active,
         u.created_at,
-        u.posts_count,
-        u.last_login
+        u.last_login,
+        COUNT(p.id) as posts_count
       FROM users u
+      LEFT JOIN posts p ON u.id = p.user_id
+      GROUP BY u.id, u.username, u.email, u.full_name, u.role, u.is_active, u.created_at, u.last_login
       ORDER BY u.created_at DESC
     `);
 
@@ -296,11 +298,67 @@ router.put(
   }
 );
 
-// Get detailed statistics (admin only)
+// Update user role (admin only)
+router.put(
+  "/users/:id/role",
+  authenticateToken,
+  requireAdmin,
+  async (req, res) => {
+    try {
+      const { id } = req.params;
+      const { role } = req.body;
+
+      // Validate role
+      if (!['user', 'moderator', 'admin'].includes(role)) {
+        return res.status(400).json({
+          error: "Nevalidna uloga. Dozvoljene uloge: user, moderator, admin",
+        });
+      }
+
+      // Don't allow changing own role
+      if (parseInt(id) === req.user.id) {
+        return res.status(400).json({
+          error: "Ne možete promeniti svoju vlastitu ulogu",
+        });
+      }
+
+      // Update user role
+      const result = await executeQuery(
+        "UPDATE users SET role = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?",
+        [role, id]
+      );
+
+      if (result.affectedRows === 0) {
+        return res.status(404).json({
+          error: "Korisnik nije pronađen",
+        });
+      }
+
+      // Get role label
+      const roleLabels = {
+        user: 'Korisnik',
+        moderator: 'Moderator',
+        admin: 'Administrator'
+      };
+
+      res.json({
+        message: `Uloga korisnika je promenjena u ${roleLabels[role]}`,
+        role: role,
+      });
+    } catch (error) {
+      console.error("Error updating user role:", error);
+      res.status(500).json({
+        error: "Greška pri ažuriranju uloge korisnika",
+      });
+    }
+  }
+);
+
+// Get detailed statistics (moderator or admin)
 router.get(
   "/stats/detailed",
   authenticateToken,
-  requireAdmin,
+  requireModerator,
   async (req, res) => {
     try {
       const stats = {};
@@ -536,11 +594,11 @@ router.post(
 
 // ============= CEMETERY MANAGEMENT =============
 
-// Create cemetery
+// Create cemetery (moderator or admin)
 router.post(
   "/cemeteries",
   authenticateToken,
-  requireAdmin,
+  requireModerator,
   async (req, res) => {
     try {
       const { name, city, address, latitude, longitude, description } =
@@ -579,11 +637,11 @@ router.post(
   }
 );
 
-// Update cemetery
+// Update cemetery (moderator or admin)
 router.put(
   "/cemeteries/:id",
   authenticateToken,
-  requireAdmin,
+  requireModerator,
   async (req, res) => {
     try {
       const { id } = req.params;
@@ -624,11 +682,11 @@ router.put(
   }
 );
 
-// Delete cemetery (soft delete)
+// Delete cemetery (soft delete) (moderator or admin)
 router.delete(
   "/cemeteries/:id",
   authenticateToken,
-  requireAdmin,
+  requireModerator,
   async (req, res) => {
     try {
       const { id } = req.params;
