@@ -145,7 +145,6 @@ class AdminDashboard {
       case "posts":
         this.loadPendingPosts();
         this.loadAllPosts();
-        this.setupPostFilters();
         break;
       case "users":
         this.loadUsers();
@@ -249,19 +248,19 @@ class AdminDashboard {
           </div>
 
           <h3 style="margin-top: 40px;"><i class="fas fa-list"></i> Sve objave</h3>
-          <div class="all-posts-filters">
-            <input type="text" id="post-search" placeholder="Pretraži po imenu pokojnika..." />
-            <select id="post-status-filter">
+          <div class="all-posts-filters" style="display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 12px; margin-bottom: 20px; padding: 15px; background: #f9fafb; border-radius: 8px;">
+            <input type="text" id="post-search" placeholder="Pretraži po imenu pokojnika..." style="padding: 10px 14px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 0.95rem;" />
+            <select id="post-status-filter" style="padding: 10px 14px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 0.95rem;">
               <option value="">Svi statusi</option>
               <option value="pending">Na čekanju</option>
               <option value="approved">Odobrene</option>
               <option value="rejected">Odbijene</option>
               <option value="draft">Nacrt</option>
             </select>
-            <select id="post-city-filter">
+            <select id="post-city-filter" style="padding: 10px 14px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 0.95rem;">
               <option value="">Svi gradovi</option>
             </select>
-            <select id="post-premium-filter">
+            <select id="post-premium-filter" style="padding: 10px 14px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 0.95rem;">
               <option value="">Premium status</option>
               <option value="1">Premium</option>
               <option value="0">Obična</option>
@@ -638,6 +637,8 @@ class AdminDashboard {
       this.allPosts = posts;
       this.populateCityFilter(posts);
       this.filterPosts();
+      // Setup filters after DOM is ready
+      setTimeout(() => this.setupPostFilters(), 100);
     } catch (error) {
       console.error("Error loading all posts:", error);
       document.getElementById("all-posts-table").innerHTML =
@@ -802,7 +803,8 @@ class AdminDashboard {
   async editPost(postId) {
     try {
       // Get post details
-      const post = await this.api.request(`/posts/${postId}`);
+      const response = await this.api.request(`/posts/${postId}`);
+      const post = response.post; // Extract post from response
       
       // Create and show edit form modal using imported PostCreateForm
       const postCreateForm = new PostCreateForm(
@@ -817,7 +819,9 @@ class AdminDashboard {
         post
       );
       
-      document.body.appendChild(postCreateForm.render());
+      // Wait for render to complete (it's async)
+      const formElement = await postCreateForm.render();
+      document.body.appendChild(formElement);
     } catch (error) {
       console.error("Error loading post for edit:", error);
       this.showNotification("Greška pri učitavanju objave", "error");

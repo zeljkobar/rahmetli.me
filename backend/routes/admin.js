@@ -144,18 +144,18 @@ router.get(
   }
 );
 
-// Get all posts (admin only)
+// Get all posts (admin and moderator)
 router.get(
   "/posts/all",
   authenticateToken,
-  requireAdmin,
+  requireModerator,
   async (req, res) => {
     try {
       const allPosts = await executeQuery(`
       SELECT 
         p.id,
         p.deceased_name,
-        p.dzenaza_location as city,
+        c.city,
         p.created_at,
         p.status,
         p.is_premium,
@@ -164,6 +164,7 @@ router.get(
         u.full_name
       FROM posts p
       JOIN users u ON p.user_id = u.id
+      LEFT JOIN cemeteries c ON p.cemetery_id = c.id
       ORDER BY p.created_at DESC
     `);
 

@@ -55,10 +55,16 @@ router.get("/", validateSearch, optionalAuth, async (req, res) => {
     ];
     let queryParams = ["approved"];
 
-    // Text search in deceased name
+    // Text search in deceased name - split by words for partial matching
     if (q && q.trim()) {
-      whereConditions.push("p.deceased_name LIKE ?");
-      queryParams.push(`%${q.trim()}%`);
+      const searchWords = q.trim().split(/\s+/).filter(word => word.length > 0);
+      if (searchWords.length > 0) {
+        const wordConditions = searchWords.map(() => "p.deceased_name LIKE ?").join(" AND ");
+        whereConditions.push(`(${wordConditions})`);
+        searchWords.forEach(word => {
+          queryParams.push(`%${word}%`);
+        });
+      }
     }
 
     // Search by type (currently only 'umrlica' supported)
@@ -70,9 +76,9 @@ router.get("/", validateSearch, optionalAuth, async (req, res) => {
     // Location search in burial cemetery and dzenaza location
     if (location && location.trim()) {
       whereConditions.push(
-        "(p.burial_cemetery LIKE ? OR p.dzenaza_location LIKE ?)"
+        "(p.burial_cemetery LIKE ? OR p.dzenaza_location LIKE ? OR cem.city LIKE ?)"
       );
-      queryParams.push(`%${location.trim()}%`, `%${location.trim()}%`);
+      queryParams.push(`%${location.trim()}%`, `%${location.trim()}%`, `%${location.trim()}%`);
     }
 
     // Date filter - posts created after specified date
@@ -172,6 +178,7 @@ router.get("/", validateSearch, optionalAuth, async (req, res) => {
     const totalResult = await executeQuerySingle(
       `SELECT COUNT(*) as total 
        FROM posts p 
+       LEFT JOIN cemeteries cem ON p.cemetery_id = cem.id
        WHERE ${whereClause}`,
       queryParams
     );
@@ -324,6 +331,13 @@ router.post("/", authenticateToken, async (req, res) => {
     } = req.body;
 
     const userId = req.user.id;
+
+    // Validate required fields
+    if (!cemetery_id) {
+      return res.status(400).json({
+        error: "Mezaristan je obavezno polje. Molimo odaberite mezaristan."
+      });
+    }
 
     // Generate slug
     const slug = `${deceased_name
@@ -537,7 +551,7 @@ router.put(
         });
       }
 
-      if (existingPost.user_id !== userId && userRole !== "admin") {
+      if (existingPost.user_id !== userId && userRole !== "admin" && userRole !== "moderator") {
         return res.status(403).json({
           error: "Nemate dozvolu za ažuriranje ove objave",
         });
@@ -564,6 +578,13 @@ router.put(
         family_members_text = null,
         hatar_sessions = [],
       } = req.body;
+
+      // Validate required fields
+      if (!cemetery_id) {
+        return res.status(400).json({
+          error: "Mezaristan je obavezno polje. Molimo odaberite mezaristan."
+        });
+      }
 
       // Update main post data
       await executeQuery(
